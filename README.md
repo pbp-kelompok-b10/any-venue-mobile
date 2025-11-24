@@ -46,7 +46,7 @@ Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencar
         - Owner (Pemilik Venue): Dapat melihat daftar *venue* dan detail *venue* yang dimilikinya.
 
 6. **Review** (Sahila Khairatul Athia):
-   - Memungkinkan `User` untuk berbagi pengalaman mereka terhadap suatu `Venue` melalui sistem `Review` yang interaktif. `User` dapat melakukan operasi CRUD (*Create*, *Read*, *Update*, *Delete*) terhadap *review* untuk *venue* tertentu dengan komentar/ulasan serta *rating* (1-5 bintang). Terdapat juga fitur filtering untuk melihat "All Reviews" atau "My Reviews" secara dinamis.
+   - Memungkinkan `User` untuk berbagi pengalaman mereka terhadap suatu `Venue` melalui sistem `Review` yang interaktif. `User` dapat melakukan operasi CRUD (*Create*, *Read*, *Update*, *Delete*) terhadap `Review` untuk `Venue` tertentu dengan komentar/ulasan serta *rating* (1-5 bintang). Terdapat juga fitur filtering untuk melihat "All Reviews" atau "My Reviews" secara dinamis.
      
 7. **Event** (Naufal Fadli Rabbani):
    -  Modul `Event` merupakan suatu fitur dimana `Owner` dapat menyelengarakan event dan membuka pendaftaran bagi `User` yang mau berpartisipasi. `User` dapat melakukan pendaftaran pada event yang diselenggrakan oleh `Owner`.
