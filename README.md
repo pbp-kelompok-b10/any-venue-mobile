@@ -46,7 +46,7 @@ Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencar
         - Owner (Pemilik Venue): Dapat melihat daftar *venue* dan detail *venue* yang dimilikinya.
 
 6. **Review** (Sahila Khairatul Athia):
-   - Memungkinkan `User` untuk memberikan `Review` terhadap suatu `Venue`. User dapat mengisi form *review* untuk *venue* tertentu dengan komentar/ulasan serta *rating* (1-5 bintang). *Review* yang dikirimkan akan ditampilkan di halaman detail *venue*, bersamaan dengan *review* dari *user* lainnya.
+   - Memungkinkan `User` untuk berbagi pengalaman mereka terhadap suatu `Venue` melalui sistem `Review` yang interaktif. `User` dapat melakukan operasi CRUD (*Create*, *Read*, *Update*, *Delete*) terhadap *review* untuk *venue* tertentu dengan komentar/ulasan serta *rating* (1-5 bintang). Terdapat juga fitur filtering untuk melihat "All Reviews" atau "My Reviews" secara dinamis.
      
 7. **Event** (Naufal Fadli Rabbani):
    -  Modul `Event` merupakan suatu fitur dimana `Owner` dapat menyelengarakan event dan membuka pendaftaran bagi `User` yang mau berpartisipasi. `User` dapat melakukan pendaftaran pada event yang diselenggrakan oleh `Owner`.
@@ -85,6 +85,6 @@ Aplikasi mobile ini terhubung dengan layanan web (Django Framework) yang telah d
 ## 🔗 Tautan Penting
 
 - **Website Deployment:** [AnyVenue Web](https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/)
-- **Desain Figma:** [Lihat Desain di Sini](https://www.figma.com/design/hP4cysHH7mBI8mqyb1ZbYY/AnyVenue?node-id=24-1886&p=f&t=NiUTEK9RizX95Rek-0)
-- **Initial Dataset:** [Google Sheets Dataset](https://docs.google.com/spreadsheets/d/1-ULBMiPrgKrf5jqux1t8zMe6mDMGfZHzvRUlN7DwcL8/edit?usp=sharing)
+- **Desain Figma:** [AnyVenue Prototype Design](https://www.figma.com/design/hP4cysHH7mBI8mqyb1ZbYY/AnyVenue?node-id=24-1886&p=f&t=NiUTEK9RizX95Rek-0)
+- **Initial Dataset:** [AnyVenue Dataset](https://docs.google.com/spreadsheets/d/1-ULBMiPrgKrf5jqux1t8zMe6mDMGfZHzvRUlN7DwcL8/edit?usp=sharing)
 - **Sumber Dataset:** [AYO - Super Sport Community App](https://ayo.co.id/venues)
