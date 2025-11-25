@@ -11,14 +11,9 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   
-  static const Color LightCyan = Color(0xFFE0FBFC); 
-  static const Color PaleCerulean = Color(0xFF98C1D9);
-  static const Color Sunrise = Color(0xFFEE6C4D);
   static const Color Orange = Color(0xFFE9631A); 
-  static const Color LightNavy = Color(0xFF3D5A80);
   static const Color DarkSlate = Color(0xFF315672);
-  static const Color GumetalStale = Color(0xFF293241); 
-  static const Color FlashWhite = Color(0xFFEFEFEF);
+  static const Color GumetalSlate = Color(0xFF293241); 
 
   // This widget is the root of your application.
   @override
