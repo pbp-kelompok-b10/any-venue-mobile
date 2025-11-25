@@ -5,11 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/main.dart';
 
-// ini GW KOMEN KARENA ERROR
-// void main() { 
-//   runApp(const LoginApp());
-// }
-
 class LoginApp extends StatelessWidget {
   const LoginApp({super.key});
 
