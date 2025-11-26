@@ -110,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       // Kirim ke Django
                       final response = await request.postJson(
-                        "http://localhost:8000/auth/register/",
+                        "http://localhost:8000/auth/api/register/",
                         jsonEncode({
                           "username": username,
                           "password1": password1,
