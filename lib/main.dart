@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -10,10 +11,11 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
-  static const Color Orange = Color(0xFFE9631A); 
-  static const Color DarkSlate = Color(0xFF315672);
-  static const Color GumetalSlate = Color(0xFF293241); 
+
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color orange = Color(0xFFE9631A);
+  static const Color darkSlate = Color(0xFF315672);
+  static const Color gumetalSlate = Color(0xFF293241);
 
   // This widget is the root of your application.
   @override
@@ -28,8 +30,19 @@ class MyApp extends StatelessWidget {
         title: 'AnyVenue',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
-          .copyWith(secondary: Colors.blueAccent[400]),
+          scaffoldBackgroundColor: white,
+          colorScheme: ColorScheme(
+            brightness: Brightness.light,
+            primary: darkSlate,
+            onPrimary: white,
+            secondary: orange,
+            onSecondary: white,
+            surface: white,
+            onSurface: gumetalSlate,
+            error: orange,
+            onError: white,
+          ),
+          textTheme: GoogleFonts.nunitoSansTextTheme(),
         ),
         home: const LoginPage(),
       ),
