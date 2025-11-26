@@ -5,11 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/main.dart';
 
-// ini GW KOMEN KARENA ERROR
-// void main() { 
-//   runApp(const LoginApp());
-// }
-
 class LoginApp extends StatelessWidget {
   const LoginApp({super.key});
 
@@ -113,11 +108,11 @@ class _LoginPageState extends State<LoginPage> {
                         String message = response['message'];
                         String uname = response['username'];
                         if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyHomePage( title: 'AnyVenue',)),
-                          );
+                          // Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => MyHomePage( title: 'AnyVenue',)),
+                          // );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
                             ..showSnackBar(
