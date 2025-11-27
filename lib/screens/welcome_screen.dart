@@ -17,35 +17,25 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start, // Rata kiri
             children: [
-              // 1. Tombol Back (Panah Kiri) di pojok atas
-              IconButton(
-                onPressed: () {
-                  // Aksi kalau ditekan, misal: Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                padding: EdgeInsets.zero,
-                alignment: Alignment.centerLeft,
-              ),
+              // // 1. Tombol Back (Panah Kiri) di pojok atas
+              // IconButton(
+              //   onPressed: () {
+              //     // Aksi kalau ditekan, misal: Navigator.pop(context);
+              //   },
+              //   icon: const Icon(Icons.arrow_back, color: Colors.black),
+              //   padding: EdgeInsets.zero,
+              //   alignment: Alignment.centerLeft,
+              // ),
 
               const Spacer(flex: 1), // Pendorong spasi fleksibel
 
               // 2. Gambar Placeholder
               Center(
-                child: Container(
+                child: Image.asset(
+                  'assets/images/header1.jpg',
                   height: 200,
                   width: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100], // Warna abu-abu pudar
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.image, size: 50, color: Colors.grey),
-                      SizedBox(height: 8),
-                      Text("Image Placeholder", style: TextStyle(color: Colors.grey)),
-                    ],
-                  ),
+                  fit: BoxFit.contain,
                 ),
               ),
 
