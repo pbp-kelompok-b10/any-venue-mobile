@@ -6,6 +6,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:any_venue/screens/login.dart';
+import 'package:any_venue/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
