@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
+import 'package:any_venue/screens/register.dart';
+import 'package:any_venue/screens/login.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -81,7 +83,10 @@ class WelcomeScreen extends StatelessWidget {
                 height: 56, // Tinggi tombol standar modern
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigasi ke halaman Sign Up / Login
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const RegisterPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF315672), // MyApp.darkSlate
@@ -120,7 +125,10 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Aksi ke halaman Sign In
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
                     },
                     child: const Text(
                       "Sign In",
