@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/screens/home_page.dart';
 
-class NavigationBar extends StatefulWidget {
-  const NavigationBar({super.key});
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
 
   @override
-  State<NavigationBar> createState() => _NavigationBarState();
+  State<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _NavigationBarState extends State<NavigationBar> {
+class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0; // Index halaman yang sedang aktif (0 = Home)
 
   // Daftar Halaman yang akan ditampilkan

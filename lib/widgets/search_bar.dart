@@ -6,6 +6,8 @@ class CustomSearchBar extends StatelessWidget {
   final ValueChanged<String>? onChanged; // Fungsi ketika user mengetik
   final VoidCallback? onTap; // Fungsi jika bar ditekan (opsional)
   final TextEditingController? controller; // Controller untuk mengatur teks (opsional)
+  final bool readOnly; // True = Jadi tombol (keyboard gak muncul), False = Jadi input biasa
+  final bool autoFocus; // True = Keyboard langsung muncul pas halaman dibuka
 
   const CustomSearchBar({
     super.key,
@@ -13,6 +15,8 @@ class CustomSearchBar extends StatelessWidget {
     this.onChanged,
     this.onTap,
     this.controller,
+    this.readOnly = false,
+    this.autoFocus = false,
   });
 
   @override
@@ -36,28 +40,29 @@ class CustomSearchBar extends StatelessWidget {
       ),
       child: TextField(
         controller: controller,
+        readOnly: readOnly,
+        autofocus: autoFocus,
         onChanged: onChanged,
         onTap: onTap,
         
-        // Style Teks yang diketik
         style: const TextStyle(
           fontSize: 14,
-          color: MyApp.gumetalSlate, // Gunmetal Slate
+          color: MyApp.gumetalSlate, 
         ),
         
         // Dekorasi Input (Icon & Hint)
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Colors.grey.shade400, // Warna hint abu-abu muda
+            color: Colors.grey.shade400, 
             fontSize: 14,
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: MyApp.gumetalSlate, // Warna icon search
+            color: MyApp.gumetalSlate,
             size: 24,
           ),
-          border: InputBorder.none, // Hilangkan garis bawah bawaan TextField
+          border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),

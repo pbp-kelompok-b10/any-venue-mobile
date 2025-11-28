@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
 
-class Button extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
@@ -16,7 +16,7 @@ class Button extends StatelessWidget {
   final bool
   isOutlined; // TRUE = Mode Garis Tepi (Bg Putih), FALSE = Mode Blok Warna
 
-  const Button({
+  const CustomButton({
     super.key,
     required this.text,
     required this.onPressed,

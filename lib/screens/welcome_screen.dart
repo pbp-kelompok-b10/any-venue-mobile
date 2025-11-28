@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
+import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/widgets/button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -43,10 +44,11 @@ class WelcomeScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.01, 1.0],
+                  stops: const [0.0, 0.6, 1.0],
                   colors: [
-                    Colors.transparent, 
-                    Colors.white,
+                    Colors.white.withOpacity(0.0),
+                    Colors.white.withOpacity(0.8),
+                    Colors.white, 
                   ],
                 ),
               ),
@@ -90,7 +92,7 @@ class WelcomeScreen extends StatelessWidget {
                   const SizedBox(height: 40), 
 
                   // Tombol Get Started
-                  Button(
+                  CustomButton(
                     text: "Get Started",
                     isFullWidth: true,
                     color: MyApp.darkSlate,
