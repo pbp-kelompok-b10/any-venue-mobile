@@ -3,6 +3,9 @@ import 'city.dart';
 import 'category.dart';
 import 'package:any_venue/account/models/profile.dart';
 
+List<Venue> venueFromJson(String str) => List<Venue>.from(json.decode(str).map((x) => Venue.fromJson(x)));
+String venueToJson(List<Venue> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class Venue {
   int id;
   String name;
