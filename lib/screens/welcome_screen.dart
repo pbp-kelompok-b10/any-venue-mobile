@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
+import 'package:any_venue/widgets/button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -89,43 +90,17 @@ class WelcomeScreen extends StatelessWidget {
                   const SizedBox(height: 40), 
 
                   // Tombol Get Started
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyApp.darkSlate,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            "Get Started",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_circle_right_outlined, 
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
+                  Button(
+                    text: "Get Started",
+                    isFullWidth: true,
+                    color: MyApp.darkSlate,
+                    icon: Icons.arrow_circle_right_outlined,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 24),
