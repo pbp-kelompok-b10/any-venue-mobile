@@ -3,19 +3,23 @@ import 'city.dart';
 import 'category.dart';
 import 'package:any_venue/account/models/profile.dart';
 
+List<Venue> venueFromJson(String str) => 
+    List<Venue>.from(json.decode(str).map((x) => Venue.fromJson(x)));
+
+String venueToJson(List<Venue> data) => 
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class Venue {
-  int id;
-  String name;
-  int price;
-
-  City city;
-  Category category;
-  Profile owner;
-
-  String type;
-  String address;
-  String description;
-  String imageUrl;
+  final int id;
+  final String name;
+  final int price;
+  final City city;
+  final Category category;
+  final VenueOwner owner;
+  final String type;
+  final String address;
+  final String description;
+  final String imageUrl;
 
   Venue({
     required this.id,
@@ -32,17 +36,18 @@ class Venue {
 
   factory Venue.fromJson(Map<String, dynamic> json) => Venue(
     id: json["id"],
-    name: json["name"],
-    price: json["price"],
-
+    name: json["name"] ?? "No Name",
+    price: json["price"] ?? 0,
+    
+    // Nested Objects
     city: City.fromJson(json["city"]),
     category: Category.fromJson(json["category"]),
-    owner: Profile.fromJson(json["owner"]),
+    owner: VenueOwner.fromJson(json["owner"]),
 
-    type: json["type"],
-    address: json["address"],
-    description: json["description"],
-    imageUrl: json["image_url"],
+    type: json["type"] ?? "-",
+    address: json["address"] ?? "-",
+    description: json["description"] ?? "-",
+    imageUrl: json["image_url"] ?? "",
   );
 
   Map<String, dynamic> toJson() => {
@@ -56,5 +61,22 @@ class Venue {
     "address": address,
     "description": description,
     "image_url": imageUrl,
+  };
+}
+
+class VenueOwner {
+  final int id;
+  final String username;
+
+  VenueOwner({required this.id, required this.username});
+
+  factory VenueOwner.fromJson(Map<String, dynamic> json) => VenueOwner(
+    id: json["id"],
+    username: json["username"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "username": username,
   };
 }
