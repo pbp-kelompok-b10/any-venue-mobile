@@ -4,7 +4,6 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/main.dart';
-import 'package:any_venue/widgets/main_navigation.dart';
 
 class LoginApp extends StatelessWidget {
   const LoginApp({super.key});
@@ -100,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                       // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
                       // If you using chrome,  use URL http://localhost:8000
                       final response = await request
-                          .login("http://localhost:8000/auth/login/", {
+                          .login("http://localhost:8000/auth/api/login/", {
                         'username': username,
                         'password': password,
                       });
@@ -109,12 +108,11 @@ class _LoginPageState extends State<LoginPage> {
                         String message = response['message'];
                         String uname = response['username'];
                         if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainNavigation(),
-                            )
-                          );
+                          // Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => MyHomePage( title: 'AnyVenue',)),
+                          // );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
                             ..showSnackBar(
