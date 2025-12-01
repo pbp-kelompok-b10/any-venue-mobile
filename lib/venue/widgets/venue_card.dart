@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/venue/models/venue.dart';
-import 'package:any_venue/widgets/arrow_button.dart'; 
+import 'package:any_venue/widgets/components/arrow_button.dart'; 
+import 'package:any_venue/widgets/components/label.dart';
 
 class VenueCard extends StatelessWidget {
   final Venue venue;
@@ -28,11 +29,11 @@ class VenueCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: MyApp.gumetalSlate.withOpacity(0.05),
-              blurRadius: 10,
+              color: MyApp.gumetalSlate.withOpacity(0.15),
+              blurRadius: 15,
               offset: const Offset(0, 4),
             ),
           ],
@@ -48,16 +49,26 @@ class VenueCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          child: SizedBox(
-            height: 180,
-            width: double.infinity,
-            child: _buildNetworkImage(),
+        Padding(
+          padding: const EdgeInsets.all(10.0), 
+          child: Stack(
+            children: [
+              // Gambar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: SizedBox(
+                  height: 180,
+                  width: double.infinity,
+                  child: _buildNetworkImage(),
+                ),
+              ),
+            ],
           ),
         ),
+
+        // 2. INFORMASI TEKS
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), // Kiri, Atas, Kanan, Bawah
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -65,33 +76,47 @@ class VenueCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Nama Venue
                     Text(
                       venue.name,
                       style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF293241)),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: MyApp.gumetalSlate,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
+                    // Harga
                     Text(
-                      "\Rp ${venue.price}",
+                      "Rp ${venue.price}",
                       style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: MyApp.orange),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: MyApp.orange,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      venue.city.name,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    // Lokasi
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            venue.city.name, // Atau bisa gabung: "${venue.city.name}, ${venue.address}"
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 12),
               const ArrowButton(), 
             ],
           ),
@@ -125,7 +150,7 @@ class VenueCard extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF293241)),
+                      color: MyApp.gumetalSlate),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

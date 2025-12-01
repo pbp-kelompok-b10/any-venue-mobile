@@ -3,7 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart'; 
-import 'package:any_venue/widgets/search_bar.dart';
+import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/widgets/feature_card.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
