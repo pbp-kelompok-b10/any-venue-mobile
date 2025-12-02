@@ -105,7 +105,7 @@ class VenueCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            venue.city.name, // Atau bisa gabung: "${venue.city.name}, ${venue.address}"
+                            venue.city.name,
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -145,6 +145,28 @@ class VenueCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Row(
+                  children: [
+                    InfoLabel(
+                      label: venue.category.name,
+                      color: const Color(0xFFE3F2FD),
+                      contentColor: MyApp.darkSlate,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      fontSize: 8,
+                      iconSize: 0, 
+                    ),
+                    const SizedBox(width: 6),
+                    InfoLabel(
+                      label: venue.type,
+                      color: MyApp.darkSlate,
+                      contentColor: const Color(0xFFE3F2FD),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      fontSize: 8,
+                      iconSize: 0,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
                 Text(
                   venue.name,
                   style: const TextStyle(
@@ -156,16 +178,26 @@ class VenueCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\$${venue.price}",
+                  "\Rp ${venue.price}",
                   style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: MyApp.orange),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  venue.city.name,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 12, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        venue.city.name, 
+                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

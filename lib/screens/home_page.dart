@@ -6,6 +6,7 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/widgets/feature_card.dart';
 
+import 'package:any_venue/venue/screens/venue_page.dart'; 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 
@@ -178,10 +179,10 @@ class _HomePageState extends State<HomePage> {
 
             // VENUES
             _buildSectionHeader("Venues", () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const VenuePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const VenuePage()),
+              );
             }),
             const SizedBox(height: 16),
             

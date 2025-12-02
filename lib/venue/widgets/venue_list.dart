@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_card.dart';
+import 'package:any_venue/venue/screens/venue_detail.dart';
 
 class VenueList extends StatelessWidget {
   final List<Venue> venues;
   final bool isLarge; // True = Horizontal & Random 5, False = Vertical & All
+  final bool scrollable;
 
   const VenueList({
     super.key,
     required this.venues,
     this.isLarge = true, // Default mode Besar (Horizontal)
+    this.scrollable = false,
   });
 
   @override
@@ -64,9 +67,11 @@ class VenueList extends StatelessWidget {
   // ==========================================
   Widget _buildSmallVerticalList() {
     return ListView.builder(
-      // shrinkWrap & physics ini WAJIB kalau list ini ada di dalam ScrollView Home
-      shrinkWrap: true, 
-      physics: const NeverScrollableScrollPhysics(),
+      physics: scrollable 
+          ? const AlwaysScrollableScrollPhysics() 
+          : const NeverScrollableScrollPhysics(),
+      shrinkWrap: !scrollable, 
+
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: venues.length,
       itemBuilder: (context, index) {
@@ -74,7 +79,10 @@ class VenueList extends StatelessWidget {
           venue: venues[index],
           isSmall: true, // Mode Kecil
           onTap: () {
-            // TODO: Arahkan ke Detail Page
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VenueDetail(venue: venues[index])),
+            );
           },
         );
       },
