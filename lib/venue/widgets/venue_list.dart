@@ -52,7 +52,10 @@ class VenueList extends StatelessWidget {
               venue: displayedVenues[index],
               isSmall: false, // Mode Besar
               onTap: () {
-                // TODO: Arahkan ke Detail Page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VenueDetail(venue: venues[index])),
+                );
               },
             ),
           );

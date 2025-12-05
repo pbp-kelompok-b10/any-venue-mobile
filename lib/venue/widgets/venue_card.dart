@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:any_venue/main.dart'; 
+import 'package:any_venue/main.dart';
 import 'package:any_venue/venue/models/venue.dart';
-import 'package:any_venue/widgets/components/arrow_button.dart'; 
+import 'package:any_venue/widgets/components/arrow_button.dart';
 import 'package:any_venue/widgets/components/label.dart';
 
 class VenueCard extends StatelessWidget {
@@ -23,23 +23,26 @@ class VenueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: MyApp.gumetalSlate.withOpacity(0.15),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: MyApp.gumetalSlate.withOpacity(0.15),
+                blurRadius: 15,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          // Switch Layout Besar / Kecil
+          child: isSmall ? _buildSmallLayout() : _buildLargeLayout(),
         ),
-        // Switch Layout Besar / Kecil
-        child: isSmall ? _buildSmallLayout() : _buildLargeLayout(),
       ),
     );
   }
@@ -50,7 +53,7 @@ class VenueCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(10.0), 
+          padding: const EdgeInsets.all(10.0),
           child: Stack(
             children: [
               // Gambar
@@ -68,7 +71,12 @@ class VenueCard extends StatelessWidget {
 
         // 2. INFORMASI TEKS
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), // Kiri, Atas, Kanan, Bawah
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            0,
+            16,
+            16,
+          ), // Kiri, Atas, Kanan, Bawah
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -101,12 +109,19 @@ class VenueCard extends StatelessWidget {
                     // Lokasi
                     Row(
                       children: [
-                        const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                        const Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             venue.city.name,
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -117,7 +132,7 @@ class VenueCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const ArrowButton(), 
+              const ArrowButton(),
             ],
           ),
         ),
@@ -133,11 +148,7 @@ class VenueCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: SizedBox(
-              width: 80,
-              height: 80,
-              child: _buildNetworkImage(),
-            ),
+            child: SizedBox(width: 80, height: 80, child: _buildNetworkImage()),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -151,16 +162,22 @@ class VenueCard extends StatelessWidget {
                       label: venue.category.name,
                       color: const Color(0xFFE3F2FD),
                       contentColor: MyApp.darkSlate,
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       fontSize: 8,
-                      iconSize: 0, 
+                      iconSize: 0,
                     ),
                     const SizedBox(width: 6),
                     InfoLabel(
                       label: venue.type,
                       color: MyApp.darkSlate,
                       contentColor: const Color(0xFFE3F2FD),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       fontSize: 8,
                       iconSize: 0,
                     ),
@@ -170,9 +187,10 @@ class VenueCard extends StatelessWidget {
                 Text(
                   venue.name,
                   style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: MyApp.gumetalSlate),
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: MyApp.gumetalSlate,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -180,9 +198,10 @@ class VenueCard extends StatelessWidget {
                 Text(
                   "\Rp ${venue.price}",
                   style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: MyApp.orange),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: MyApp.orange,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -191,8 +210,11 @@ class VenueCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        venue.city.name, 
-                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                        venue.city.name,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -216,8 +238,9 @@ class VenueCard extends StatelessWidget {
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
         return Container(
-            color: Colors.grey[200],
-            child: const Center(child: CircularProgressIndicator()));
+          color: Colors.grey[200],
+          child: const Center(child: CircularProgressIndicator()),
+        );
       },
       errorBuilder: (context, error, stackTrace) {
         return Container(
@@ -227,7 +250,10 @@ class VenueCard extends StatelessWidget {
             children: const [
               Icon(Icons.image_not_supported, color: Colors.grey),
               SizedBox(height: 4),
-              Text("No Image", style: TextStyle(fontSize: 10, color: Colors.grey)),
+              Text(
+                "No Image",
+                style: TextStyle(fontSize: 10, color: Colors.grey),
+              ),
             ],
           ),
         );
