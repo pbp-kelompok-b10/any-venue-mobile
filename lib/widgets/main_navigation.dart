@@ -18,14 +18,9 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     
-    // Ambil Role dari Json Data Login
-    // Pastikan backend mengirim key 'role' ('User' atau 'Owner')
     final String role = request.jsonData['role'] ?? 'User';
     final bool isOwner = role == 'Owner';
 
-    // ==========================================
-    // 1. DEFINISI HALAMAN (BODY)
-    // ==========================================
     final List<Widget> screens;
     
     if (isOwner) {
@@ -47,9 +42,6 @@ class _MainNavigationState extends State<MainNavigation> {
       ];
     }
 
-    // ==========================================
-    // 2. DEFINISI TOMBOL NAVIGASI (BOTTOM BAR)
-    // ==========================================
     final List<BottomNavigationBarItem> items;
 
     if (isOwner) {
@@ -69,7 +61,6 @@ class _MainNavigationState extends State<MainNavigation> {
       ];
     }
 
-    // Safety Check: Jika ganti akun (User <-> Owner) dan index tersimpan melebihi jumlah item
     if (_selectedIndex >= screens.length) {
       _selectedIndex = 0;
     }
@@ -82,14 +73,14 @@ class _MainNavigationState extends State<MainNavigation> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: MyApp.gumetalSlate.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
           ],
         ),
         child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed, // Wajib fixed agar label muncul semua
+          type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           elevation: 0,
           currentIndex: _selectedIndex,
