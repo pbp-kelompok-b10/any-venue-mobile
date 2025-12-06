@@ -29,7 +29,6 @@ class _MainNavigationState extends State<MainNavigation> {
         const HomePage(),
         const Center(child: Text("My Venues (Owner)")), // TODO: Ganti Page My Venue
         const Center(child: Text("My Events (Owner)")), // TODO: Ganti Page My Event
-        const Center(child: Text("Incoming Bookings")), // TODO: Ganti Page Booking Masuk
         const Center(child: Text("Owner Profile")),     // TODO: Ganti Profile Page
       ];
     } else {
@@ -37,7 +36,8 @@ class _MainNavigationState extends State<MainNavigation> {
       screens = [
         const HomePage(),
         const Center(child: Text("My Bookings (User)")), // TODO: Ganti Page History Booking
-        const Center(child: Text("My Reviews (User)")),  // TODO: Ganti Page History Review
+        const Center(child: Text("My Events (User)")),   // TODO: Ganti Page History Review
+        const Center(child: Text("My Reviews (User)")),  // TODO: Ganti Page History Join Events
         const Center(child: Text("User Profile")),       // TODO: Ganti Profile Page
       ];
     }
@@ -49,13 +49,13 @@ class _MainNavigationState extends State<MainNavigation> {
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory_outlined), activeIcon: Icon(Icons.store_mall_directory), label: 'My Venue'),
         BottomNavigationBarItem(icon: Icon(Icons.confirmation_number_outlined), activeIcon: Icon(Icons.confirmation_number), label: 'My Event'),
-        BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), activeIcon: Icon(Icons.assignment), label: 'Booking'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
       ];
     } else {
       items = const [
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), activeIcon: Icon(Icons.calendar_month), label: 'My Booking'),
+        BottomNavigationBarItem(icon: Icon(Icons.confirmation_number_outlined), activeIcon: Icon(Icons.confirmation_number), label: 'My Event'),
         BottomNavigationBarItem(icon: Icon(Icons.star_outline_rounded), activeIcon: Icon(Icons.star_rounded), label: 'My Review'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
       ];

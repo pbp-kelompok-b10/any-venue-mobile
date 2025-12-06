@@ -6,7 +6,7 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
-// import 'package:any_venue/screens/venue_form.dart';
+import 'package:any_venue/venue/screens/venue_form.dart';
 
 class VenueDetail extends StatelessWidget {
   final Venue venue;
@@ -270,10 +270,10 @@ class VenueDetail extends StatelessWidget {
               color: MyApp.orange,
               onPressed: () {
                 // TODO: arahin ke page review
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => VenueFormPage()),
+                );
               },
             ),
           ),
