@@ -1,10 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/widgets/components/search_bar.dart';
-import 'package:any_venue/widgets/feature_card.dart';
 
 import 'package:any_venue/venue/screens/venue_page.dart'; 
 import 'package:any_venue/venue/models/venue.dart';
@@ -46,11 +46,36 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
+
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 80,
+        automaticallyImplyLeading: false, 
+        titleSpacing: 12,
+        centerTitle: true,
+
+        title: CustomSearchBar(
+          hintText: "Cari venue atau event...",
+          readOnly: true, // Jadi tombol
+          onTap: () {
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const SearchPage()),
+            // );
+          },
+        ),
+
+        actions: const [
+          SizedBox(width: 24),
+        ],
+      ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
-
             // HEADER AREA
             Stack(
               children: [
@@ -66,10 +91,10 @@ class _HomePageState extends State<HomePage> {
 
                 // Gradient Fade
                 Positioned(
-                  bottom: 0,
+                  bottom: -1,
                   left: 0,
                   right: 0,
-                  height: 180, 
+                  height: 200, 
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -80,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                           Colors.white.withOpacity(0.8),
                           Colors.white, 
                         ],
-                        stops: const [0.0, 0.6, 1.0],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
@@ -95,18 +120,6 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16),
-                          
-                          // Sarch bar
-                          CustomSearchBar(
-                            hintText: "Cari venue atau event...",
-                            readOnly: true, // Keyboard tidak muncul
-                            onTap: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(builder: (context) => const SearchPage()),
-                              // );
-                            },
-                          ),
 
                           const Spacer(),
 
@@ -147,36 +160,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
 
-            // FEATURE CARDS (OVERLAPPING)
-            Transform.translate(
-              offset: const Offset(0, -40),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    FeatureCard(
-                      icon: Icons.calendar_month_rounded,
-                      label: "Booking",
-                      onTap: () { /* Navigate to Booking */ },
-                    ),
-                    FeatureCard(
-                      icon: Icons.star_rounded,
-                      label: "Reviews",
-                      onTap: () { /* Navigate to Reviews */ },
-                    ),
-                    FeatureCard(
-                      icon: Icons.confirmation_number_rounded,
-                      label: "Events",
-                      onTap: () { /* Navigate to Events */ },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 0), 
-
             // VENUES
             _buildSectionHeader("Venues", () {
               Navigator.push(
@@ -204,6 +187,9 @@ class _HomePageState extends State<HomePage> {
                   return VenueList(
                     venues: snapshot.data!,
                     isLarge: true, 
+                    onRefresh: () {
+                      setState(() {}); 
+                    },
                   );
                 }
               },
@@ -263,14 +249,18 @@ class _HomePageState extends State<HomePage> {
               color: Color(0xFF293241),
             ),
           ),
-          GestureDetector(
-            onTap: onTapSeeAll,
-            child: const Text(
-              "See all",
-              style: TextStyle(
-                fontSize: 14,
-                color: MyApp.orange,
-                fontWeight: FontWeight.bold,
+
+          MouseRegion(
+            cursor: SystemMouseCursors.click, // Ubah kursor jadi tangan
+            child: GestureDetector(
+              onTap: onTapSeeAll,
+              child: const Text(
+                "See all",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: MyApp.orange,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

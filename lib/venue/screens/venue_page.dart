@@ -59,22 +59,28 @@ class _VenuePageState extends State<VenuePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Venue",
+          style: TextStyle(
+            color: MyApp.gumetalSlate,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+
         elevation: 0,
+        backgroundColor: Colors.white,
+
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF293241)),
+          icon: const Icon(Icons.keyboard_arrow_left_rounded, size:32, color: MyApp.gumetalSlate),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "All Venues",
-          style: TextStyle(color: MyApp.gumetalSlate, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        centerTitle: false,
       ),
+      
       body: Column(
         children: [
-          // 1. SEARCH BAR & FILTER BUTTONS
           Container(
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -177,6 +183,9 @@ class _VenuePageState extends State<VenuePage> {
                   venues: filteredVenues,
                   isLarge: false, 
                   scrollable: true,
+                  onRefresh: () {
+                      setState(() {}); 
+                  },
                 );
               },
             ),

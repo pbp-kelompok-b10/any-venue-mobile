@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'city.dart';
 import 'category.dart';
-import 'package:any_venue/account/models/profile.dart';
 
 List<Venue> venueFromJson(String str) => 
     List<Venue>.from(json.decode(str).map((x) => Venue.fromJson(x)));
