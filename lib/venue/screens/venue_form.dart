@@ -300,7 +300,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             if (response['status'] == 'success') {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
                               
-                              Navigator.pop(context);
+                              Navigator.pop(context, true);
                               if (isEdit) Navigator.pop(context);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(

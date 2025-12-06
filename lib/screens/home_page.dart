@@ -187,6 +187,9 @@ class _HomePageState extends State<HomePage> {
                   return VenueList(
                     venues: snapshot.data!,
                     isLarge: true, 
+                    onRefresh: () {
+                      setState(() {}); 
+                    },
                   );
                 }
               },

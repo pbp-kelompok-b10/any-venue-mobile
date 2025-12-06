@@ -62,7 +62,7 @@ class _VenuePageState extends State<VenuePage> {
 
       appBar: AppBar(
         title: const Text(
-          "Detail Venue",
+          "Venue",
           style: TextStyle(
             color: MyApp.gumetalSlate,
             fontWeight: FontWeight.bold,
@@ -183,6 +183,9 @@ class _VenuePageState extends State<VenuePage> {
                   venues: filteredVenues,
                   isLarge: false, 
                   scrollable: true,
+                  onRefresh: () {
+                      setState(() {}); 
+                  },
                 );
               },
             ),

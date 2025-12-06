@@ -20,15 +20,15 @@ class VenueDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    
+
     // ambil data dari user login
     final String currentUsername = request.jsonData['username'] ?? '';
-    final String currentRole = request.jsonData['role'] ?? 'USER'; 
+    final String currentRole = request.jsonData['role'] ?? 'USER';
 
     // penentuan hak akses
     final bool isMyVenue = currentUsername == venue.owner.username;
     final bool isOwnerRole = currentRole == 'OWNER';
-    final bool isUserRole = currentRole == 'USER'; 
+    final bool isUserRole = currentRole == 'USER';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -47,7 +47,11 @@ class VenueDetail extends StatelessWidget {
         shadowColor: MyApp.gumetalSlate.withOpacity(0.1),
 
         leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_left_rounded, size:32, color: MyApp.gumetalSlate),
+          icon: const Icon(
+            Icons.keyboard_arrow_left_rounded,
+            size: 32,
+            color: MyApp.gumetalSlate,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -85,7 +89,10 @@ class VenueDetail extends StatelessWidget {
 
                         // info box
                         Container(
-                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20,
+                            horizontal: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20),
@@ -101,9 +108,21 @@ class VenueDetail extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _buildInfoItem(Icons.attach_money, "Price", "Rp ${venue.price}"),
-                              _buildInfoItem(Icons.house, "Type", venue.type),
-                              _buildInfoItem(Icons.sports_tennis, "Category", venue.category.name),
+                              _buildInfoItem(
+                                Icons.attach_money,
+                                "Price",
+                                "Rp ${venue.price}",
+                              ),
+                              _buildInfoItem(
+                                Icons.stadium_rounded,
+                                "Type",
+                                venue.type,
+                              ),
+                              _buildInfoItem(
+                                Icons.sports_tennis,
+                                "Category",
+                                venue.category.name,
+                              ),
                             ],
                           ),
                         ),
@@ -117,8 +136,14 @@ class VenueDetail extends StatelessWidget {
                               radius: 24,
                               backgroundColor: MyApp.darkSlate,
                               child: Text(
-                                venue.owner.username.isNotEmpty ? venue.owner.username[0].toUpperCase() : "U",
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                                venue.owner.username.isNotEmpty
+                                    ? venue.owner.username[0].toUpperCase()
+                                    : "U",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -127,9 +152,19 @@ class VenueDetail extends StatelessWidget {
                               children: [
                                 Text(
                                   venue.owner.username,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF293241)),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Color(0xFF293241),
+                                  ),
                                 ),
-                                const Text("Owner", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                                const Text(
+                                  "Owner",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -137,19 +172,39 @@ class VenueDetail extends StatelessWidget {
                         const SizedBox(height: 24),
 
                         // description
-                        const Text("Description:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text(
+                          "Description:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           venue.description,
-                          style: const TextStyle(color: Colors.grey, height: 1.6, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            height: 1.6,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(height: 20),
 
-                        const Text("Location:", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text(
+                          "Location:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Text(
                           venue.address,
-                          style: const TextStyle(color: Colors.grey, height: 1.6, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            height: 1.6,
+                            fontSize: 14,
+                          ),
                         ),
                         const SizedBox(height: 32),
 
@@ -157,9 +212,16 @@ class VenueDetail extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text("Customer Reviews", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text(
+                              "Customer Reviews",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                             MouseRegion(
-                              cursor: SystemMouseCursors.click, // Ubah kursor jadi tangan
+                              cursor: SystemMouseCursors
+                                  .click, // Ubah kursor jadi tangan
                               child: GestureDetector(
                                 // onTap: ,
                                 child: const Text(
@@ -190,11 +252,21 @@ class VenueDetail extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5)),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
+                ),
               ],
             ),
             child: SafeArea(
-              child: _buildActionButtons(context, request, isMyVenue, isOwnerRole, isUserRole),
+              child: _buildActionButtons(
+                context,
+                request,
+                isMyVenue,
+                isOwnerRole,
+                isUserRole,
+              ),
             ),
           ),
         ],
@@ -203,44 +275,50 @@ class VenueDetail extends StatelessWidget {
   }
 
   // tombol berdasarkan role
-  Widget _buildActionButtons(BuildContext context, CookieRequest request, bool isMyVenue, bool isOwnerRole, bool isUserRole) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    CookieRequest request,
+    bool isMyVenue,
+    bool isOwnerRole,
+    bool isUserRole,
+  ) {
     // owner venue -> edit & delete
     if (isMyVenue) {
       return Row(
         children: [
           Expanded(
-            child: OutlinedButton(
+            child: CustomButton(
+              text: "Delete",
+              isFullWidth: true,
+              color: MyApp.orange,
               onPressed: () => _confirmDelete(context, request),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.red),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Delete", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                // Ke Form Edit (Bawa data venue)
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => VenueFormPage(venue: venue)),
-                // );
+            child: CustomButton(
+              text: "Edit",
+              isFullWidth: true,
+              color: MyApp.darkSlate,
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VenueFormPage(venue: venue),
+                  ),
+                );
+                if (result == true) {
+                  if (context.mounted) {
+                    // Jika form berhasil disimpan, langsung balik ke Home bawa sinyal true juga
+                    Navigator.pop(context, true);
+                  }
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: MyApp.darkSlate,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text("Edit Venue", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
       );
-    } 
-    
+    }
     // user biasa -> book & review
     else if (isUserRole) {
       return Row(
@@ -260,7 +338,7 @@ class VenueDetail extends StatelessWidget {
               },
             ),
           ),
-        
+
           const SizedBox(width: 12),
           Expanded(
             flex: 1,
@@ -280,10 +358,17 @@ class VenueDetail extends StatelessWidget {
         ],
       );
     }
-
     // owner lain (bukan pny dia) -> kosong
     else {
-      return const SizedBox(height: 50, child: Center(child: Text("You are viewing this venue as an Owner.", style: TextStyle(color: Colors.grey))));
+      return const SizedBox(
+        height: 50,
+        child: Center(
+          child: Text(
+            "You are viewing this venue as an Owner.",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
     }
   }
 
@@ -293,7 +378,9 @@ class VenueDetail extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Delete Venue"),
-        content: const Text("Are you sure you want to delete this venue? This action cannot be undone."),
+        content: const Text(
+          "Are you sure you want to delete this venue? This action cannot be undone.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -302,7 +389,7 @@ class VenueDetail extends StatelessWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context); // Tutup dialog
-              
+
               // Call API
               // GANTI 10.0.2.2 dengan IP jika di HP Fisik
               final response = await request.post(
@@ -312,14 +399,21 @@ class VenueDetail extends StatelessWidget {
 
               if (context.mounted) {
                 if (response['status'] == 'success') {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Venue deleted successfully")));
-                  Navigator.pop(context); // Balik ke halaman list
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Venue deleted successfully")),
+                  );
+                  Navigator.pop(context, true); // Balik ke halaman list
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'] ?? "Failed")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(response['message'] ?? "Failed")),
+                  );
                 }
               }
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text(
+              "Delete",
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -363,13 +457,20 @@ class VenueDetail extends StatelessWidget {
           children: [
             Icon(icon, size: 15, color: MyApp.gumetalSlate),
             const SizedBox(width: 2),
-            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
           ],
         ),
         const SizedBox(height: 2),
         Text(
           value,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: MyApp.orange),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: MyApp.orange,
+          ),
         ),
       ],
     );

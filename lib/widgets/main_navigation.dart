@@ -50,7 +50,7 @@ class _MainNavigationState extends State<MainNavigation> {
     if (isOwner) {
       items = const [
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.store_mall_directory_outlined), activeIcon: Icon(Icons.store_mall_directory), label: 'Venue'),
+        BottomNavigationBarItem(icon: Icon(Icons.stadium_outlined), activeIcon: Icon(Icons.stadium_rounded), label: 'Venue'),
         BottomNavigationBarItem(icon: Icon(Icons.confirmation_number_outlined), activeIcon: Icon(Icons.confirmation_number), label: 'Event'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
       ];
@@ -150,7 +150,7 @@ class _MainNavigationState extends State<MainNavigation> {
               
               // PILIHAN 1: ADD VENUE
               _buildOptionItem(
-                icon: Icons.house,
+                icon: Icons.stadium_rounded,
                 color: MyApp.darkSlate,
                 iconColor: Colors.white,
                 label: "New Venue",
