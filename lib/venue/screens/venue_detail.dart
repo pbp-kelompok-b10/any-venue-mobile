@@ -23,12 +23,12 @@ class VenueDetail extends StatelessWidget {
     
     // ambil data dari user login
     final String currentUsername = request.jsonData['username'] ?? '';
-    final String currentRole = request.jsonData['role'] ?? 'User'; 
+    final String currentRole = request.jsonData['role'] ?? 'USER'; 
 
     // penentuan hak akses
     final bool isMyVenue = currentUsername == venue.owner.username;
-    final bool isOwnerRole = currentRole == 'Owner';
-    final bool isUserRole = currentRole == 'User' || currentRole == 'user'; 
+    final bool isOwnerRole = currentRole == 'OWNER';
+    final bool isUserRole = currentRole == 'USER'; 
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -242,7 +242,7 @@ class VenueDetail extends StatelessWidget {
     } 
     
     // user biasa -> book & review
-    else if (isUserRole || (!isOwnerRole && !isUserRole)) {
+    else if (isUserRole) {
       return Row(
         children: [
           Expanded(

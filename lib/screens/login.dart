@@ -192,6 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ..showSnackBar(
                                           SnackBar(
                                             content: Text("$message Welcome, $uname."),
+                                            behavior: SnackBarBehavior.floating,
                                             backgroundColor: MyApp.darkSlate,
                                           ),
                                         );
