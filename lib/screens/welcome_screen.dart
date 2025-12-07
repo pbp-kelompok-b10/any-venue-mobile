@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
-import 'package:any_venue/screens/home_page.dart';
-import 'package:any_venue/widgets/button.dart';
+import 'package:any_venue/widgets/main_navigation.dart';
+import 'package:any_venue/widgets/components/button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -100,7 +100,7 @@ class WelcomeScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
                       );
                     },
                   ),
@@ -126,7 +126,7 @@ class WelcomeScreen extends StatelessWidget {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const RegisterPage()),
+                                MaterialPageRoute(builder: (context) => const LoginPage()),
                               );
                             },
                             child: Text(

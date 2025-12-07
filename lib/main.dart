@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'AnyVenue',
         theme: ThemeData(
-          useMaterial3: true,
+          useMaterial3: false,
           scaffoldBackgroundColor: white,
           colorScheme: ColorScheme(
             brightness: Brightness.light,

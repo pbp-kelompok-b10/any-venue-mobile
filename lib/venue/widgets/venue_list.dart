@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_card.dart';
+import 'package:any_venue/venue/screens/venue_detail.dart';
 
-class VenueList extends StatelessWidget {
+class VenueList extends StatefulWidget {
   final List<Venue> venues;
+  final Function() onRefresh;
   final bool isLarge; // True = Horizontal & Random 5, False = Vertical & All
+  final bool scrollable;
 
   const VenueList({
     super.key,
     required this.venues,
     this.isLarge = true, // Default mode Besar (Horizontal)
+    this.scrollable = false,
+    required this.onRefresh,
   });
 
   @override
+  State<VenueList> createState() => _VenueListState();
+}
+
+class _VenueListState extends State<VenueList> {
+  @override
   Widget build(BuildContext context) {
-    if (venues.isEmpty) {
+    if (widget.venues.isEmpty) {
       return const SizedBox.shrink(); // Jangan tampilkan apa-apa kalau data kosong
     }
 
-    if (isLarge) {
+    if (widget.isLarge) {
       return _buildLargeHorizontalList();
     } else {
       return _buildSmallVerticalList();
@@ -30,7 +40,7 @@ class VenueList extends StatelessWidget {
   // - Randomize & Limit 5
   // ==========================================
   Widget _buildLargeHorizontalList() {
-    final List<Venue> randomVenues = List<Venue>.from(venues)..shuffle();
+    final List<Venue> randomVenues = List<Venue>.from(widget.venues)..shuffle();
     // Ambil 5 item atau seadanya jika data kurang dari 5
     final List<Venue> displayedVenues = randomVenues.take(5).toList();
 
@@ -46,10 +56,21 @@ class VenueList extends StatelessWidget {
           return SizedBox(
             width: 260, // Lebar fix agar ukuran card seragam
             child: VenueCard(
-              venue: displayedVenues[index],
+              venue: displayedVenues[index], // Gunakan displayedVenues agar index sesuai
               isSmall: false, // Mode Besar
-              onTap: () {
-                // TODO: Arahkan ke Detail Page
+              onTap: () async { // Tambah async
+                // Tunggu hasil dari detail page
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VenueDetail(venue: displayedVenues[index]),
+                  ),
+                );
+
+                // Jika ada sinyal refresh (true), panggil onRefresh milik parent
+                if (result == true) {
+                  widget.onRefresh();
+                }
               },
             ),
           );
@@ -64,17 +85,30 @@ class VenueList extends StatelessWidget {
   // ==========================================
   Widget _buildSmallVerticalList() {
     return ListView.builder(
-      // shrinkWrap & physics ini WAJIB kalau list ini ada di dalam ScrollView Home
-      shrinkWrap: true, 
-      physics: const NeverScrollableScrollPhysics(),
+      physics: widget.scrollable
+          ? const AlwaysScrollableScrollPhysics()
+          : const NeverScrollableScrollPhysics(),
+      shrinkWrap: !widget.scrollable,
+
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      itemCount: venues.length,
+      itemCount: widget.venues.length,
       itemBuilder: (context, index) {
         return VenueCard(
-          venue: venues[index],
+          venue: widget.venues[index],
           isSmall: true, // Mode Kecil
-          onTap: () {
-            // TODO: Arahkan ke Detail Page
+          onTap: () async { // Tambah async
+            // Tunggu hasil dari detail page
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VenueDetail(venue: widget.venues[index]),
+              ),
+            );
+
+            // Jika ada sinyal refresh (true), panggil onRefresh milik parent
+            if (result == true) {
+              widget.onRefresh();
+            }
           },
         );
       },
