@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
-import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:any_venue/widgets/components/button.dart';
 
 class WelcomeScreen extends StatelessWidget {

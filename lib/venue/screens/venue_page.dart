@@ -212,7 +212,7 @@ class _VenuePageState extends State<VenuePage> {
         child: Row(
           children: [
             Text(
-              isActive ? selectedValue! : label,
+              isActive ? selectedValue : label,
               style: TextStyle(
                 color: isActive ? Colors.white : Colors.grey[700],
                 fontWeight: FontWeight.w600,
