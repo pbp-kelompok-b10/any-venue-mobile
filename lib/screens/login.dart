@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                       // --- HEADER ---
                       Text(
                         'Sign in to\nyour account',
-                        style: GoogleFonts.nunitoSans(
+                        style: TextStyle(
                           color: textDark,
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
