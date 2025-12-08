@@ -70,10 +70,8 @@ class WelcomeScreen extends StatelessWidget {
                     "Welcome\nto AnyVenue!",
                     style: TextStyle(
                       fontSize: 34,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       color: MyApp.gumetalSlate,
-                      height: 1.1,
-                      letterSpacing: -0.5,
                     ),
                   ),
 
@@ -100,7 +98,7 @@ class WelcomeScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => RegisterPage()),
+                        MaterialPageRoute(builder: (context) => MainNavigation()),
                       );
                     },
                   ),
