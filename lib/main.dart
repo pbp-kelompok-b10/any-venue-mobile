@@ -1,9 +1,8 @@
-import 'dart:async';
+import 'package:any_venue/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:any_venue/screens/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,7 +28,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'AnyVenue',
         theme: ThemeData(
-          useMaterial3: true,
+          useMaterial3: false,
           scaffoldBackgroundColor: white,
           colorScheme: ColorScheme(
             brightness: Brightness.light,
@@ -44,7 +43,7 @@ class MyApp extends StatelessWidget {
           ),
           textTheme: GoogleFonts.nunitoSansTextTheme(),
         ),
-        home: const LoginPage(),
+        home: const SplashScreen(),
       ),
     );
   }
