@@ -8,13 +8,42 @@ import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
 
-class VenueDetail extends StatelessWidget {
+class VenueDetail extends StatefulWidget {
   final Venue venue;
 
   const VenueDetail({super.key, required this.venue});
 
+  @override
+  State<VenueDetail> createState() => _VenueDetailState();
+}
+
+class _VenueDetailState extends State<VenueDetail> {
+  late Venue _venue; // Data venue yang aktif ditampilkan
+  bool _hasEdited = false; // Penanda jika user melakukan edit
+
+  @override
+  void initState() {
+    super.initState();
+    _venue = widget.venue;
+  }
+
+  // Fungsi untuk refresh data single venue dari server
+  Future<void> _refreshData(CookieRequest request) async {
+    try {
+      final response = await request.get('http://localhost:8000/venue/api/venue-detail-flutter/${_venue.id}/');
+      
+      if (mounted) {
+        setState(() {
+          _venue = Venue.fromJson(response); 
+        });
+      }
+    } catch (e) {
+      debugPrint("Gagal refresh data: $e");
+    }
+  }
+
   String get _imageUrl {
-    return 'http://localhost:8000/venue/proxy-image/?url=${Uri.encodeComponent(venue.imageUrl)}';
+    return 'http://localhost:8000/venue/proxy-image/?url=${Uri.encodeComponent(_venue.imageUrl)}';
   }
 
   @override
@@ -25,251 +54,256 @@ class VenueDetail extends StatelessWidget {
     final String currentUsername = request.jsonData['username'] ?? '';
     final String currentRole = request.jsonData['role'] ?? 'USER';
 
-    // penentuan hak akses
-    final bool isMyVenue = currentUsername == venue.owner.username;
+    // penentuan hak akses (Gunakan _venue, bukan widget.venue)
+    final bool isMyVenue = currentUsername == _venue.owner.username;
     final bool isOwnerRole = currentRole == 'OWNER';
     final bool isUserRole = currentRole == 'USER';
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          "Detail Venue",
-          style: TextStyle(
-            color: MyApp.gumetalSlate,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-
-        elevation: 4,
+    // Gunakan PopScope untuk menangani tombol Back (Android/AppBar)
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        // Saat back, kirim status _hasEdited ke halaman sebelumnya
+        Navigator.pop(context, _hasEdited);
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        shadowColor: MyApp.gumetalSlate.withOpacity(0.1),
-
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_arrow_left_rounded,
-            size: 32,
-            color: MyApp.gumetalSlate,
+        appBar: AppBar(
+          title: const Text(
+            "Detail Venue",
+            style: TextStyle(
+              color: MyApp.gumetalSlate,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
+          elevation: 4,
+          backgroundColor: Colors.white,
+          shadowColor: MyApp.gumetalSlate.withOpacity(0.1),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.keyboard_arrow_left_rounded,
+              size: 32,
+              color: MyApp.gumetalSlate,
+            ),
+            // Manual pop dengan membawa status edit
+            onPressed: () => Navigator.pop(context, _hasEdited),
+          ),
         ),
-      ),
 
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 360,
-                    width: double.infinity,
-                    child: _buildHeaderImage(),
-                  ),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 360,
+                      width: double.infinity,
+                      child: _buildHeaderImage(),
+                    ),
 
-                  Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // venue name
-                        Text(
-                          venue.name,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF293241),
-                            height: 1.2,
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // info box
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.grey.shade200),
-                            boxShadow: [
-                              BoxShadow(
-                                color: MyApp.gumetalSlate.withOpacity(0.08),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildInfoItem(
-                                Icons.attach_money,
-                                "Price",
-                                "Rp ${venue.price}",
-                              ),
-                              _buildInfoItem(
-                                Icons.stadium_rounded,
-                                "Type",
-                                venue.type,
-                              ),
-                              _buildInfoItem(
-                                Icons.sports_tennis,
-                                "Category",
-                                venue.category.name,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // owner profile
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor: MyApp.darkSlate,
-                              child: Text(
-                                venue.owner.username.isNotEmpty
-                                    ? venue.owner.username[0].toUpperCase()
-                                    : "U",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // venue name
+                          Text(
+                            _venue.name,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF293241),
+                              height: 1.2,
                             ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  venue.owner.username,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Color(0xFF293241),
-                                  ),
-                                ),
-                                const Text(
-                                  "Owner",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                  ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // info box
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.grey.shade200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: MyApp.gumetalSlate.withOpacity(0.08),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-
-                        // description
-                        const Text(
-                          "Description:",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          venue.description,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            height: 1.6,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        const Text(
-                          "Location:",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          venue.address,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            height: 1.6,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // review section
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Customer Reviews",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildInfoItem(
+                                  Icons.attach_money,
+                                  "Price",
+                                  "Rp ${_venue.price}",
+                                ),
+                                _buildInfoItem(
+                                  Icons.stadium_rounded,
+                                  "Type",
+                                  _venue.type,
+                                ),
+                                _buildInfoItem(
+                                  Icons.sports_tennis,
+                                  "Category",
+                                  _venue.category.name,
+                                ),
+                              ],
                             ),
-                            MouseRegion(
-                              cursor: SystemMouseCursors
-                                  .click, // Ubah kursor jadi tangan
-                              child: GestureDetector(
-                                // onTap: ,
-                                child: const Text(
-                                  "See all",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: MyApp.orange,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // owner profile
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: MyApp.darkSlate,
+                                child: Text(
+                                  _venue.owner.username.isNotEmpty
+                                      ? _venue.owner.username[0].toUpperCase()
+                                      : "U",
+                                  style: const TextStyle(
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 18,
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _venue.owner.username,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF293241),
+                                    ),
+                                  ),
+                                  const Text(
+                                    "Owner",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // description
+                          const Text(
+                            "Description:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                          ],
-                        ),
-                        // TODO: tambah list review di sini
-                        const SizedBox(height: 100),
-                      ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _venue.description,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              height: 1.6,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          const Text(
+                            "Location:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _venue.address,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              height: 1.6,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+
+                          // review section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Customer Reviews",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  child: const Text(
+                                    "See all",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: MyApp.orange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 100),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
+            ),
+
+            // bottom action bar
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // bottom action bar
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, -5),
+              child: SafeArea(
+                child: _buildActionButtons(
+                  context,
+                  request,
+                  isMyVenue,
+                  isOwnerRole,
+                  isUserRole,
                 ),
-              ],
-            ),
-            child: SafeArea(
-              child: _buildActionButtons(
-                context,
-                request,
-                isMyVenue,
-                isOwnerRole,
-                isUserRole,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -282,7 +316,6 @@ class VenueDetail extends StatelessWidget {
     bool isOwnerRole,
     bool isUserRole,
   ) {
-    // owner venue -> edit & delete
     if (isMyVenue) {
       return Row(
         children: [
@@ -304,14 +337,25 @@ class VenueDetail extends StatelessWidget {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VenueFormPage(venue: venue),
+                    builder: (context) => VenueFormPage(venue: _venue), // Kirim _venue
                   ),
                 );
+
+                // JIKA EDIT BERHASIL
                 if (result == true) {
-                  if (context.mounted) {
-                    // Jika form berhasil disimpan, langsung balik ke Home bawa sinyal true juga
-                    Navigator.pop(context, true);
-                  }
+                   setState(() {
+                     _hasEdited = true; // Tandai sudah diedit
+                   });
+
+                   if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Venue updated successfully!"),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      await _refreshData(request);
+                   }
                 }
               },
             ),
@@ -330,15 +374,10 @@ class VenueDetail extends StatelessWidget {
               isFullWidth: true,
               color: MyApp.darkSlate,
               onPressed: () {
-                // TODO: arahin ke page booking
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ),
-                // );
+                // Booking logic
               },
             ),
           ),
-
           const SizedBox(width: 12),
           Expanded(
             flex: 1,
@@ -347,18 +386,13 @@ class VenueDetail extends StatelessWidget {
               isFullWidth: true,
               color: MyApp.orange,
               onPressed: () {
-                // TODO: arahin ke page review
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => VenueFormPage()),
-                );
+                 // Review logic
               },
             ),
           ),
         ],
       );
     }
-    // owner lain (bukan pny dia) -> kosong
     else {
       return const SizedBox(
         height: 50,
@@ -388,21 +422,20 @@ class VenueDetail extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context); // Tutup dialog
-
-              // Call API
-              // GANTI 10.0.2.2 dengan IP jika di HP Fisik
               final response = await request.post(
-                'http://localhost:8000/venue/api/delete-flutter/${venue.id}/',
+                'http://localhost:8000/venue/api/delete-flutter/${_venue.id}/',
                 {},
               );
-
+              
               if (context.mounted) {
+                Navigator.pop(context); // Tutup dialog
+
                 if (response['status'] == 'success') {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Venue deleted successfully")),
                   );
-                  Navigator.pop(context, true); // Balik ke halaman list
+                  // DELETE HARUS POP: Balik ke halaman list karena venue sudah tidak ada
+                  Navigator.pop(context, true); 
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(response['message'] ?? "Failed")),

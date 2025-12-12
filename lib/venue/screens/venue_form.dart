@@ -301,7 +301,6 @@ class _VenueFormPageState extends State<VenueFormPage> {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
                               
                               Navigator.pop(context, true);
-                              if (isEdit) Navigator.pop(context);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text(response['message'] ?? "Error occurred"),

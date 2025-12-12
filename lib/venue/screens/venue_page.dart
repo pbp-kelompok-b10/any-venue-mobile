@@ -7,7 +7,7 @@ import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 
 class VenuePage extends StatefulWidget {
-  final String? initialCategory; 
+  final String? initialCategory;
 
   const VenuePage({super.key, this.initialCategory});
 
@@ -18,12 +18,16 @@ class VenuePage extends StatefulWidget {
 class _VenuePageState extends State<VenuePage> {
   // STATE FILTER
   String _searchQuery = "";
-  
+  final TextEditingController _searchController = TextEditingController();
+
   // Filter Variables
   String? _selectedCity;
   String? _selectedCategory;
   String? _selectedType;
-  RangeValues _priceRange = const RangeValues(0, 5000000); // Default range 0 - 5 Juta
+  RangeValues _priceRange = const RangeValues(
+    0,
+    5000000,
+  ); // Default range 0 - 5 Juta
 
   // Data
   Future<List<Venue>>? _venueFuture;
@@ -34,19 +38,31 @@ class _VenuePageState extends State<VenuePage> {
     super.initState();
     // Set kategori awal
     _selectedCategory = widget.initialCategory;
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        final request = context.read<CookieRequest>();
-        setState(() {
-          _venueFuture = _fetchAllVenues(request);
-        });
+        _refreshData();
       }
     });
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+    void _refreshData() {
+    final request = context.read<CookieRequest>();
+    setState(() {
+      _venueFuture = _fetchAllVenues(request);
+    });
+  }
+
   Future<List<Venue>> _fetchAllVenues(CookieRequest request) async {
-    final response = await request.get('http://localhost:8000/venue/api/venues-flutter/');
+    final response = await request.get(
+      'http://localhost:8000/venue/api/venues-flutter/',
+    );
     List<Venue> list = [];
     for (var d in response) {
       if (d != null) list.add(Venue.fromJson(d));
@@ -74,11 +90,15 @@ class _VenuePageState extends State<VenuePage> {
         backgroundColor: Colors.white,
 
         leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_left_rounded, size:32, color: MyApp.gumetalSlate),
+          icon: const Icon(
+            Icons.keyboard_arrow_left_rounded,
+            size: 32,
+            color: MyApp.gumetalSlate,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      
+
       body: Column(
         children: [
           Container(
@@ -87,11 +107,13 @@ class _VenuePageState extends State<VenuePage> {
             child: Column(
               children: [
                 CustomSearchBar(
+                  controller: _searchController,
                   hintText: "Cari Venue di sini...",
                   readOnly: false,
-                  onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                  onChanged: (val) =>
+                      setState(() => _searchQuery = val.toLowerCase()),
                 ),
-                
+
                 const SizedBox(height: 12),
 
                 // TOMBOL FILTER
@@ -99,16 +121,29 @@ class _VenuePageState extends State<VenuePage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterButton("City", _selectedCity, () => _showSelectionModal("City")),
+                      _buildFilterButton(
+                        "City",
+                        _selectedCity,
+                        () => _showSelectionModal("City"),
+                      ),
                       const SizedBox(width: 8),
-                      _buildFilterButton("Category", _selectedCategory, () => _showSelectionModal("Category")),
+                      _buildFilterButton(
+                        "Category",
+                        _selectedCategory,
+                        () => _showSelectionModal("Category"),
+                      ),
                       const SizedBox(width: 8),
-                      _buildFilterButton("Type", _selectedType, () => _showSelectionModal("Type")),
+                      _buildFilterButton(
+                        "Type",
+                        _selectedType,
+                        () => _showSelectionModal("Type"),
+                      ),
                       const SizedBox(width: 8),
-                      _buildFilterButton("Price", 
+                      _buildFilterButton(
+                        "Price",
                         _priceRange.end < 5000000 ? "Set" : null, // Label logic
                         () => _showPriceModal(),
-                        icon: Icons.attach_money
+                        icon: Icons.attach_money,
                       ),
                     ],
                   ),
@@ -129,12 +164,14 @@ class _VenuePageState extends State<VenuePage> {
                 }
 
                 final allVenues = snapshot.data!;
-                
+
                 // --- LOGIKA FILTER UTAMA ---
                 final filteredVenues = allVenues.where((venue) {
                   // 1. Search Query
-                  final matchQuery = venue.name.toLowerCase().contains(_searchQuery);
-                  
+                  final matchQuery = venue.name.toLowerCase().contains(
+                    _searchQuery,
+                  );
+
                   // 2. City Filter
                   bool matchCity = true;
                   if (_selectedCity != null) {
@@ -155,10 +192,16 @@ class _VenuePageState extends State<VenuePage> {
 
                   // 5. Price Range Filter
                   bool matchPrice = true;
-                  matchPrice = venue.price >= _priceRange.start && venue.price <= _priceRange.end;
+                  matchPrice =
+                      venue.price >= _priceRange.start &&
+                      venue.price <= _priceRange.end;
 
                   // GABUNGKAN SEMUA DENGAN 'AND' (&&)
-                  return matchQuery && matchCity && matchCategory && matchType && matchPrice;
+                  return matchQuery &&
+                      matchCity &&
+                      matchCategory &&
+                      matchType &&
+                      matchPrice;
                 }).toList();
 
                 if (filteredVenues.isEmpty) {
@@ -166,13 +209,20 @@ class _VenuePageState extends State<VenuePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.filter_list_off, size: 48, color: Colors.grey[300]),
+                        Icon(
+                          Icons.filter_list_off,
+                          size: 48,
+                          color: Colors.grey[300],
+                        ),
                         const SizedBox(height: 16),
-                        const Text("Tidak ada venue yang cocok nih :(", style: TextStyle(color: MyApp.orange)),
+                        const Text(
+                          "Tidak ada venue yang cocok nih :(",
+                          style: TextStyle(color: MyApp.orange),
+                        ),
                         TextButton(
-                          onPressed: _resetFilters, 
-                          child: const Text("Reset Filter")
-                        )
+                          onPressed: _resetFilters,
+                          child: const Text("Reset Filter"),
+                        ),
                       ],
                     ),
                   );
@@ -181,10 +231,10 @@ class _VenuePageState extends State<VenuePage> {
                 // List
                 return VenueList(
                   venues: filteredVenues,
-                  isLarge: false, 
+                  isLarge: false,
                   scrollable: true,
                   onRefresh: () {
-                      setState(() {}); 
+                    _refreshData();
                   },
                 );
               },
@@ -196,7 +246,12 @@ class _VenuePageState extends State<VenuePage> {
   }
 
   // --- WIDGET HELPER: TOMBOL FILTER KAPSUL ---
-  Widget _buildFilterButton(String label, String? selectedValue, VoidCallback onTap, {IconData? icon}) {
+  Widget _buildFilterButton(
+    String label,
+    String? selectedValue,
+    VoidCallback onTap, {
+    IconData? icon,
+  }) {
     final bool isActive = selectedValue != null;
     return GestureDetector(
       onTap: onTap,
@@ -221,10 +276,10 @@ class _VenuePageState extends State<VenuePage> {
             ),
             const SizedBox(width: 4),
             Icon(
-              icon ?? Icons.keyboard_arrow_down, 
-              size: 16, 
+              icon ?? Icons.keyboard_arrow_down,
+              size: 16,
               color: isActive ? Colors.white : Colors.grey[700],
-            )
+            ),
           ],
         ),
       ),
@@ -240,12 +295,14 @@ class _VenuePageState extends State<VenuePage> {
     } else if (type == "Category") {
       items = _allVenues.map((v) => v.category.name).toSet();
     } else if (type == "Type") {
-      items = {"Indoor", "Outdoor"}; 
+      items = {"Indoor", "Outdoor"};
     }
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(24),
@@ -256,8 +313,14 @@ class _VenuePageState extends State<VenuePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Select $type", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  if ((type == "City" && _selectedCity != null) || 
+                  Text(
+                    "Select $type",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if ((type == "City" && _selectedCity != null) ||
                       (type == "Category" && _selectedCategory != null) ||
                       (type == "Type" && _selectedType != null))
                     TextButton(
@@ -270,7 +333,7 @@ class _VenuePageState extends State<VenuePage> {
                         Navigator.pop(context);
                       },
                       child: const Text("Clear"),
-                    )
+                    ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -280,19 +343,25 @@ class _VenuePageState extends State<VenuePage> {
                 children: items.map((item) {
                   bool isSelected = false;
                   if (type == "City") isSelected = item == _selectedCity;
-                  if (type == "Category") isSelected = item == _selectedCategory;
+                  if (type == "Category")
+                    isSelected = item == _selectedCategory;
                   if (type == "Type") isSelected = item == _selectedType;
 
                   return ChoiceChip(
                     label: Text(item),
                     selected: isSelected,
                     selectedColor: MyApp.orange.withOpacity(0.2),
-                    labelStyle: TextStyle(color: isSelected ? MyApp.orange : Colors.black),
+                    labelStyle: TextStyle(
+                      color: isSelected ? MyApp.orange : Colors.black,
+                    ),
                     onSelected: (bool selected) {
                       setState(() {
-                        if (type == "City") _selectedCity = selected ? item : null;
-                        if (type == "Category") _selectedCategory = selected ? item : null;
-                        if (type == "Type") _selectedType = selected ? item : null;
+                        if (type == "City")
+                          _selectedCity = selected ? item : null;
+                        if (type == "Category")
+                          _selectedCategory = selected ? item : null;
+                        if (type == "Type")
+                          _selectedType = selected ? item : null;
                       });
                       Navigator.pop(context); // Tutup modal setelah pilih
                     },
@@ -314,7 +383,9 @@ class _VenuePageState extends State<VenuePage> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateModal) {
@@ -327,36 +398,52 @@ class _VenuePageState extends State<VenuePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("Rentang Harga", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text(
+                        "Rentang Harga",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {
-                          setState(() => _priceRange = const RangeValues(0, 5000000));
+                          setState(
+                            () => _priceRange = const RangeValues(0, 5000000),
+                          );
                           Navigator.pop(context);
                         },
                         child: const Text("Reset"),
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
                   RangeSlider(
                     values: tempRange,
                     min: 0,
-                    max: 5000000, // Max 5 Juta 
+                    max: 5000000, // Max 5 Juta
                     divisions: 50,
                     activeColor: MyApp.orange,
                     labels: RangeLabels(
-                      "Rp ${tempRange.start.round()}", 
-                      "Rp ${tempRange.end.round()}"
+                      "Rp ${tempRange.start.round()}",
+                      "Rp ${tempRange.end.round()}",
                     ),
                     onChanged: (RangeValues values) {
-                      setStateModal(() => tempRange = values); // Update tampilan modal
+                      setStateModal(
+                        () => tempRange = values,
+                      ); // Update tampilan modal
                     },
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Rp ${tempRange.start.round()}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                      Text("Rp ${tempRange.end.round()}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        "Rp ${tempRange.start.round()}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "Rp ${tempRange.end.round()}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -368,16 +455,18 @@ class _VenuePageState extends State<VenuePage> {
                         foregroundColor: Colors.white,
                       ),
                       onPressed: () {
-                        setState(() => _priceRange = tempRange); // Simpan ke state utama
+                        setState(
+                          () => _priceRange = tempRange,
+                        ); // Simpan ke state utama
                         Navigator.pop(context);
                       },
                       child: const Text("Apply Filter"),
                     ),
-                  )
+                  ),
                 ],
               ),
             );
-          }
+          },
         );
       },
     );
@@ -390,6 +479,7 @@ class _VenuePageState extends State<VenuePage> {
       _selectedType = null;
       _priceRange = const RangeValues(0, 5000000);
       _searchQuery = "";
+      _searchController.clear();
     });
   }
 }

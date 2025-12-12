@@ -7,7 +7,11 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
 
+import 'package:any_venue/account/models/profile.dart';
+import 'package:any_venue/account/screens/profile_page.dart';
+
 class MainNavigation extends StatefulWidget {
+
   const MainNavigation({super.key});
 
   @override
@@ -32,7 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
         const HomePage(),
         const Center(child: Text("My Venues")), 
         const Center(child: Text("My Events")), 
-        const Center(child: Text("Owner Profile")),     
+        const ProfilePage(),     
       ];
     } else {
       screens = [
@@ -40,7 +44,7 @@ class _MainNavigationState extends State<MainNavigation> {
         const Center(child: Text("My Bookings")), 
         const Center(child: Text("My Events")), 
         const Center(child: Text("My Reviews")),  
-        const Center(child: Text("User Profile")),       
+        const ProfilePage(),      
       ];
     }
 
