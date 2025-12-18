@@ -1,9 +1,13 @@
+import 'package:any_venue/screens/welcome_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/main.dart'; // Import main.dart untuk akses warna MyApp
+import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/widgets/components/arrow_button.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -42,8 +46,6 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    // Warna dari Figma / Main.dart
-    const Color textDark = Color(0xFF13123A);
     const Color inputBg = Color(0xFFFAFAFA);
     const Color borderGray = Color(0xFFE0E0E6);
 
@@ -63,13 +65,30 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 40), 
+                      const SizedBox(height: 40),
+
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: ArrowButton(
+                            isLeft: true,
+                            size: 50.0,
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
 
                       // --- HEADER ---
                       Text(
                         'Sign in to\nyour account',
-                        style: TextStyle(
-                          color: textDark,
+                        style: GoogleFonts.nunitoSans(
+                          color: MyApp.gumetalSlate,
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
                           height: 1.2,
@@ -84,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: 'Don\'t have an account? ',
                               style: GoogleFonts.nunitoSans(
-                                color: textDark,
+                                color: MyApp.gumetalSlate,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -151,114 +170,68 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 36),
 
-                      // --- BUTTON SIGN IN ---
-                      Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: _isLoading
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    _isLoading = true;
-                                  });
+                      // BUTTON SIGN IN
+                      CustomButton(
+                        text: 'Sign In',
+                        isFullWidth: true,
+                        isLoading: _isLoading, // Otomatis mengatur spinner & disable klik
+                        gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate], // Warna Gradasi
+                        onPressed: () async {
+                          // 1. Mulai Loading
+                          setState(() {
+                            _isLoading = true;
+                          });
 
-                                  String username = _usernameController.text;
-                                  String password = _passwordController.text;
+                          String username = _usernameController.text;
+                          String password = _passwordController.text;
 
-                                  // --- LOGIKA DJANGO AUTH ---
-                                  // Ganti URL sesuai environment (localhost / 10.0.2.2)
-                                  final response = await request.login(
-                                      "http://localhost:8000/auth/api/login/", {
-                                    'username': username,
-                                    'password': password,
-                                  });
+                          // 2. Request API
+                          // Ganti URL sesuai environment (localhost / 10.0.2.2)
+                          final response = await request.login(
+                            "http://localhost:8000/auth/api/login/",
+                            {
+                              'username': username,
+                              'password': password,
+                            },
+                          );
 
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
+                          // 3. Selesai Loading
+                          setState(() {
+                            _isLoading = false;
+                          });
 
-                                  if (request.loggedIn) {
-                                    String message = response['message'];
-                                    String uname = response['username'];
-                                    if (context.mounted) {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MainNavigation(),
-                                        ),
-                                      );
-                                      ScaffoldMessenger.of(context)
-                                        ..hideCurrentSnackBar()
-                                        ..showSnackBar(
-                                          SnackBar(
-                                            content: Text("$message Welcome, $uname."),
-                                            behavior: SnackBarBehavior.floating,
-                                            backgroundColor: MyApp.darkSlate,
-                                          ),
-                                        );
-                                    }
-                                  } else {
-                                    if (context.mounted) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text('Login Failed'),
-                                          content: Text(response['message']),
-                                          actions: [
-                                            TextButton(
-                                              child: const Text('OK'),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                            width: double.infinity,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment(0.50, -0.00),
-                                end: Alignment(0.50, 1.00),
-                                colors: [
-                                  MyApp.gumetalSlate, 
-                                  MyApp.darkSlate
-                                ], // Gradient warna
-                              ),
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: MyApp.darkSlate.withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                          // 4. Handle Response
+                          if (request.loggedIn) {
+                            // --- SUCCESS ---
+                            String message = response['message'];
+                            String uname = response['username'];
+
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainNavigation(),
                                 ),
-                              ],
-                            ),
-                            alignment: Alignment.center,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(
-                                    'Sign In',
-                                    style: GoogleFonts.nunitoSans(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                          ),
-                        ),
+                              );
+                              CustomToast.show(
+                                context,
+                                message: "Login Successful!",
+                                subMessage: "$message Welcome back, $uname.",
+                                isError: false,
+                              );
+                            }
+                          } else {
+                            // --- FAILED ---
+                            if (context.mounted) {
+                              CustomToast.show(
+                                context,
+                                message: "Login Failed",
+                                subMessage: response['message'] ?? 'Unknown error',
+                                isError: true, // Warna jadi Orange
+                              );
+                            }
+                          }
+                        },
                       ),
                       const SizedBox(height: 40),
                     ],
