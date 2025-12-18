@@ -160,7 +160,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Type"),
                               DropdownButtonFormField<String>(
-                                value: _type,
+                                initialValue: _type,
                                 items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                                 onChanged: (val) => setState(() => _type = val!),
                                 decoration: _inputDecoration("Select"),
@@ -182,7 +182,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("City"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCity,
+                                initialValue: _selectedCity,
                                 hint: const Text("Select City"),
                                 items: _cityList.map((city) {
                                   return DropdownMenuItem<String>(
@@ -207,7 +207,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Category"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCategory,
+                                initialValue: _selectedCategory,
                                 hint: const Text("Select Category"),
                                 items: _categoryList.map((cat) {
                                   return DropdownMenuItem<String>(

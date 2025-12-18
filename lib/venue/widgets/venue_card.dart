@@ -196,7 +196,7 @@ class VenueCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\Rp ${venue.price}",
+                  "Rp ${venue.price}",
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
