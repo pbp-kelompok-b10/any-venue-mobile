@@ -4,6 +4,7 @@ import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
 import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -44,10 +45,10 @@ class WelcomeScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.6, 1.0],
+                  stops: const [0.0, 0.7, 1.0],
                   colors: [
                     Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.8),
+                    Colors.white.withOpacity(0.6),
                     Colors.white, 
                   ],
                 ),
@@ -61,14 +62,14 @@ class WelcomeScreen extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+              padding: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 150.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "Welcome\nto AnyVenue!",
-                    style: TextStyle(
+                    style: GoogleFonts.nunitoSans(
                       fontSize: 34,
                       fontWeight: FontWeight.w800,
                       color: MyApp.gumetalSlate,
@@ -82,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                     "Cari, sewa, dan ikuti berbagai event olahraga dengan cara baru yang lebih simpel dan efisien.",
                     style: TextStyle(
                       fontSize: 15,
-                      color: Colors.grey,
+                      color: MyApp.gumetalSlate,
                       height: 1.5,
                     ),
                   ),
@@ -93,12 +94,12 @@ class WelcomeScreen extends StatelessWidget {
                   CustomButton(
                     text: "Get Started",
                     isFullWidth: true,
-                    color: MyApp.darkSlate,
+                    gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate], 
                     icon: Icons.arrow_circle_right_outlined,
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MainNavigation()),
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
                       );
                     },
                   ),

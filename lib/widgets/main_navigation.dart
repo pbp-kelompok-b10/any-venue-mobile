@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:any_venue/main.dart'; 
 
@@ -77,7 +78,7 @@ class _MainNavigationState extends State<MainNavigation> {
       floatingActionButton: isOwner 
         ? FloatingActionButton(
             onPressed: () => _showCreateModal(context),
-            backgroundColor: MyApp.darkSlate, // Warna Orange biar mencolok
+            backgroundColor: MyApp.gumetalSlate, // Warna Orange biar mencolok
             elevation: 4,
             shape: const CircleBorder(),
             child: const Icon(Icons.add, color: Colors.white, size: 28),
@@ -110,7 +111,7 @@ class _MainNavigationState extends State<MainNavigation> {
               _selectedIndex = index;
             });
           },
-          selectedItemColor: MyApp.darkSlate,
+          selectedItemColor: MyApp.gumetalSlate,
           unselectedItemColor: Colors.grey,
           showUnselectedLabels: true,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10), // Font diperkecil sedikit agar muat 5
@@ -138,11 +139,11 @@ class _MainNavigationState extends State<MainNavigation> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Create",
-                style: TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 20, 
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   color: MyApp.gumetalSlate,
                 ),
               ),
@@ -151,7 +152,7 @@ class _MainNavigationState extends State<MainNavigation> {
               // PILIHAN 1: ADD VENUE
               _buildOptionItem(
                 icon: Icons.stadium_rounded,
-                color: MyApp.darkSlate,
+                color: MyApp.gumetalSlate,
                 iconColor: Colors.white,
                 label: "New Venue",
                 subLabel: "Add a sport field",
@@ -176,9 +177,6 @@ class _MainNavigationState extends State<MainNavigation> {
                 onTap: () {
                   Navigator.pop(context);
                   // TODO: Pindah ke Form Event (Create Mode)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Form Event Coming Soon!"))
-                  );
                 },
               ),
             ],

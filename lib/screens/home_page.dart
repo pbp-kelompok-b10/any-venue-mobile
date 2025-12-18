@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/widgets/components/search_bar.dart';
@@ -132,7 +133,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Text(
                                   "Welcome,",
-                                  style: TextStyle(
+                                  style: GoogleFonts.nunitoSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: MyApp.gumetalSlate.withOpacity(0.8),
@@ -140,9 +141,9 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 Text(
                                   "$username!",
-                                  style: const TextStyle(
+                                  style: GoogleFonts.nunitoSans(
                                     fontSize: 32,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w800,
                                     color: MyApp.gumetalSlate,
                                     height: 1.1,
                                     letterSpacing: -0.5,
@@ -243,10 +244,10 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: GoogleFonts.nunitoSans(
               fontSize: 19,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF293241),
+              color: MyApp.gumetalSlate,
             ),
           ),
 
@@ -254,9 +255,9 @@ class _HomePageState extends State<HomePage> {
             cursor: SystemMouseCursors.click, // Ubah kursor jadi tangan
             child: GestureDetector(
               onTap: onTapSeeAll,
-              child: const Text(
+              child: Text(
                 "See all",
-                style: TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 14,
                   color: MyApp.orange,
                   fontWeight: FontWeight.bold,
