@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
 
 class ReviewPage extends StatefulWidget {
   final int venueId; 
@@ -73,47 +74,24 @@ class _ReviewPageState extends State<ReviewPage> {
   Widget build(BuildContext context) {
     bool isRatingDisabled = _selectedFilter == ReviewFilter.my;
 
-    // --- LOGIKA FILTERING DI FLUTTER (CLIENT-SIDE) ---
-    // Saring data dari _reviews berdasarkan bintang yang dipilih
+    // Filter data dari _reviews berdasarkan bintang yang dipilih
     final filteredReviews = _reviews.where((review) {
       if (_selectedFilter == ReviewFilter.all && _selectedRating != null) {
-        // Pastikan field 'rating' sesuai dengan model Review Anda
         return review.rating == _selectedRating; 
       }
       return true; // Tampilkan semua jika tidak ada filter bintang
     }).toList();
 
     return Scaffold(
-      backgroundColor: Colors.white, 
-      appBar: AppBar(
-        // --- APPBAR ---
-        title: const Text(
-          "Reviews",
-          style: TextStyle(
-            color: MyApp.gumetalSlate,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        centerTitle: false, 
-        leading: IconButton(
-          icon: const Icon(
-            Icons.keyboard_arrow_left_rounded,
-            size: 32,
-            color: MyApp.gumetalSlate,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      backgroundColor: Colors.white,
+      appBar: const CustomAppBar(title: "Reviews"), 
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // --- FILTER SECTION ---
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(

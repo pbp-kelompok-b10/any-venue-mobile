@@ -58,7 +58,7 @@ class ReviewList extends StatelessWidget {
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !scrollable,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {

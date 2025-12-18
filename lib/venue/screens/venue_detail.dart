@@ -8,6 +8,7 @@ import 'package:any_venue/widgets/components/button.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
+import 'package:any_venue/review/screens/review_page.dart';
 
 class VenueDetail extends StatefulWidget {
   final Venue venue;
@@ -267,6 +268,12 @@ class _VenueDetailState extends State<VenueDetail> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => ReviewPage(venueId: _venue.id)),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
