@@ -29,8 +29,6 @@ class ReviewList extends StatelessWidget {
 
   // ==========================================
   // LAYOUT 1: HORIZONTAL (GESER SAMPING)
-  // - Lebar Card Fixed (313px)
-  // - Tinggi Container Fixed
   // ==========================================
   Widget _buildHorizontalList() {
     return SizedBox(
@@ -42,7 +40,7 @@ class ReviewList extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           return SizedBox(
-            width: 313, // Lebar FIX sesuai desain Figma (image_62893b)
+            width: 313,
             child: ReviewCard(review: reviews[index]),
           );
         },
@@ -52,7 +50,6 @@ class ReviewList extends StatelessWidget {
 
   // ==========================================
   // LAYOUT 2: VERTICAL (LIST KE BAWAH)
-  // - Lebar Card Flexible (Mengikuti Layar)
   // - Digunakan di halaman "All Reviews"
   // ==========================================
   Widget _buildVerticalList() {
@@ -60,13 +57,11 @@ class ReviewList extends StatelessWidget {
       physics: scrollable
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      shrinkWrap: !scrollable, // Agar tidak error jika ditaruh dalam SingleChildScrollView
+      shrinkWrap: !scrollable,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        // Di sini kita TIDAK membungkus dengan SizedBox width
-        // sehingga card akan otomatis melebar (stretch)
         return ReviewCard(review: reviews[index]);
       },
     );

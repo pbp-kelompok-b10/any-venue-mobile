@@ -21,8 +21,8 @@ class ReviewCard extends StatelessWidget {
         // Menambahkan shadow agar senada dengan VenueCard dan terlihat 'pop' di background putih
         boxShadow: [
           BoxShadow(
-            color: MyApp.gumetalSlate.withOpacity(0.1),
-            blurRadius: 10,
+            color: MyApp.gumetalSlate.withOpacity(0.15),
+            blurRadius: 15,
             offset: const Offset(0, 4),
           ),
         ],
@@ -37,8 +37,8 @@ class ReviewCard extends StatelessWidget {
             children: [
               // Avatar Circle
               Container(
-                width: 52,
-                height: 52,
+                width: 48,
+                height: 48,
                 decoration: const BoxDecoration(
                   color: MyApp.darkSlate, // Menggunakan warna tema
                   shape: BoxShape.circle,
@@ -46,7 +46,7 @@ class ReviewCard extends StatelessWidget {
                 child: const Icon(
                   Icons.person_outline_rounded,
                   color: Colors.white,
-                  size: 28,
+                  size: 26,
                 ),
               ),
               const SizedBox(width: 12),
@@ -95,10 +95,10 @@ class ReviewCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(5, (index) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
+                    padding: const EdgeInsets.only(right: 1.0),
                     child: Icon(
                       Icons.star_rounded,
-                      size: 20,
+                      size: 23,
                       // Logic: Jika index < rating, warna Orange. Jika tidak, abu-abu muda.
                       color: index < review.rating
                           ? MyApp.orange
@@ -119,7 +119,7 @@ class ReviewCard extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                   height: 1.5,
                 ),
-                textAlign: TextAlign.justify,
+                textAlign: TextAlign.left,
               ),
             ],
           ),
