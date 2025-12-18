@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ArrowButton extends StatelessWidget {
   final VoidCallback? onTap;
   final double size;
+  final bool isLeft; // Parameter baru
 
   const ArrowButton({
     super.key, 
     this.onTap,
     this.size = 32.0,
+    this.isLeft = false, // Default false (Arah Kanan)
   });
 
   @override
@@ -21,13 +23,13 @@ class ArrowButton extends StatelessWidget {
         color: Colors.white,
       ),
       child: Icon(
-        Icons.chevron_right,
+        // Logic ganti icon berdasarkan isLeft
+        isLeft ? Icons.chevron_left : Icons.chevron_right,
         size: size * 0.6,
         color: const Color(0xFF293241), // Gunmetal Slate
       ),
     );
 
-    // Kalau ada onTap, bungkus dengan GestureDetector/InkWell
     if (onTap != null) {
       return GestureDetector(
         onTap: onTap,
@@ -35,7 +37,6 @@ class ArrowButton extends StatelessWidget {
       );
     }
 
-    // Kalau tidak ada aksi klik (cuma hiasan), return langsung
     return buttonContent;
   }
 }
