@@ -7,7 +7,7 @@ import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/main.dart'; // Import main.dart untuk akses warna MyApp
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/arrow_button.dart';
-import 'package:any_venue/widgets/components/toast.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
