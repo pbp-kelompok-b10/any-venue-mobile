@@ -83,7 +83,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ? FloatingActionButton(
             onPressed: () => _showCreateModal(context),
             backgroundColor: MyApp.gumetalSlate, // Warna Orange biar mencolok
-            elevation: 4,
+            elevation: 5,
             shape: const CircleBorder(),
             child: const Icon(Icons.add, color: Colors.white, size: 28),
           ) 

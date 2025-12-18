@@ -6,7 +6,7 @@ import 'package:any_venue/screens/welcome_screen.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/arrow_button.dart';
-import 'package:any_venue/widgets/components/toast.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
