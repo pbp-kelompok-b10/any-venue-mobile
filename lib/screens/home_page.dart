@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -78,87 +77,75 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             // HEADER AREA
-            Stack(
-              children: [
-                SizedBox(
-                  height: 340,
-                  width: double.infinity,
-                  child: Image.asset(
-                    'assets/images/header.jpg', 
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(color: MyApp.darkSlate),
+            SizedBox(
+              height: 340, // Tinggi container header
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  // 1. Background Image
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/header.jpg', 
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(color: MyApp.darkSlate),
+                    ),
                   ),
-                ),
 
-                // Gradient Fade
-                Positioned(
-                  bottom: -1,
-                  left: 0,
-                  right: 0,
-                  height: 200, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withOpacity(0.0),
-                          Colors.white.withOpacity(0.8),
-                          Colors.white, 
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
+                  // 2. Gradient Fade
+                  Positioned(
+                    bottom: -1,
+                    left: 0,
+                    right: 0,
+                    height: 200, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withOpacity(0.0),
+                            Colors.white.withOpacity(0.8),
+                            Colors.white, 
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Search & Welcome Text
-                Positioned.fill(
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-
-                          const Spacer(),
-
-                          // Welcome text
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "Welcome,",
-                                  style: GoogleFonts.nunitoSans(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: MyApp.gumetalSlate.withOpacity(0.8),
-                                  ),
-                                ),
-                                Text(
-                                  "$username!",
-                                  style: GoogleFonts.nunitoSans(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w800,
-                                    color: MyApp.gumetalSlate,
-                                    height: 1.1,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
+                  // 3. Welcome Text (FIXED: Pakai Positioned, bukan Column + Spacer)
+                  Positioned(
+                    bottom: 20, 
+                    right: 24,
+                    left: 24, // Agar tidak overflow jika teks panjang
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Welcome,",
+                          style: GoogleFonts.nunitoSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: MyApp.gumetalSlate.withOpacity(0.8),
                           ),
-                          const SizedBox(height: 60), 
-                        ],
-                      ),
+                        ),
+                        Text(
+                          "$username!",
+                          textAlign: TextAlign.right,
+                          style: GoogleFonts.nunitoSans(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            color: MyApp.gumetalSlate,
+                            height: 1.1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             // VENUES
@@ -196,7 +183,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 180),
 
             // EVENTS
   //           _buildSectionHeader("Upcoming Events", () {
