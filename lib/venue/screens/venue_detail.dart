@@ -3,6 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/components/button.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
@@ -408,48 +409,35 @@ class _VenueDetailState extends State<VenueDetail> {
 
   // delete confirmation
   void _confirmDelete(BuildContext context, CookieRequest request) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Delete Venue"),
-        content: const Text(
-          "Are you sure you want to delete this venue? This action cannot be undone.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () async {
-              final response = await request.post(
-                'http://localhost:8000/venue/api/delete-flutter/${_venue.id}/',
-                {},
-              );
-              
-              if (context.mounted) {
-                Navigator.pop(context); // Tutup dialog
+    ConfirmationModal.show(
+      context,
+      title: "Delete Venue?",
+      message: "Are you sure you want to delete this venue? This action cannot be undone.",
+      isDanger: true,
+      confirmText: "Delete",
+      icon: Icons.delete_outline_rounded,
+      onConfirm: () async {
+        final response = await request.post(
+          'http://localhost:8000/venue/api/delete-flutter/${_venue.id}/',
+          {},
+        );
+        
+        if (context.mounted) {
+          Navigator.pop(context); // Tutup dialog
 
-                if (response['status'] == 'success') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Venue deleted successfully")),
-                  );
-                  // DELETE HARUS POP: Balik ke halaman list karena venue sudah tidak ada
-                  Navigator.pop(context, true); 
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(response['message'] ?? "Failed")),
-                  );
-                }
-              }
-            },
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
+          if (response['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Venue deleted successfully")),
+            );
+            // DELETE HARUS POP: Balik ke halaman list karena venue sudah tidak ada
+            Navigator.pop(context, true); 
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'] ?? "Failed")),
+            );
+          }
+        }
+      },
     );
   }
 

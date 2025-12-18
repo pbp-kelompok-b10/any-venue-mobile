@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart'; 
+import 'package:any_venue/widgets/components/app_bar.dart'; 
+import 'package:any_venue/widgets/toast.dart'; 
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/models/city.dart';
@@ -112,18 +114,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          isEdit ? "Edit Venue" : "Create New Venue",
-          style: const TextStyle(fontWeight: FontWeight.bold, color: MyApp.gumetalSlate),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Create New Venue"),
       // Tampilkan Loading jika data dropdown belum siap
       body: _isLoadingData 
           ? const Center(child: CircularProgressIndicator()) 
@@ -169,7 +160,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Type"),
                               DropdownButtonFormField<String>(
-                                value: _type,
+                                initialValue: _type,
                                 items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                                 onChanged: (val) => setState(() => _type = val!),
                                 decoration: _inputDecoration("Select"),
@@ -191,7 +182,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("City"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCity,
+                                initialValue: _selectedCity,
                                 hint: const Text("Select City"),
                                 items: _cityList.map((city) {
                                   return DropdownMenuItem<String>(
@@ -216,7 +207,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Category"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCategory,
+                                initialValue: _selectedCategory,
                                 hint: const Text("Select Category"),
                                 items: _categoryList.map((cat) {
                                   return DropdownMenuItem<String>(
@@ -272,7 +263,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                     // TOMBOL SAVE (PAKAI CUSTOM BUTTON)
                     CustomButton(
                       text: isEdit ? "Update Venue" : "Create Venue",
-                      color: MyApp.darkSlate,
+                      gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate],
                       isFullWidth: true,
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
@@ -298,20 +289,26 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
                           if (context.mounted) {
                             if (response['status'] == 'success') {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
+                              CustomToast.show(
+                                context,
+                                message: response['message'],
+                                subMessage: "Your venue is now ready for bookings!",
+                                isError: false,
+                              );
                               
                               Navigator.pop(context, true);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(response['message'] ?? "Error occurred"),
-                                backgroundColor: Colors.red,
-                              ));
+                              CustomToast.show(
+                                context,
+                                message: "Failed to create new venue.",
+                                subMessage: response['message'] ?? "Error occurred",
+                                isError: true,
+                              );
                             }
                           }
                         }
                       },
                     ),
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),
