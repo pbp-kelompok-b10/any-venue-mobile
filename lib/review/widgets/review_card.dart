@@ -4,21 +4,21 @@ import 'package:any_venue/review/models/review.dart';
 
 class ReviewCard extends StatelessWidget {
   final Review review;
+  final bool isCompact;
 
   const ReviewCard({
     super.key,
     required this.review,
+    this.isCompact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Hapus width hardcoded (313) agar responsif mengikuti parent
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        // Menambahkan shadow agar senada dengan VenueCard dan terlihat 'pop' di background putih
         boxShadow: [
           BoxShadow(
             color: MyApp.gumetalSlate.withOpacity(0.15),
@@ -61,16 +61,16 @@ class ReviewCard extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 14,
-                        fontWeight: FontWeight.w600, // Sedikit lebih tebal (w500-w600)
+                        fontWeight: FontWeight.w600,
                         height: 1.5,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      review.createdAt, // Asumsi format string sudah sesuai (e.g. DD-MM-YYYY)
+                      review.createdAt,
                       style: const TextStyle(
-                        color: Color(0xFF7A7A90), // Warna abu-abu dari Figma
+                        color: Color(0xFF7A7A90),
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
                         height: 1.5,
@@ -84,7 +84,7 @@ class ReviewCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 16), // Spacing antar Header dan Content
+          const SizedBox(height: 12),
 
           // --- CONTENT: STARS & COMMENT ---
           Column(
@@ -93,33 +93,54 @@ class ReviewCard extends StatelessWidget {
               // Star Rating Row
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(5, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 1.0),
-                    child: Icon(
-                      Icons.star_rounded,
-                      size: 23,
-                      // Logic: Jika index < rating, warna Orange. Jika tidak, abu-abu muda.
-                      color: index < review.rating
-                          ? MyApp.orange
-                          : const Color(0xFFD3D5DD),
+                children: [
+                  ...List.generate(5, (index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 1.0),
+                      child: Icon(
+                        Icons.star_rounded,
+                        size: 23,
+                        // Logic: Jika index < rating, warna Orange. Jika tidak, abu-abu muda.
+                        color: index < review.rating
+                            ? MyApp.orange
+                            : const Color(0xFFD3D5DD),
+                      ),
+                    );
+                  }),
+                  
+                  SizedBox(width: 3),
+
+                  Text(
+                    review.createdAt == review.lastModified ? '' : ' (edited)',
+                    style: const TextStyle(
+                      color: Color(0xFF7A7A90),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      height: 1.5,
                     ),
-                  );
-                }),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
               
-              const SizedBox(height: 8), // Spacing kecil antara bintang dan teks
+              const SizedBox(height: 8),
               
-              // Comment Text
+              // Review Comment
               Text(
                 review.comment,
                 style: const TextStyle(
-                  color: Color(0xFF7A7A90),
+                  color: Colors.black,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.left,
+                // LOGIC TRUNCATED:
+                // Jika isCompact = true, batasi 3 baris. Jika tidak, null (bebas)
+                maxLines: isCompact ? 3 : null, 
+                // Jika isCompact = true, kasih "..." di ujung text
+                overflow: isCompact ? TextOverflow.ellipsis : null,
               ),
             ],
           ),

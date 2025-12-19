@@ -8,7 +8,11 @@ import 'package:any_venue/widgets/components/button.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
+
 import 'package:any_venue/review/screens/review_page.dart';
+import 'package:any_venue/review/screens/review_form.dart';
+import 'package:any_venue/review/models/review.dart';
+import 'package:any_venue/review/widgets/review_list.dart';
 
 class VenueDetail extends StatefulWidget {
   final Venue venue;
@@ -23,10 +27,35 @@ class _VenueDetailState extends State<VenueDetail> {
   late Venue _venue; // Data venue yang aktif ditampilkan
   bool _hasEdited = false; // Penanda jika user melakukan edit
 
+  List<Review> _reviews = [];
+  bool _isLoadingReviews = true;
+
   @override
   void initState() {
     super.initState();
     _venue = widget.venue;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final request = context.read<CookieRequest>();
+      _fetchReviews(request);
+    });
+  }
+
+  // --- Fungsi Fetch Review ---
+  Future<void> _fetchReviews(CookieRequest request) async {
+    try {
+      final response = await request.get('http://localhost:8000/review/json/venue/${_venue.id}/');
+      if (mounted) {
+        setState(() {
+          List<dynamic> listJson = response;
+          _reviews = listJson.map((d) => Review.fromJson(d)).toList();
+          _isLoadingReviews = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Gagal ambil review: $e");
+      if (mounted) setState(() => _isLoadingReviews = false);
+    }
   }
 
   // Fungsi untuk refresh data single venue dari server
@@ -60,6 +89,18 @@ class _VenueDetailState extends State<VenueDetail> {
     final bool isMyVenue = currentUsername == _venue.owner.username;
     final bool isOwnerRole = currentRole == 'OWNER';
     final bool isUserRole = currentRole == 'USER';
+
+    Review? userReview;
+    if (!_isLoadingReviews && _reviews.isNotEmpty) {
+      try {
+        userReview = _reviews.firstWhere(
+          (r) => r.user == currentUsername,
+        );
+      } catch (_) {
+        // Tidak ditemukan review milik user ini
+        userReview = null;
+      }
+    }
 
     // Gunakan PopScope untuk menangani tombol Back (Android/AppBar)
     return PopScope(
@@ -278,6 +319,37 @@ class _VenueDetailState extends State<VenueDetail> {
                               ),
                             ],
                           ),
+                        
+                          // review list
+                          if (_isLoadingReviews)
+                            const SizedBox(
+                              height: 150,
+                              child: Center(
+                                child: CircularProgressIndicator(color: MyApp.orange),
+                              ),
+                            )
+                          else if (_reviews.isEmpty)
+                            Container(
+                              height: 150,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text(
+                                    "No reviews for this venue yet.",
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else
+                            ReviewList(
+                              reviews: _reviews,
+                              isHorizontal: true, 
+                              scrollable: true,
+                            ),
+
                           const SizedBox(height: 100),
                         ],
                       ),
@@ -307,6 +379,7 @@ class _VenueDetailState extends State<VenueDetail> {
                   isMyVenue,
                   isOwnerRole,
                   isUserRole,
+                  userReview,
                 ),
               ),
             ),
@@ -323,6 +396,7 @@ class _VenueDetailState extends State<VenueDetail> {
     bool isMyVenue,
     bool isOwnerRole,
     bool isUserRole,
+    Review? userReview,
   ) {
     if (isMyVenue) {
       return Row(
@@ -373,6 +447,8 @@ class _VenueDetailState extends State<VenueDetail> {
     }
     // user biasa -> book & review
     else if (isUserRole) {
+      final bool hasReviewed = userReview != null;
+
       return Row(
         children: [
           Expanded(
@@ -390,11 +466,27 @@ class _VenueDetailState extends State<VenueDetail> {
           Expanded(
             flex: 1,
             child: CustomButton(
-              text: "Add Review",
+              text: hasReviewed ? "Edit Review" : "Add Review",
               isFullWidth: true,
               color: MyApp.orange,
-              onPressed: () {
-                 // Review logic
+              onPressed: () async {
+                // Panggil Form
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewFormPage(
+                      // Jika Edit -> kirim existingReview
+                      // Jika Add  -> kirim venueId
+                      venueId: hasReviewed ? null : _venue.id,
+                      existingReview: userReview, 
+                    ),
+                  ),
+                );
+
+                // Jika user berhasil submit (return true), refresh list review
+                if (result == true && context.mounted) {
+                  _fetchReviews(request);
+                }
               },
             ),
           ),

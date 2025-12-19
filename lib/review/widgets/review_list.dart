@@ -32,16 +32,17 @@ class ReviewList extends StatelessWidget {
   // ==========================================
   Widget _buildHorizontalList() {
     return SizedBox(
-      height: 240, // Tinggi area scroll (disesuaikan dengan konten card)
+      height: 240,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        clipBehavior: Clip.none,
+        padding: const EdgeInsets.symmetric(vertical: 24),
         scrollDirection: Axis.horizontal,
         itemCount: reviews.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           return SizedBox(
-            width: 313,
-            child: ReviewCard(review: reviews[index]),
+            width: 300,
+            child: ReviewCard(review: reviews[index], isCompact: true),
           );
         },
       ),
@@ -62,7 +63,7 @@ class ReviewList extends StatelessWidget {
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        return ReviewCard(review: reviews[index]);
+        return ReviewCard(review: reviews[index], isCompact: false);
       },
     );
   }
