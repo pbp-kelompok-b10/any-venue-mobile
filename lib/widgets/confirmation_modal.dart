@@ -11,7 +11,8 @@ class ConfirmationModal extends StatelessWidget {
   final String confirmText;
   final String cancelText;
   final AsyncVoidCallback onConfirm;
-  final bool isDanger; // True = Warna Orange/Merah (untuk Delete), False = Warna Biasa
+  final bool
+  isDanger; // True = Warna Orange/Merah (untuk Delete), False = Warna Biasa
   final IconData? icon;
 
   const ConfirmationModal({
@@ -30,13 +31,13 @@ class ConfirmationModal extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    required AsyncVoidCallback onConfirm, // <-- ganti
+    required AsyncVoidCallback onConfirm,
     String confirmText = "Confirm",
     String cancelText = "Cancel",
     bool isDanger = false,
     IconData? icon,
   }) {
-    return showDialog<void>( // <-- return Future<void>
+    return showDialog<void>(
       context: context,
       builder: (context) => ConfirmationModal(
         title: title,
@@ -54,7 +55,8 @@ class ConfirmationModal extends StatelessWidget {
   Widget build(BuildContext context) {
     // Tentukan warna berdasarkan tipe dialog (Danger / Normal)
     final Color themeColor = isDanger ? MyApp.orange : MyApp.gumetalSlate;
-    final IconData iconData = icon ?? (isDanger ? Icons.warning_rounded : Icons.info_rounded);
+    final IconData iconData =
+        icon ?? (isDanger ? Icons.warning_rounded : Icons.info_rounded);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -63,7 +65,8 @@ class ConfirmationModal extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Agar tinggi dialog menyesuaikan konten
+          mainAxisSize:
+              MainAxisSize.min, // Agar tinggi dialog menyesuaikan konten
           children: [
             // 1. ICON BULAT DI TENGAH
             Container(
@@ -72,11 +75,7 @@ class ConfirmationModal extends StatelessWidget {
                 color: themeColor.withOpacity(0.1), // Background transparan
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                iconData,
-                size: 32,
-                color: themeColor,
-              ),
+              child: Icon(iconData, size: 32, color: themeColor),
             ),
             const SizedBox(height: 20),
 
@@ -119,7 +118,6 @@ class ConfirmationModal extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 12), // Jarak antar tombol
-
                 // --- TOMBOL CONFIRM ---
                 Expanded(
                   child: CustomButton(
@@ -134,7 +132,7 @@ class ConfirmationModal extends StatelessWidget {
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
