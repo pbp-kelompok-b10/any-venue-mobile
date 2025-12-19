@@ -45,10 +45,10 @@ class _VenueListState extends State<VenueList> {
     final List<Venue> displayedVenues = randomVenues.take(5).toList();
 
     return SizedBox(
-      height: 310, // Tinggi area scroll
+      height: 340, // Tinggi area scroll
       child: ListView.separated(
         // Padding horizontal agar item pertama & terakhir tidak mepet layar
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         scrollDirection: Axis.horizontal,
         itemCount: displayedVenues.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
@@ -90,7 +90,7 @@ class _VenueListState extends State<VenueList> {
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
 
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       itemCount: widget.venues.length,
       itemBuilder: (context, index) {
         return VenueCard(

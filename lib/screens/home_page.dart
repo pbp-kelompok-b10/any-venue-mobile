@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:any_venue/main.dart';
+import 'package:any_venue/screens/search_page.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 
 import 'package:any_venue/venue/screens/venue_page.dart';
@@ -61,10 +62,10 @@ class _HomePageState extends State<HomePage> {
           hintText: "Cari venue atau event...",
           readOnly: true, // Jadi tombol
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => const SearchPage()),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchPage()),
+            );
           },
         ),
 
@@ -155,7 +156,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => const VenuePage()),
               );
             }),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
 
             FutureBuilder(
               future: _fetchVenues(request),
@@ -189,7 +190,7 @@ class _HomePageState extends State<HomePage> {
             //           _buildSectionHeader("Upcoming Events", () {
             //              // Navigate to All Events Page
             //           }),
-            //           const SizedBox(height: 16),
+            //           const SizedBox(height: 8),
 
             //           FutureBuilder(
             //             future: _fetchEvents(),
