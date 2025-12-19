@@ -7,6 +7,7 @@ import 'package:any_venue/account/widgets/profile_info.dart';
 import 'package:any_venue/account/models/profile.dart'; 
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/toast.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -75,10 +76,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     return Scaffold(
       backgroundColor: MyApp.white,
+      appBar : const CustomAppBar(title: 'Edit Profile'),
       body: SafeArea(
         child: Column(
           children: [
-            const Header(title: 'Edit Profile'),
             Expanded(
               child: FutureBuilder<Profile>(
                 future: _profileFuture,
