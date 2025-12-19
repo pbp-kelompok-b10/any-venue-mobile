@@ -24,11 +24,11 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   late int _selectedIndex;
+  final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
 
   @override
   void initState() {
     super.initState();
-    // 3. Set index awal sesuai parameter yang dikirim
     _selectedIndex = widget.initialIndex;
   }
 

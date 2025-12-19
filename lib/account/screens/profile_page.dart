@@ -20,13 +20,11 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Fungsi untuk mengambil data dari Django
   Future<Profile> fetchProfile(CookieRequest request) async {
-    // NOTE: Ganti URL sesuai device:
     // Android Emulator: http://10.0.2.2:8000/account/api/profile/
     // Chrome / iOS: https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/
     final response = await request.get(
-      "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/page/",
+      "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/",
     );
 
     if (response['status'] == true) {
@@ -107,16 +105,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                 hasTrailing: true,
 
                                 onTap: () async {
-                                  // 1. Simpan Role Lama sebelum buka halaman edit
                                   final oldRole = request.jsonData['role'];
 
-                                  // 2. Buka halaman Edit dan tunggu hasilnya
                                   final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => const EditProfilePage()),
                                   );
 
-                                  // 3. Jika user berhasil Save (result == true)
                                   if (result == true) {
                                     if (!mounted) return;
 
@@ -128,43 +123,34 @@ class _ProfilePageState extends State<ProfilePage> {
                                     );
 
                                     try {
-                                      // 4. FETCH data terbaru dari server
-                                      final response = await request.get("http://localhost:8000/account/api/profile/");
+                                      final response = await request.get("https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/");
                                       
                                       if (!mounted) return;
                                       Navigator.pop(context); // Tutup loading dialog
 
                                       if (response['status'] == true) {
-                                        // Update data global di CookieRequest
                                         request.jsonData['username'] = response['user_data']['username'];
                                         request.jsonData['role'] = response['user_data']['role'];
 
                                         final newRole = response['user_data']['role'];
 
-                                        // --- LOGIKA UTAMA PERBAIKAN ---
-                                        
-                                        // KASUS A: Jika Role BERUBAH (User jadi Owner atau sebaliknya)
-                                        // Kita TERPAKSA restart navigasi karena jumlah Tab Bar berubah.
+  
                                         if (oldRole != newRole) {
-                                          int targetIndex = (newRole == "OWNER") ? 3 : 4;
+                                          int targetIndex = 4;
                                           Navigator.pushAndRemoveUntil(
                                             context,
                                             MaterialPageRoute(builder: (context) => MainNavigation(initialIndex: targetIndex)),
                                             (route) => false,
                                           );
                                         } 
-                                        // KASUS B: Jika Role SAMA (Cuma ganti nama/username)
-                                        // JANGAN restart navigasi. Cukup setState agar UI Profile ter-update.
+
                                         else {
                                           setState(() {
-                                            // Trigger rebuild halaman ini saja.
-                                            // FutureBuilder akan otomatis fetch ulang data baru.
                                           });
                                         }
                                       }
                                     } catch (e) {
                                       if (mounted) Navigator.pop(context); // Tutup loading jika error
-                                      // Tampilkan toast error jika ada (opsional)
                                     }
                                   }
                                 },
@@ -207,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Widget Helper dengan warna default yang langsung diterapkan ke Container
+  // Widget Helper 
   Widget _buildMenuButton({
     required IconData icon,
     required String label,
@@ -344,7 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       final response = await request.post(
-        "http://localhost:8000/account/api/profile/delete/", 
+        "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/delete/", 
         {} 
       );
 
@@ -400,7 +386,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     try {
-      final response = await request.logout("http://localhost:8000/auth/api/logout/"); 
+      final response = await request.logout("https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/auth/api/logout/"); 
       
       if (context.mounted) Navigator.pop(context);
 

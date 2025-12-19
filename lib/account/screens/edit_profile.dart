@@ -56,7 +56,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<Profile> fetchProfile(CookieRequest request) async {
     // Gunakan 10.0.2.2 untuk Emulator, localhost untuk Web
-    final response = await request.get("http://localhost:8000/account/api/profile/");
+    final response = await request.get("https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/");
 
     if (response['status'] == true) {
       return Profile.fromJson(response['user_data']);
@@ -186,7 +186,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                 try {
                                     final response = await request.post(
-                                    "http://localhost:8000/account/api/profile/edit/",
+                                    "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/edit/",
                                     {
                                         'username': _usernameController.text,
                                         'role': _selectedRole,
