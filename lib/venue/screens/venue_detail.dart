@@ -70,7 +70,7 @@ class _VenueDetailState extends State<VenueDetail> {
       message: "Are you sure you want to delete your review?",
       isDanger: true,
       confirmText: "Delete",
-      icon: Icons.delete_outline_rounded,
+      icon: Icons.delete_outline,
       onConfirm: () async {
         // Request ke Django
         final response = await request.post(
@@ -82,7 +82,7 @@ class _VenueDetailState extends State<VenueDetail> {
           if (response['status'] == 'success') {
             CustomToast.show(
               context, 
-              message: "Review deleted successfully", 
+              message: response['message'], 
               isError: false
             );
             // Refresh list review agar item hilang
@@ -90,7 +90,8 @@ class _VenueDetailState extends State<VenueDetail> {
           } else {
             CustomToast.show(
               context, 
-              message: response['message'] ?? "Failed to delete review",
+              message: "Failed to delete review.",
+              subMessage: response['message'] ?? "Error occurred.",
               isError: true,
             );
           }
@@ -123,7 +124,7 @@ class _VenueDetailState extends State<VenueDetail> {
           "Are you sure you want to delete this venue? This action cannot be undone.",
       isDanger: true,
       confirmText: "Delete",
-      icon: Icons.delete_outline_rounded,
+      icon: Icons.delete_outline,
       onConfirm: () async {
         final response = await request.post(
           'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
@@ -254,7 +255,7 @@ class _VenueDetailState extends State<VenueDetail> {
                           // 7. Review List
                           if (_isLoadingReviews)
                             const SizedBox(
-                              height: 150,
+                              height: 120,
                               child: Center(
                                 child: CircularProgressIndicator(
                                   color: MyApp.orange,
@@ -263,7 +264,7 @@ class _VenueDetailState extends State<VenueDetail> {
                             )
                           else if (_reviews.isEmpty)
                             Container(
-                              height: 150,
+                              height: 120,
                               width: double.infinity,
                               alignment: Alignment.center,
                               child: Column(
@@ -393,12 +394,19 @@ class _VenueDetailState extends State<VenueDetail> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReviewPage(venueId: _venue.id),
-            ),
-          ),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReviewPage(venueId: _venue.id),
+              ),
+            );
+
+            if (context.mounted) {
+              final request = context.read<CookieRequest>();
+              _fetchReviews(request);
+            }
+          },
           child: const Text(
             "See all",
             style: TextStyle(

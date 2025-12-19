@@ -37,7 +37,7 @@ class ReviewList extends StatelessWidget {
   // LAYOUT HORIZONTAL (list ke samping buat customer reviews di venue_detail)
   Widget _buildHorizontalList() {
     return SizedBox(
-      height: 240,
+      height: 215,
       child: ListView.separated(
         clipBehavior: Clip.none,
         padding: const EdgeInsets.symmetric(vertical: 24),

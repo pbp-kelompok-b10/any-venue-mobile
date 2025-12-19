@@ -83,7 +83,7 @@ class _ReviewPageState extends State<ReviewPage> {
       message: "Are you sure you want to delete your review?",
       isDanger: true,
       confirmText: "Delete",
-      icon: Icons.delete_outline_rounded,
+      icon: Icons.delete_outline,
       onConfirm: () async {
         final response = await request.post(
           'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
@@ -94,14 +94,15 @@ class _ReviewPageState extends State<ReviewPage> {
           if (response['status'] == 'success') {
             CustomToast.show(
               context, 
-              message: "Review deleted successfully",
+              message: response['message'],
               isError: false,
             );
             _fetchReviews();
           } else {
             CustomToast.show(
               context, 
-              message: response['message'] ?? "Failed to delete review",
+              message: "Failed to delete review.",
+              subMessage: response['message'] ?? "Error occurred.",
               isError: true,
             );
           }

@@ -90,8 +90,6 @@ class ReviewCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               height: 1.5,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
@@ -174,7 +172,6 @@ class ReviewCard extends StatelessWidget {
                       child: Icon(
                         Icons.star_rounded,
                         size: 23,
-                        // Logic: Jika index < rating, warna Orange. Jika tidak, abu-abu muda.
                         color: index < review.rating
                             ? MyApp.orange
                             : const Color(0xFFD3D5DD),
@@ -192,8 +189,6 @@ class ReviewCard extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       height: 1.5,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -210,10 +205,7 @@ class ReviewCard extends StatelessWidget {
                   height: 1.5,
                 ),
                 textAlign: TextAlign.left,
-                // LOGIC TRUNCATED:
-                // Jika isCompact = true, batasi 3 baris. Jika tidak, null (bebas)
-                maxLines: isCompact ? 3 : null, 
-                // Jika isCompact = true, kasih "..." di ujung text
+                maxLines: isCompact ? 2 : null, 
                 overflow: isCompact ? TextOverflow.ellipsis : null,
               ),
             ],
