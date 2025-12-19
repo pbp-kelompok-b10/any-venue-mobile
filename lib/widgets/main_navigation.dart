@@ -5,6 +5,7 @@ import 'package:any_venue/main.dart';
 
 import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
+import 'package:any_venue/venue/screens/my_venue_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
@@ -45,7 +46,7 @@ class _MainNavigationState extends State<MainNavigation> {
     // List Screen Asli
     final List<Widget> ownerScreens = [
       const HomePage(),
-      const Center(child: Text("My Venues")),
+      const MyVenuePage(),
       const Center(child: Text("My Events")),
       const ProfilePage(),
     ];
@@ -122,7 +123,7 @@ class _MainNavigationState extends State<MainNavigation> {
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         
-        // SOLUSI 1: Theme Wrapper untuk Hapus Shadow Abu
+        // Theme Wrapper untuk Hapus Shadow Abu
         child: Theme(
           data: ThemeData(
             splashColor: Colors.transparent,

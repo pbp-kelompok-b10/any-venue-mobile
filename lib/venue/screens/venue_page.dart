@@ -135,7 +135,7 @@ class _VenuePageState extends State<VenuePage> {
 
                 return VenueList(
                   venues: filteredVenues,
-                  isLarge: false,
+                  listType: VenueListType.verticalSmall,
                   scrollable: true,
                   onRefresh: _refreshData,
                 );

@@ -29,6 +29,8 @@ class VenueDetail extends StatefulWidget {
 class _VenueDetailState extends State<VenueDetail> {
   late Venue _venue;
   bool _hasEdited = false;
+  bool _isDeleting = false;
+
   List<Review> _reviews = [];
   bool _isLoadingReviews = true;
 
@@ -75,7 +77,8 @@ class _VenueDetailState extends State<VenueDetail> {
 
   Future<void> _handleDelete() async {
     final request = context.read<CookieRequest>();
-    ConfirmationModal.show(
+
+    await ConfirmationModal.show(
       context,
       title: "Delete Venue?",
       message: "Are you sure you want to delete this venue? This action cannot be undone.",
@@ -87,14 +90,19 @@ class _VenueDetailState extends State<VenueDetail> {
           'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
           {},
         );
-        if (context.mounted) {
-          Navigator.pop(context); // Tutup Modal
-          if (response['status'] == 'success') {
-            CustomToast.show(context, message: "Venue deleted!", isError: false);
-            Navigator.pop(context, true); // Kembali ke list
-          } else {
-            CustomToast.show(context, message: "Failed to delete.", isError: true);
-          }
+
+        if (!mounted) return;
+
+        if (response['status'] == 'success') {
+          CustomToast.show(context, message: "Venue deleted!", isError: false);
+
+          setState(() => _isDeleting = true);
+          await Future.delayed(const Duration(milliseconds: 350));
+
+          if (!mounted) return;
+          Navigator.pop(context, true); // <-- ini yang dibaca VenueList untuk refresh
+        } else {
+          CustomToast.show(context, message: "Failed to delete.", isError: true);
         }
       },
     );
@@ -123,10 +131,13 @@ class _VenueDetailState extends State<VenueDetail> {
     }
 
     return PopScope(
-      canPop: false,
+      canPop: _isDeleting,
       onPopInvoked: (didPop) {
         if (didPop) return;
-        Navigator.pop(context, _hasEdited);
+
+        if (context.mounted) {
+          Navigator.pop(context, _hasEdited);
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.white,
