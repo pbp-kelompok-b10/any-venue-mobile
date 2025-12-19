@@ -29,21 +29,20 @@ class ReviewList extends StatelessWidget {
 
   // ==========================================
   // LAYOUT 1: HORIZONTAL (GESER SAMPING)
-  // - Lebar Card Fixed (313px)
-  // - Tinggi Container Fixed
   // ==========================================
   Widget _buildHorizontalList() {
     return SizedBox(
-      height: 240, // Tinggi area scroll (disesuaikan dengan konten card)
+      height: 240,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        clipBehavior: Clip.none,
+        padding: const EdgeInsets.symmetric(vertical: 24),
         scrollDirection: Axis.horizontal,
         itemCount: reviews.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           return SizedBox(
-            width: 313, // Lebar FIX sesuai desain Figma (image_62893b)
-            child: ReviewCard(review: reviews[index]),
+            width: 300,
+            child: ReviewCard(review: reviews[index], isCompact: true),
           );
         },
       ),
@@ -52,7 +51,6 @@ class ReviewList extends StatelessWidget {
 
   // ==========================================
   // LAYOUT 2: VERTICAL (LIST KE BAWAH)
-  // - Lebar Card Flexible (Mengikuti Layar)
   // - Digunakan di halaman "All Reviews"
   // ==========================================
   Widget _buildVerticalList() {
@@ -60,14 +58,12 @@ class ReviewList extends StatelessWidget {
       physics: scrollable
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      shrinkWrap: !scrollable, // Agar tidak error jika ditaruh dalam SingleChildScrollView
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      shrinkWrap: !scrollable,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        // Di sini kita TIDAK membungkus dengan SizedBox width
-        // sehingga card akan otomatis melebar (stretch)
-        return ReviewCard(review: reviews[index]);
+        return ReviewCard(review: reviews[index], isCompact: false);
       },
     );
   }
