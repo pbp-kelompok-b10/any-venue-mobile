@@ -5,20 +5,13 @@ import 'package:any_venue/review/widgets/review_card.dart';
 class ReviewList extends StatelessWidget {
   final List<Review> reviews;
   final bool isHorizontal; // True = Mode "Customer Reviews" (Geser Samping)
-  final bool scrollable;   // Mengatur apakah list bisa discroll vertikal sendiri
-
-  final String? currentUsername;
-  final Function(Review)? onEdit;
-  final Function(Review)? onDelete;
+  final bool scrollable; // Mengatur apakah list bisa discroll vertikal sendiri
 
   const ReviewList({
     super.key,
     required this.reviews,
     this.isHorizontal = false, // Default Vertikal (Halaman Detail)
     this.scrollable = true,
-    this.currentUsername,
-    this.onEdit,
-    this.onDelete,
   });
 
   @override
@@ -34,7 +27,9 @@ class ReviewList extends StatelessWidget {
     }
   }
 
-  // LAYOUT HORIZONTAL (list ke samping buat customer reviews di venue_detail)
+  // ==========================================
+  // LAYOUT 1: HORIZONTAL (GESER SAMPING)
+  // ==========================================
   Widget _buildHorizontalList() {
     return SizedBox(
       height: 240,
@@ -45,23 +40,19 @@ class ReviewList extends StatelessWidget {
         itemCount: reviews.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
-          final review = reviews[index];
           return SizedBox(
             width: 300,
-            child: ReviewCard(
-              review: review, 
-              isCompact: true,
-              currentUsername: currentUsername,
-              onEdit: onEdit != null ? () => onEdit!(review) : null,
-              onDelete: onDelete != null ? () => onDelete!(review) : null,
-            ),
+            child: ReviewCard(review: reviews[index], isCompact: true),
           );
         },
       ),
     );
   }
 
-  // LAYOUT VERTICAL (list ke bawah buat review_page)
+  // ==========================================
+  // LAYOUT 2: VERTICAL (LIST KE BAWAH)
+  // - Digunakan di halaman "All Reviews"
+  // ==========================================
   Widget _buildVerticalList() {
     return ListView.separated(
       physics: scrollable
@@ -72,14 +63,7 @@ class ReviewList extends StatelessWidget {
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        final review = reviews[index];
-        return ReviewCard(
-          review: review, 
-          isCompact: false,
-          currentUsername: currentUsername,
-          onEdit: onEdit != null ? () => onEdit!(review) : null,
-          onDelete: onDelete != null ? () => onDelete!(review) : null,
-        );
+        return ReviewCard(review: reviews[index], isCompact: false);
       },
     );
   }

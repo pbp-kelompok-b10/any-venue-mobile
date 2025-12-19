@@ -6,23 +6,14 @@ class ReviewCard extends StatelessWidget {
   final Review review;
   final bool isCompact;
 
-  final String? currentUsername; 
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-
   const ReviewCard({
     super.key,
     required this.review,
     this.isCompact = false,
-    this.currentUsername,
-    this.onEdit,
-    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool isOwner = currentUsername != null && review.user == currentUsername;
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
@@ -65,37 +56,17 @@ class ReviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row (
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          review.user,
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            height: 1.5,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        
-                        if (isOwner)
-                          Text(
-                            " (You)",
-                            style: const TextStyle(
-                              color: MyApp.orange,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1.5,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
+                    Text(
+                      review.user,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 1.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-
                     Text(
                       review.createdAt,
                       style: const TextStyle(
@@ -110,51 +81,6 @@ class ReviewCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Untuk menu Edit/Delete, hanya muncul jika isOwner bernilai true
-              if (isOwner) 
-                PopupMenuButton<String>(
-                  icon: const Icon(
-                    Icons.more_vert_rounded,
-                    color: Color(0xFF7A7A90),
-                  ),
-                  padding: EdgeInsets.zero,
-                  offset: const Offset(0, 40),
-                  // shape: RoundedRectangleBorder(
-                  //   borderRadius: BorderRadius.circular(12),
-                  // ),
-                  onSelected: (String value) {
-                    if (value == 'edit') {
-                      onEdit?.call();
-                    } else if (value == 'delete') {
-                      onDelete?.call();
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      height: 36,
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: 20, color: Colors.grey),
-                          SizedBox(width: 8),
-                          Text('Edit'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'delete',
-                      height: 36,
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 20, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
             ],
           ),
 

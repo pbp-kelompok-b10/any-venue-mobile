@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
+// Import komponen UI & Shared (Sesuaikan path-nya jika beda)
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/toast.dart';
 
-import 'package:any_venue/review/models/review.dart';
+// Import Model Review
+import 'package:any_venue/review/models/review.dart'; // Pastikan path import ini benar
 
 class ReviewFormPage extends StatefulWidget {
-  final int? venueId;
+  final int? venueId; // Wajib ada jika mode Create (Add)
   final Review? existingReview; // Null = Create, Not Null = Edit
 
   const ReviewFormPage({
@@ -92,10 +94,10 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                           },
                           iconSize: 40,
                           icon: Icon(
-                            index < _rating ? Icons.star_rounded : Icons.star_border_rounded,
-                            color: index < _rating ? MyApp.orange : Colors.grey.shade400,
+                            index < _rating ? Icons.star : Icons.star_border,
+                            color: index < _rating ? Colors.amber : Colors.grey.shade400,
                           ),
-                          splashColor: MyApp.orange.withOpacity(0.2),
+                          splashColor: Colors.amber.withOpacity(0.2),
                           highlightColor: Colors.transparent,
                         );
                       }),
@@ -116,16 +118,16 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
               const SizedBox(height: 30),
 
               // COMMENT SECTION
-              _buildSectionLabel("Your Comment"),
+              _buildSectionLabel("Your Review"),
               TextFormField(
                 controller: _commentController,
-                maxLength: 500,
+                maxLength: 500, // Sesuai models.py max_length=500
                 maxLines: 5,
                 decoration: _inputDecoration("Share your experience with this venue..."),
                 onChanged: (val) => _comment = val,
                 validator: (val) {
                   if (val == null || val.isEmpty) {
-                    return "Comment cannot be empty";
+                    return "Comment cannot be empty"; // views.py akan trim whitespace, jadi validasi di sini penting
                   }
                   return null;
                 },
@@ -151,6 +153,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                         : '$baseUrl/review/add-flutter/${widget.venueId}/';
 
                     // Kirim Data
+                    // views.py mengharapkan JSON: {"rating": int, "comment": string}
                     final response = await request.postJson(
                       url,
                       jsonEncode({
@@ -179,7 +182,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                     }
                   } else if (_rating == 0) {
                     // Feedback jika user lupa klik bintang
-                    CustomToast.show(
+                     CustomToast.show(
                         context,
                         message: "Rating Required",
                         subMessage: "Please give a star rating before submitting.",
@@ -195,13 +198,14 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
     );
   }
 
+  // --- Helper Methods untuk Styling (Sama dengan venue_form.dart) ---
+
   Widget _buildSectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 4),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 14,
           fontWeight: FontWeight.bold, 
           color: MyApp.gumetalSlate,
         ),
