@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:any_venue/widgets/components/button.dart';
 
 import '../models/booking_slot.dart';
 
@@ -187,30 +188,14 @@ class _BookingScreenState extends State<BookingScreen> {
               child: SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: ElevatedButton(
+                child: CustomButton(
+                  text: 'Book Now',
+                  isFullWidth: true,
+                  isLoading: _isSubmitting,
+                  color: Colors.orange,
                   onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
                       ? () => _submitBooking(request)
                       : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Book Now',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
                 ),
               ),
             ),
