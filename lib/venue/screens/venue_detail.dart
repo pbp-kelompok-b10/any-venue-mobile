@@ -66,7 +66,7 @@ class _VenueDetailState extends State<VenueDetail> {
   Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
     ConfirmationModal.show(
       context,
-      title: "Delete Review?",
+      title: "Delete Review",
       message: "Are you sure you want to delete your review?",
       isDanger: true,
       confirmText: "Delete",
@@ -119,7 +119,7 @@ class _VenueDetailState extends State<VenueDetail> {
 
     await ConfirmationModal.show(
       context,
-      title: "Delete Venue?",
+      title: "Delete Venue",
       message:
           "Are you sure you want to delete this venue? This action cannot be undone.",
       isDanger: true,

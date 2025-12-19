@@ -79,7 +79,7 @@ class _ReviewPageState extends State<ReviewPage> {
   Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
     ConfirmationModal.show(
       context,
-      title: "Delete Review?",
+      title: "Delete Review",
       message: "Are you sure you want to delete your review?",
       isDanger: true,
       confirmText: "Delete",
