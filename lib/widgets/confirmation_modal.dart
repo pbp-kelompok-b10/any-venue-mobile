@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:any_venue/main.dart';
 
+typedef AsyncVoidCallback = Future<void> Function();
+
 class ConfirmationModal extends StatelessWidget {
   final String title;
   final String message;
   final String confirmText;
   final String cancelText;
-  final VoidCallback onConfirm;
+  final AsyncVoidCallback onConfirm;
   final bool isDanger; // True = Warna Orange/Merah (untuk Delete), False = Warna Biasa
   final IconData? icon;
 
@@ -23,17 +25,17 @@ class ConfirmationModal extends StatelessWidget {
   });
 
   // --- STATIC METHOD UNTUK MEMANGGIL DIALOG ---
-  static void show(
+  static Future<void> show(
     BuildContext context, {
     required String title,
     required String message,
-    required VoidCallback onConfirm,
+    required AsyncVoidCallback onConfirm, // <-- ganti
     String confirmText = "Confirm",
     String cancelText = "Cancel",
     bool isDanger = false,
     IconData? icon,
   }) {
-    showDialog(
+    return showDialog<void>( // <-- return Future<void>
       context: context,
       builder: (context) => ConfirmationModal(
         title: title,
@@ -127,9 +129,9 @@ class ConfirmationModal extends StatelessWidget {
                 // Tombol Confirm
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.pop(context); // Tutup dialog dulu
-                      onConfirm(); // Jalankan aksi
+                      await onConfirm(); // Jalankan aksi
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: themeColor,

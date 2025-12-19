@@ -175,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                   // Venue List Horizontal
                   return VenueList(
                     venues: snapshot.data!,
-                    isLarge: true,
+                    listType: VenueListType.horizontalFeat,
                     onRefresh: () {
                       setState(() {});
                     },

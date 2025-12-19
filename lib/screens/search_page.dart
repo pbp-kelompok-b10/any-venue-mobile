@@ -181,7 +181,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     // Kondisi 4: Menampilkan Hasil
     return VenueList(
       venues: filteredList,
-      isLarge: false,
+      listType: VenueListType.verticalSmall,
       scrollable: true,
       onRefresh: _fetchVenues, // Pull to refresh update data
     );
