@@ -56,7 +56,7 @@ class _VenuePageState extends State<VenuePage> {
 
   Future<List<Venue>> _fetchAllVenues(CookieRequest request) async {
     final response = await request.get(
-      'http://localhost:8000/venue/api/venues-flutter/',
+      'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/',
     );
     List<Venue> list = [];
     for (var d in response) {
@@ -71,10 +71,9 @@ class _VenuePageState extends State<VenuePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const CustomAppBar(title: "Venues"),
-      
+
       body: Column(
         children: [
-
           // Header: Search Bar & Filter Icon
           Container(
             color: Colors.white,
@@ -91,7 +90,7 @@ class _VenuePageState extends State<VenuePage> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Tombol Filter memanggil Modal
                 InkWell(
                   onTap: _openFilterModal, // Panggil fungsi buka modal
@@ -168,7 +167,8 @@ class _VenuePageState extends State<VenuePage> {
           categories: categories,
           onApply: (newFilter) {
             setState(() {
-              _filter = newFilter; // Update filter utama dengan hasil dari modal
+              _filter =
+                  newFilter; // Update filter utama dengan hasil dari modal
             });
           },
         );

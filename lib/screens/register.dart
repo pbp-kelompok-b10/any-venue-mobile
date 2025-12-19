@@ -67,7 +67,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               onTap: () {
                                 Navigator.pushReplacement(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                                  MaterialPageRoute(
+                                    builder: (context) => const WelcomeScreen(),
+                                  ),
                                 );
                               },
                             ),
@@ -233,7 +235,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                               // --- REQUEST API ---
                               final response = await request.postJson(
-                                "http://localhost:8000/auth/api/register/",
+                                "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/auth/api/register/",
                                 jsonEncode({
                                   "username": username,
                                   "password1": password1,
@@ -249,10 +251,13 @@ class _RegisterPageState extends State<RegisterPage> {
                               // --- HANDLE RESPONSE ---
                               if (context.mounted) {
                                 bool isSuccess = response["success"] == true;
-                                final String title = isSuccess ? "Registration Successful" : "Registration Failed";
-                                final String detail = isSuccess 
+                                final String title = isSuccess
+                                    ? "Registration Successful"
+                                    : "Registration Failed";
+                                final String detail = isSuccess
                                     ? "Your account has been created!" // Pakai variable 'username' yang sudah ada
-                                    : (response["error"] ?? "An error occurred.");
+                                    : (response["error"] ??
+                                          "An error occurred.");
 
                                 CustomToast.show(
                                   context,
@@ -264,7 +269,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 if (isSuccess) {
                                   Navigator.pushReplacement(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(),
+                                    ),
                                   );
                                 }
                               }
