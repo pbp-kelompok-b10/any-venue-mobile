@@ -97,8 +97,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     return const Center(child: Text("No profile data available."));
                   }
 
-                  // --- LOGIKA PENGISIAN DATA ---
-                  // Hanya dijalankan SEKALI saat data pertama kali tiba
                   if (!_isInitialized) {
                     final profile = snapshot.data!;
                     
@@ -112,9 +110,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     _isInitialized = true; 
                   }
 
-                  // --- DATA UNTUK HEADER (STATIC) ---
-                  // Kita gunakan _originalUsername agar tidak berubah saat diketik
-                  // Jika belum initialized, pakai data snapshot langsung
+                  // DATA UNTUK HEADER 
                   final staticUsername = _isInitialized ? _originalUsername : snapshot.data!.username;
                   final staticRole = _isInitialized ? _originalRole : snapshot.data!.role;
 
@@ -131,7 +127,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         children: [
                           const SizedBox(height: 40),
                           
-                          // --- PROFILE INFO (TETAP STATIC) ---
+                          // --- PROFILE INFO  ---
                           ProfileInfo(
                             initial: initial,
                             username: staticUsername, // Menggunakan nama asli
@@ -170,13 +166,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 ? [Colors.grey[400]!, Colors.grey[400]!]
                                 : [MyApp.gumetalSlate, MyApp.darkSlate],
                             onPressed: () async {
-                                // 1. Cek jika tidak ada perubahan
+                    
                                 if (!_hasChanges) {
                                 CustomToast.show(
                                     context,
                                     message: "No Changes Detected",
                                     subMessage: "You haven't changed your profile info.",
-                                    isError: true, // Akan menggunakan warna Orange (MyApp.orange)
+                                    isError: true, 
                                 );
                                 return;
                                 }
@@ -197,17 +193,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     setState(() => _isSaving = false);
                                     
                                     if (response != null && response['status'] == true) {
-                                        // 2. SUKSES UPDATE
                                         CustomToast.show(
                                         context,
                                         message: "Profile Updated!",
                                         subMessage: "Your changes have been saved successfully.",
-                                        isError: false, // Warna Dark Slate + Icon Check
+                                        isError: false, 
                                         );
                                         
                                         Navigator.pop(context, true); // Kembali ke halaman sebelumnya
                                     } else {
-                                        // 3. GAGAL DARI SERVER
                                         CustomToast.show(
                                         context,
                                         message: "Update Failed",
@@ -218,7 +212,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     }
                                 } catch (e) {
                                     if (mounted) setState(() => _isSaving = false);
-                                    // 4. ERROR KONEKSI / LAINNYA
+                                    //ERROR KONEKSI
                                     CustomToast.show(
                                     context,
                                     message: "An Error Occurred",
