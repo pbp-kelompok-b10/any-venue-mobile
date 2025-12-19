@@ -9,6 +9,7 @@ import 'package:any_venue/review/screens/review_form.dart';
 
 import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/toast.dart';
 
 class ReviewPage extends StatefulWidget {
   final int venueId;
@@ -91,13 +92,17 @@ class _ReviewPageState extends State<ReviewPage> {
 
         if (context.mounted) {
           if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Review deleted successfully")),
+            CustomToast.show(
+              context, 
+              message: "Review deleted successfully",
+              isError: false,
             );
-            _fetchReviews(); // Panggil fungsi fetch yang sudah ada di ReviewPage
+            _fetchReviews();
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response['message'] ?? "Failed")),
+            CustomToast.show(
+              context, 
+              message: response['message'] ?? "Failed to delete review",
+              isError: true,
             );
           }
         }
@@ -420,7 +425,7 @@ class _ReviewPageState extends State<ReviewPage> {
     );
   }
 
-  // --- HELPER: UNIFORM CHOICE CHIP STYLE ---
+  // --- HELPER: CHOICE CHIP IN MODAL ---
   Widget _buildChoiceChip({
     required Widget label,
     required bool isSelected,
