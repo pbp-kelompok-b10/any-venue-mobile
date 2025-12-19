@@ -17,7 +17,6 @@ import 'package:any_venue/review/screens/review_form.dart';
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
 
-
 class VenueDetail extends StatefulWidget {
   final Venue venue;
   const VenueDetail({super.key, required this.venue});
@@ -39,15 +38,17 @@ class _VenueDetailState extends State<VenueDetail> {
     super.initState();
     _venue = widget.venue;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchReviews();
+      final request = context.read<CookieRequest>();
+      _fetchReviews(request);
     });
   }
 
   // --- API LOGIC ---
-  Future<void> _fetchReviews() async {
-    final request = context.read<CookieRequest>();
+  Future<void> _fetchReviews(CookieRequest request) async {
     try {
-      final response = await request.get('http://localhost:8000/review/json/venue/${_venue.id}/');
+      final response = await request.get(
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/json/venue/${_venue.id}/',
+      );
       if (mounted) {
         setState(() {
           List<dynamic> listJson = response;
@@ -87,7 +88,9 @@ class _VenueDetailState extends State<VenueDetail> {
             _fetchReviews(request);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response['message'] ?? "Failed to delete")),
+              SnackBar(
+                content: Text(response['message'] ?? "Failed to delete"),
+              ),
             );
           }
         }
@@ -115,7 +118,8 @@ class _VenueDetailState extends State<VenueDetail> {
     await ConfirmationModal.show(
       context,
       title: "Delete Venue?",
-      message: "Are you sure you want to delete this venue? This action cannot be undone.",
+      message:
+          "Are you sure you want to delete this venue? This action cannot be undone.",
       isDanger: true,
       confirmText: "Delete",
       icon: Icons.delete_outline_rounded,
@@ -134,9 +138,16 @@ class _VenueDetailState extends State<VenueDetail> {
           await Future.delayed(const Duration(milliseconds: 350));
 
           if (!mounted) return;
-          Navigator.pop(context, true); // <-- ini yang dibaca VenueList untuk refresh
+          Navigator.pop(
+            context,
+            true,
+          ); // <-- ini yang dibaca VenueList untuk refresh
         } else {
-          CustomToast.show(context, message: "Failed to delete.", isError: true);
+          CustomToast.show(
+            context,
+            message: "Failed to delete.",
+            isError: true,
+          );
         }
       },
     );
@@ -155,14 +166,14 @@ class _VenueDetailState extends State<VenueDetail> {
     Review? userReview;
     if (!_isLoadingReviews && _reviews.isNotEmpty) {
       try {
-        userReview = _reviews.firstWhere(
-          (r) => r.user == currentUsername,
-        );
+        userReview = _reviews.firstWhere((r) => r.user == currentUsername);
       } catch (_) {
         // Tidak ditemukan review milik user ini
         userReview = null;
       }
     }
+
+    final bool hasReviewed = userReview != null;
 
     return PopScope(
       canPop: _isDeleting,
@@ -185,7 +196,8 @@ class _VenueDetailState extends State<VenueDetail> {
                   children: [
                     // 1. Header Image
                     VenueHeaderImage(
-                      imageUrl: 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/proxy-image/?url=${Uri.encodeComponent(_venue.imageUrl)}',
+                      imageUrl:
+                          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/proxy-image/?url=${Uri.encodeComponent(_venue.imageUrl)}',
                     ),
 
                     Padding(
@@ -197,7 +209,10 @@ class _VenueDetailState extends State<VenueDetail> {
                           Text(
                             _venue.name,
                             style: GoogleFonts.nunitoSans(
-                              fontSize: 24, fontWeight: FontWeight.w800, color: const Color(0xFF293241), height: 1.2
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF293241),
+                              height: 1.2,
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -214,25 +229,35 @@ class _VenueDetailState extends State<VenueDetail> {
                           _buildSectionTitle("Description"),
                           Text(
                             _venue.description,
-                            style: const TextStyle(color: Colors.grey, height: 1.6, fontSize: 14),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              height: 1.6,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           _buildSectionTitle("Location"),
                           Text(
                             _venue.address,
-                            style: const TextStyle(color: Colors.grey, height: 1.6, fontSize: 14),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              height: 1.6,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(height: 32),
 
                           // 6. Review Header
                           _buildReviewHeader(context),
-                          
+
                           // 7. Review List
                           if (_isLoadingReviews)
                             const SizedBox(
                               height: 150,
                               child: Center(
-                                child: CircularProgressIndicator(color: MyApp.orange),
+                                child: CircularProgressIndicator(
+                                  color: MyApp.orange,
+                                ),
                               ),
                             )
                           else if (_reviews.isEmpty)
@@ -253,10 +278,10 @@ class _VenueDetailState extends State<VenueDetail> {
                           else
                             ReviewList(
                               reviews: _reviews,
-                              isHorizontal: true, 
+                              isHorizontal: true,
                               scrollable: true,
-                              currentUsername: currentUsername, // Diambil dari variabel yang sudah kamu deklarasikan di awal build
-  
+                              currentUsername:
+                                  currentUsername, // Diambil dari variabel yang sudah kamu deklarasikan di awal build
                               // Callback Edit
                               onEdit: (review) async {
                                 // Navigasi ke Form Edit
@@ -264,7 +289,8 @@ class _VenueDetailState extends State<VenueDetail> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ReviewFormPage(
-                                      existingReview: review, // Kirim objek review untuk diedit
+                                      existingReview:
+                                          review, // Kirim objek review untuk diedit
                                     ),
                                   ),
                                 );
@@ -273,13 +299,13 @@ class _VenueDetailState extends State<VenueDetail> {
                                   _fetchReviews(request);
                                 }
                               },
-                              
+
                               // Callback Delete
                               onDelete: (review) {
                                 _handleDeleteReview(review, request);
                               },
                             ),
-                          
+
                           const SizedBox(height: 100),
                         ],
                       ),
@@ -294,7 +320,13 @@ class _VenueDetailState extends State<VenueDetail> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, -5))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
               ),
               child: SafeArea(
                 child: VenueActionButtons(
@@ -302,11 +334,15 @@ class _VenueDetailState extends State<VenueDetail> {
                   isUserRole: isUserRole,
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
-                  onBook: () { /* Todo: Booking Logic */ },
+                  onBook: () {
+                    /* Todo: Booking Logic */
+                  },
                   onEdit: () async {
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => VenueFormPage(venue: _venue)),
+                      MaterialPageRoute(
+                        builder: (context) => VenueFormPage(venue: _venue),
+                      ),
                     );
                     if (result == true) {
                       setState(() => _hasEdited = true);
@@ -314,14 +350,19 @@ class _VenueDetailState extends State<VenueDetail> {
                     }
                   },
                   onReview: () async {
+                    // Panggil Form
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ReviewFormPage(
-                        venueId: userReview != null ? null : _venue.id,
-                        existingReview: userReview,
-                      )),
+                      MaterialPageRoute(
+                        builder: (context) => ReviewFormPage(
+                          // Jika Edit -> kirim existingReview
+                          // Jika Add  -> kirim venueId
+                          venueId: hasReviewed ? null : _venue.id,
+                          existingReview: userReview,
+                        ),
+                      ),
                     );
-                    if (result == true && mounted) _fetchReviews();
+                    if (result == true && mounted) _fetchReviews(request);
                   },
                 ),
               ),
@@ -335,18 +376,36 @@ class _VenueDetailState extends State<VenueDetail> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      child: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
     );
   }
-  
+
   Widget _buildReviewHeader(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text("Customer Reviews", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text(
+          "Customer Reviews",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         GestureDetector(
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ReviewPage(venueId: _venue.id))),
-          child: const Text("See all", style: TextStyle(fontSize: 13, color: MyApp.orange, fontWeight: FontWeight.bold)),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReviewPage(venueId: _venue.id),
+            ),
+          ),
+          child: const Text(
+            "See all",
+            style: TextStyle(
+              fontSize: 13,
+              color: MyApp.orange,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );

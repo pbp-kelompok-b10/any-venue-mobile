@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/avatar.dart';
 import 'package:any_venue/account/widgets/header.dart';
-import 'package:any_venue/account/models/profile.dart'; 
+import 'package:any_venue/account/models/profile.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,13 +14,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  
   // Fungsi untuk mengambil data dari Django
   Future<Profile> fetchProfile(CookieRequest request) async {
     // NOTE: Ganti URL sesuai device:
     // Android Emulator: http://10.0.2.2:8000/account/api/profile/
-    // Chrome / iOS: http://localhost:8000/account/api/profile/
-    final response = await request.get("https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/page/");
+    // Chrome / iOS: https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/
+    final response = await request.get(
+      "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/page/",
+    );
 
     if (response['status'] == true) {
       // Parsing JSON ke Model Profile
@@ -50,19 +51,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   // A. Tampilan saat Loading
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(
-                        color: MyApp.darkSlate,
-                      ),
+                      child: CircularProgressIndicator(color: MyApp.darkSlate),
                     );
                   }
-                  
+
                   // B. Tampilan jika Error
                   if (snapshot.hasError) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, size: 48, color: MyApp.orange),
+                          Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: MyApp.orange,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             "Gagal memuat profil.",
@@ -70,7 +73,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           Text(
                             snapshot.error.toString(), // Debugging info
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -85,10 +91,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
                   // D. Tampilan SUKSES (Data tersedia)
                   final userProfile = snapshot.data!;
-                  
+
                   // Logic ambil huruf depan
-                  String initial = userProfile.username.isNotEmpty 
-                      ? userProfile.username[0].toUpperCase() 
+                  String initial = userProfile.username.isNotEmpty
+                      ? userProfile.username[0].toUpperCase()
                       : "?";
 
                   return SingleChildScrollView(
@@ -97,10 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 32),
 
                         // --- Avatar Container ---
-                        UserAvatar(
-                          initial: initial,
-                          size: 100,
-                        ),
+                        UserAvatar(initial: initial, size: 100),
 
                         const SizedBox(height: 16),
 
@@ -113,31 +116,39 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               // Nama Username
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
                                 child: Text(
                                   userProfile.username,
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: MyApp.gumetalSlate,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                    height: 1.50,
-                                  ),
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(
+                                        color: MyApp.gumetalSlate,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                        height: 1.50,
+                                      ),
                                 ),
                               ),
 
                               // Role
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                ),
                                 child: Text(
                                   userProfile.role, // Tampilkan Role
                                   textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: MyApp.orange.withOpacity(0.8), // Sedikit diperjelas opacity-nya
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 12,
-                                    height: 1.50,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: MyApp.orange.withOpacity(
+                                          0.8,
+                                        ), // Sedikit diperjelas opacity-nya
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12,
+                                        height: 1.50,
+                                      ),
                                 ),
                               ),
                             ],
