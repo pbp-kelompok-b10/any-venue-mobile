@@ -20,6 +20,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final TextTheme baseTextTheme = ThemeData.light().textTheme;
+
     return Provider(
       create: (_) {
         CookieRequest request = CookieRequest();
@@ -42,7 +44,7 @@ class MyApp extends StatelessWidget {
             error: orange,
             onError: white,
           ),
-          textTheme: GoogleFonts.nunitoSansTextTheme(),
+          textTheme: GoogleFonts.nunitoSansTextTheme(baseTextTheme),
         ),
         home: const SplashScreen(),
       ),
