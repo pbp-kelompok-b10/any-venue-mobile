@@ -11,6 +11,7 @@ import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/screens/welcome_screen.dart';
 import 'package:any_venue/widgets/toast.dart'; 
+import 'package:any_venue/widgets/components/app_bar.dart'; 
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -40,10 +41,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       backgroundColor: MyApp.white,
+      appBar : const CustomAppBar(title: 'Profile', showBackButton: false),
       body: SafeArea(
         child: Column(
           children: [
-            const Header(title: 'Profile'),
             Expanded(
               child: FutureBuilder<Profile>(
                 future: fetchProfile(request),

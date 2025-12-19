@@ -30,7 +30,6 @@ class Header extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          // Shadow custom kamu (tetap dipertahankan)
           BoxShadow(
             color: const Color(0x0C683BFC), 
             blurRadius: 12,
