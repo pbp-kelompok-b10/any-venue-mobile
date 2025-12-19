@@ -18,6 +18,7 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
+  final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class _MainNavigationState extends State<MainNavigation> {
     // List Screen Asli
     final List<Widget> ownerScreens = [
       const HomePage(),
-      const MyVenuePage(),
+      MyVenuePage(key: _myVenueKey),
       const Center(child: Text("My Events")),
       const ProfilePage(),
     ];
@@ -97,7 +98,12 @@ class _MainNavigationState extends State<MainNavigation> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => CreateActionModal.show(context),
+          onTap: () async {
+            final created = await CreateActionModal.show(context);
+            if (created == true) {
+              _myVenueKey.currentState?.refresh();
+            }
+          },
           customBorder: const CircleBorder(),
           child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
         ),

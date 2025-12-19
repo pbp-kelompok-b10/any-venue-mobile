@@ -56,7 +56,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 size: 32,
                 color: MyApp.gumetalSlate,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, true),
             )
           : null, // Jika false, leading menjadi null (kosong)
     );

@@ -12,10 +12,10 @@ class MyVenuePage extends StatefulWidget {
   const MyVenuePage({super.key});
 
   @override
-  State<MyVenuePage> createState() => _MyVenuePageState();
+  State<MyVenuePage> createState() => MyVenuePageState();
 }
 
-class _MyVenuePageState extends State<MyVenuePage> {
+class MyVenuePageState extends State<MyVenuePage> {
   // 1. Search Logic
   String _searchQuery = "";
   final TextEditingController _searchController = TextEditingController();
@@ -24,6 +24,8 @@ class _MyVenuePageState extends State<MyVenuePage> {
   List<Venue> _myVenues = []; // Semua venue milik user
   List<Venue> _filteredVenues = []; // Venue setelah difilter search
   bool _isLoading = true;
+
+  Future<void> refresh() => _fetchMyVenues();
 
   @override
   void initState() {
