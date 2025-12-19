@@ -31,6 +31,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime _selectedDate = DateTime.now();
+  DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
   final Set<int> _selectedSlotIds = {};
   bool _isSubmitting = false;
 
@@ -39,14 +40,9 @@ class _BookingScreenState extends State<BookingScreen> {
     return formatter.format(_selectedDate);
   }
 
-  String get _formattedMonthLabel {
-    final formatter = DateFormat('MMM yyyy');
-    return formatter.format(_selectedDate);
-  }
-
   Future<List<BookingSlot>> _fetchSlots(CookieRequest request) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    final url = 'http://http://10.0.2.2:8000/booking/slots/${widget.venueId}/?date=$dateStr';
+    final url = 'http://10.0.2.2:8000/booking/slots/${widget.venueId}/?date=$dateStr';
 
     final response = await request.get(url);
 
@@ -56,25 +52,22 @@ class _BookingScreenState extends State<BookingScreen> {
 
   int get _totalPrice => _selectedSlotIds.length * widget.venuePrice;
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate.isBefore(now) ? now : _selectedDate,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 30)),
-    );
+  void _selectDate(DateTime day) {
+    final today = DateTime.now();
+    // Prevent selecting past days
+    if (day.isBefore(DateTime(today.year, today.month, today.day))) return;
 
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _selectedSlotIds.clear();
-      });
-    }
+    setState(() {
+      _selectedDate = day;
+      _visibleMonth = DateTime(day.year, day.month);
+      _selectedSlotIds.clear();
+    });
   }
 
   void _toggleSlot(BookingSlot slot) {
     if (slot.isBooked || slot.isBookedByUser) return;
+
+    if (_isSlotPast(slot)) return;
 
     setState(() {
       if (_selectedSlotIds.contains(slot.id)) {
@@ -85,6 +78,23 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  bool _isSlotPast(BookingSlot slot) {
+    final today = DateTime.now();
+    if (!DateUtils.isSameDay(_selectedDate, today)) return false;
+
+    final now = TimeOfDay.fromDateTime(today);
+    final slotStart = _parseTime(slot.startTime);
+    // Hide slot if already started
+    return slotStart.hour < now.hour || (slotStart.hour == now.hour && slotStart.minute <= now.minute);
+  }
+
+  TimeOfDay _parseTime(String hhmm) {
+    final parts = hhmm.split(":");
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    return TimeOfDay(hour: h, minute: m);
+  }
+
   Future<void> _submitBooking(CookieRequest request) async {
     if (_selectedSlotIds.isEmpty || _isSubmitting) return;
 
@@ -93,7 +103,7 @@ class _BookingScreenState extends State<BookingScreen> {
     });
 
     try {
-      final url = 'http://http://10.0.2.2:8000/booking/create-flutter/';
+      final url = 'http://10.0.2.2:8000/booking/create-flutter/';
       final response = await request.postJson(
         url,
         jsonEncode({
@@ -156,11 +166,11 @@ class _BookingScreenState extends State<BookingScreen> {
                     'Choose Your Time',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildDatePickerRow(),
+                  _buildCalendar(),
                   const SizedBox(height: 16),
                   _buildSlotsSection(request),
                   const SizedBox(height: 24),
@@ -210,9 +220,13 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Widget _buildDatePickerRow() {
+  Widget _buildCalendar() {
+    final monthLabel = DateFormat('MMM yyyy').format(_visibleMonth);
+    final days = _generateCalendarDays(_visibleMonth);
+    final today = DateTime.now();
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -224,36 +238,121 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _formattedMonthLabel,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month - 1);
+                  });
+                },
+                icon: const Icon(Icons.chevron_left),
               ),
-              const SizedBox(height: 4),
               Text(
-                _formattedDateLabel,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                monthLabel,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + 1);
+                  });
+                },
+                icon: const Icon(Icons.chevron_right),
               ),
             ],
           ),
-          IconButton(
-            onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today_outlined),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text('Mo'),
+              Text('Tu'),
+              Text('We'),
+              Text('Th'),
+              Text('Fr'),
+              Text('Sa'),
+              Text('Su'),
+            ],
+          ),
+          const SizedBox(height: 8),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            ),
+            itemCount: days.length,
+            itemBuilder: (context, index) {
+              final day = days[index];
+              final isCurrentMonth = day.month == _visibleMonth.month;
+              final isPast = day.isBefore(DateTime(today.year, today.month, today.day));
+              final isSelected = DateUtils.isSameDay(day, _selectedDate);
+
+              Color bg = Colors.white;
+              Color text = Colors.black87;
+
+              if (!isCurrentMonth) {
+                text = Colors.grey.shade400;
+              }
+              if (isSelected) {
+                bg = Colors.orange.shade100;
+                text = Colors.orange.shade800;
+              }
+              if (isPast) {
+                text = Colors.grey.shade300;
+              }
+
+              return GestureDetector(
+                onTap: isPast ? null : () => _selectDate(day),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: isSelected ? Colors.orange : Colors.grey.shade200),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${day.day}',
+                    style: TextStyle(fontWeight: FontWeight.w600, color: text),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
+  }
+
+  List<DateTime> _generateCalendarDays(DateTime month) {
+    final first = DateTime(month.year, month.month, 1);
+    final last = DateTime(month.year, month.month + 1, 0);
+    // Shift so Monday=0, Sunday=6
+    final startOffset = (first.weekday + 6) % 7;
+    final days = <DateTime>[];
+
+    // Fill leading blanks with previous month days (still selectable logic handles)
+    for (int i = startOffset; i > 0; i--) {
+      days.add(first.subtract(Duration(days: i)));
+    }
+
+    for (int d = 1; d <= last.day; d++) {
+      days.add(DateTime(month.year, month.month, d));
+    }
+
+    // Ensure full weeks (42 cells)
+    while (days.length % 7 != 0) {
+      final nextDay = days.last.add(const Duration(days: 1));
+      days.add(nextDay);
+    }
+
+    return days;
   }
 
   Widget _buildSlotsSection(CookieRequest request) {
@@ -270,7 +369,7 @@ class _BookingScreenState extends State<BookingScreen> {
           );
         }
 
-        final slots = snapshot.data ?? [];
+        final slots = (snapshot.data ?? []).where((s) => !_isSlotPast(s)).toList();
         if (slots.isEmpty) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),

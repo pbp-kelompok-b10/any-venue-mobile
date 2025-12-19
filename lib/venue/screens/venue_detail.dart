@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/booking/screens/booking_screen.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
@@ -374,7 +375,19 @@ class _VenueDetailState extends State<VenueDetail> {
               isFullWidth: true,
               color: MyApp.darkSlate,
               onPressed: () {
-                // Booking logic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BookingScreen(
+                      venueId: _venue.id,
+                      venueName: _venue.name,
+                      venuePrice: _venue.price,
+                      venueAddress: _venue.address,
+                      venueType: _venue.type,
+                      venueImageUrl: _venue.imageUrl,
+                    ),
+                  ),
+                );
               },
             ),
           ),
