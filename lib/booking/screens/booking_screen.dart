@@ -5,6 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/booking/widgets/booking_calendar.dart';
+import 'package:any_venue/booking/widgets/slots_section.dart';
+import 'package:any_venue/booking/widgets/summary_box.dart';
+import 'package:any_venue/booking/widgets/venue_header_card.dart';
+import 'package:any_venue/venue/screens/venue_page.dart';
 
 import '../models/booking_slot.dart';
 
@@ -35,11 +40,6 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
   final Set<int> _selectedSlotIds = {};
   bool _isSubmitting = false;
-
-  String get _formattedDateLabel {
-    final formatter = DateFormat('d MMM yyyy');
-    return formatter.format(_selectedDate);
-  }
 
   Future<List<BookingSlot>> _fetchSlots(CookieRequest request) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
@@ -125,6 +125,10 @@ class _BookingScreenState extends State<BookingScreen> {
         setState(() {
           _selectedSlotIds.clear();
         });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const VenuePage()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal melakukan booking.')),
@@ -149,6 +153,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F7FA),
       appBar: AppBar(
         title: const Text('Booking Ticket'),
         centerTitle: true,
@@ -161,21 +166,44 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _VenueHeaderCard(widget: widget),
+                  VenueHeaderCard(
+                    venueName: widget.venueName,
+                    venuePrice: widget.venuePrice,
+                    venueAddress: widget.venueAddress,
+                    venueType: widget.venueType,
+                    venueImageUrl: widget.venueImageUrl,
+                  ),
                   const SizedBox(height: 24),
                   const Text(
                     'Choose Your Time',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
+                      color: Color(0xFF293241),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildCalendar(),
+                  BookingCalendar(
+                    visibleMonth: _visibleMonth,
+                    selectedDate: _selectedDate,
+                    onSelectDate: _selectDate,
+                    onMonthChanged: (month) => setState(() {
+                      _visibleMonth = month;
+                    }),
+                  ),
                   const SizedBox(height: 16),
-                  _buildSlotsSection(request),
+                  SlotsSection(
+                    futureSlots: _fetchSlots(request),
+                    selectedSlotIds: _selectedSlotIds,
+                    onToggle: _toggleSlot,
+                    isSlotPast: _isSlotPast,
+                  ),
                   const SizedBox(height: 24),
-                  _buildSummaryBox(),
+                  SummaryBox(
+                    pricePerSlot: widget.venuePrice,
+                    bookingCount: _selectedSlotIds.length,
+                    totalPrice: _totalPrice,
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -205,383 +233,4 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Widget _buildCalendar() {
-    final monthLabel = DateFormat('MMM yyyy').format(_visibleMonth);
-    final days = _generateCalendarDays(_visibleMonth);
-    final today = DateTime.now();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month - 1);
-                  });
-                },
-                icon: const Icon(Icons.chevron_left),
-              ),
-              Text(
-                monthLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + 1);
-                  });
-                },
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('Mo'),
-              Text('Tu'),
-              Text('We'),
-              Text('Th'),
-              Text('Fr'),
-              Text('Sa'),
-              Text('Su'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              mainAxisSpacing: 8,
-              crossAxisSpacing: 8,
-            ),
-            itemCount: days.length,
-            itemBuilder: (context, index) {
-              final day = days[index];
-              final isCurrentMonth = day.month == _visibleMonth.month;
-              final isPast = day.isBefore(DateTime(today.year, today.month, today.day));
-              final isSelected = DateUtils.isSameDay(day, _selectedDate);
-
-              Color bg = Colors.white;
-              Color text = Colors.black87;
-
-              if (!isCurrentMonth) {
-                text = Colors.grey.shade400;
-              }
-              if (isSelected) {
-                bg = Colors.orange.shade100;
-                text = Colors.orange.shade800;
-              }
-              if (isPast) {
-                text = Colors.grey.shade300;
-              }
-
-              return GestureDetector(
-                onTap: isPast ? null : () => _selectDate(day),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: bg,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSelected ? Colors.orange : Colors.grey.shade200),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '${day.day}',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: text),
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<DateTime> _generateCalendarDays(DateTime month) {
-    final first = DateTime(month.year, month.month, 1);
-    final last = DateTime(month.year, month.month + 1, 0);
-    // Shift so Monday=0, Sunday=6
-    final startOffset = (first.weekday + 6) % 7;
-    final days = <DateTime>[];
-
-    // Fill leading blanks with previous month days (still selectable logic handles)
-    for (int i = startOffset; i > 0; i--) {
-      days.add(first.subtract(Duration(days: i)));
-    }
-
-    for (int d = 1; d <= last.day; d++) {
-      days.add(DateTime(month.year, month.month, d));
-    }
-
-    // Ensure full weeks (42 cells)
-    while (days.length % 7 != 0) {
-      final nextDay = days.last.add(const Duration(days: 1));
-      days.add(nextDay);
-    }
-
-    return days;
-  }
-
-  Widget _buildSlotsSection(CookieRequest request) {
-    return FutureBuilder<List<BookingSlot>>(
-      future: _fetchSlots(request),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return const Center(
-            child: Text('Gagal memuat jadwal.'),
-          );
-        }
-
-        final slots = (snapshot.data ?? []).where((s) => !_isSlotPast(s)).toList();
-        if (slots.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                'Tidak ada jadwal tersedia untuk tanggal ini.',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          );
-        }
-
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: slots.map((slot) {
-            final isSelected = _selectedSlotIds.contains(slot.id);
-
-            Color bg;
-            Color border;
-            Color text;
-
-            if (slot.isBooked) {
-              bg = Colors.grey.shade200;
-              border = Colors.grey.shade300;
-              text = Colors.grey;
-            } else if (slot.isBookedByUser) {
-              bg = Colors.blue.shade50;
-              border = Colors.blue;
-              text = Colors.blue.shade900;
-            } else if (isSelected) {
-              bg = Colors.orange.shade50;
-              border = Colors.orange;
-              text = Colors.orange.shade800;
-            } else {
-              bg = Colors.white;
-              border = Colors.grey.shade300;
-              text = Colors.black87;
-            }
-
-            return GestureDetector(
-              onTap: () => _toggleSlot(slot),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: border),
-                  boxShadow: bg == Colors.white
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  '${slot.startTime} - ${slot.endTime}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: text,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  Widget _buildSummaryBox() {
-    final priceFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'IDR ',
-      decimalDigits: 0,
-    );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryRow('Price', priceFormatter.format(widget.venuePrice)),
-          const SizedBox(height: 8),
-          _buildSummaryRow('Number of bookings', _selectedSlotIds.length.toString()),
-          const Divider(height: 24),
-          _buildSummaryRow('Total', priceFormatter.format(_totalPrice), isBold: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _VenueHeaderCard extends StatelessWidget {
-  const _VenueHeaderCard({required this.widget});
-
-  final BookingScreen widget;
-
-  @override
-  Widget build(BuildContext context) {
-    final priceFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'IDR ',
-      decimalDigits: 0,
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey.shade200,
-              image: widget.venueImageUrl != null
-                  ? DecorationImage(
-                      image: NetworkImage(widget.venueImageUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: widget.venueImageUrl == null
-                ? const Icon(Icons.image_not_supported, color: Colors.grey)
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.venueName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.sports_tennis, size: 14, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Text(
-                      widget.venueType,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        widget.venueAddress,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${priceFormatter.format(widget.venuePrice)}/sesi',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
