@@ -31,11 +31,13 @@ class _VenueDetailState extends State<VenueDetail> {
   // Fungsi untuk refresh data single venue dari server
   Future<void> _refreshData(CookieRequest request) async {
     try {
-      final response = await request.get('http://localhost:8000/venue/api/venue-detail-flutter/${_venue.id}/');
-      
+      final response = await request.get(
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venue-detail-flutter/${_venue.id}/',
+      );
+
       if (mounted) {
         setState(() {
-          _venue = Venue.fromJson(response); 
+          _venue = Venue.fromJson(response);
         });
       }
     } catch (e) {
@@ -44,7 +46,7 @@ class _VenueDetailState extends State<VenueDetail> {
   }
 
   String get _imageUrl {
-    return 'http://localhost:8000/venue/proxy-image/?url=${Uri.encodeComponent(_venue.imageUrl)}';
+    return 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/proxy-image/?url=${Uri.encodeComponent(_venue.imageUrl)}';
   }
 
   @override
@@ -338,25 +340,20 @@ class _VenueDetailState extends State<VenueDetail> {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VenueFormPage(venue: _venue), // Kirim _venue
+                    builder: (context) =>
+                        VenueFormPage(venue: _venue), // Kirim _venue
                   ),
                 );
 
                 // JIKA EDIT BERHASIL
                 if (result == true) {
-                   setState(() {
-                     _hasEdited = true; // Tandai sudah diedit
-                   });
+                  setState(() {
+                    _hasEdited = true; // Tandai sudah diedit
+                  });
 
-                   if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Venue updated successfully!"),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                      await _refreshData(request);
-                   }
+                  if (context.mounted) {
+                    await _refreshData(request);
+                  }
                 }
               },
             ),
@@ -387,14 +384,13 @@ class _VenueDetailState extends State<VenueDetail> {
               isFullWidth: true,
               color: MyApp.orange,
               onPressed: () {
-                 // Review logic
+                // Review logic
               },
             ),
           ),
         ],
       );
-    }
-    else {
+    } else {
       return const SizedBox(
         height: 50,
         child: Center(
@@ -412,16 +408,17 @@ class _VenueDetailState extends State<VenueDetail> {
     ConfirmationModal.show(
       context,
       title: "Delete Venue?",
-      message: "Are you sure you want to delete this venue? This action cannot be undone.",
+      message:
+          "Are you sure you want to delete this venue? This action cannot be undone.",
       isDanger: true,
       confirmText: "Delete",
       icon: Icons.delete_outline_rounded,
       onConfirm: () async {
         final response = await request.post(
-          'http://localhost:8000/venue/api/delete-flutter/${_venue.id}/',
+          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
           {},
         );
-        
+
         if (context.mounted) {
           Navigator.pop(context); // Tutup dialog
 
@@ -430,7 +427,7 @@ class _VenueDetailState extends State<VenueDetail> {
               const SnackBar(content: Text("Venue deleted successfully")),
             );
             // DELETE HARUS POP: Balik ke halaman list karena venue sudah tidak ada
-            Navigator.pop(context, true); 
+            Navigator.pop(context, true);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(response['message'] ?? "Failed")),
