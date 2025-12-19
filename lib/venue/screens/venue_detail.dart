@@ -108,7 +108,6 @@ class _VenueDetailState extends State<VenueDetail> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
