@@ -85,6 +85,6 @@ Aplikasi mobile ini terhubung dengan layanan web (Django Framework) yang telah d
 ## 🔗 Tautan Penting
 
 - **Website Deployment:** [AnyVenue Web](https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/)
-- **Desain Figma:** [AnyVenue Prototype Design](https://www.figma.com/design/hP4cysHH7mBI8mqyb1ZbYY/AnyVenue?node-id=24-1886&p=f&t=NiUTEK9RizX95Rek-0)
+- **Desain Figma:** [AnyVenue Mobile Design](https://www.figma.com/design/tM78JfgdxlbbkeU8Jos2Md/AnyVenue-Mobile?node-id=6004-3118&t=QhQJN9Pm6qrp00ZA-1)
 - **Initial Dataset:** [AnyVenue Dataset](https://docs.google.com/spreadsheets/d/1-ULBMiPrgKrf5jqux1t8zMe6mDMGfZHzvRUlN7DwcL8/edit?usp=sharing)
 - **Sumber Dataset:** [AYO - Super Sport Community App](https://ayo.co.id/venues)
