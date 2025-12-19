@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/toast.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
@@ -73,28 +76,7 @@ class _VenueDetailState extends State<VenueDetail> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text(
-            "Detail Venue",
-            style: TextStyle(
-              color: MyApp.gumetalSlate,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-          elevation: 4,
-          backgroundColor: Colors.white,
-          shadowColor: MyApp.gumetalSlate.withOpacity(0.1),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.keyboard_arrow_left_rounded,
-              size: 32,
-              color: MyApp.gumetalSlate,
-            ),
-            // Manual pop dengan membawa status edit
-            onPressed: () => Navigator.pop(context, _hasEdited),
-          ),
-        ),
+        appBar: const CustomAppBar(title: "Detail Venue"),
 
         body: Column(
           children: [
@@ -117,9 +99,9 @@ class _VenueDetailState extends State<VenueDetail> {
                           // venue name
                           Text(
                             _venue.name,
-                            style: const TextStyle(
+                            style: GoogleFonts.nunitoSans(
                               fontSize: 24,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w800,
                               color: Color(0xFF293241),
                               height: 1.2,
                             ),
@@ -172,19 +154,11 @@ class _VenueDetailState extends State<VenueDetail> {
                           // owner profile
                           Row(
                             children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: MyApp.darkSlate,
-                                child: Text(
-                                  _venue.owner.username.isNotEmpty
-                                      ? _venue.owner.username[0].toUpperCase()
-                                      : "U",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
+                              UserAvatar(
+                                initial: _venue.owner.username.isNotEmpty
+                                    ? _venue.owner.username[0].toUpperCase()
+                                    : "U",
+                                size: 48, 
                               ),
                               const SizedBox(width: 12),
                               Column(
@@ -336,7 +310,7 @@ class _VenueDetailState extends State<VenueDetail> {
             child: CustomButton(
               text: "Edit",
               isFullWidth: true,
-              color: MyApp.darkSlate,
+              gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate],
               onPressed: () async {
                 final result = await Navigator.push(
                   context,
@@ -371,7 +345,7 @@ class _VenueDetailState extends State<VenueDetail> {
             child: CustomButton(
               text: "Booking Venue",
               isFullWidth: true,
-              color: MyApp.darkSlate,
+              gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate],
               onPressed: () {
                 // Booking logic
               },
