@@ -64,7 +64,6 @@ class _VenueDetailState extends State<VenueDetail> {
 
   // Fungsi Delete Review
   Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
-    // 1. Tampilkan Modal Konfirmasi
     ConfirmationModal.show(
       context,
       title: "Delete Review?",
@@ -73,7 +72,7 @@ class _VenueDetailState extends State<VenueDetail> {
       confirmText: "Delete",
       icon: Icons.delete_outline_rounded,
       onConfirm: () async {
-        // 2. Request ke Django
+        // Request ke Django
         final response = await request.post(
           'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
           {},
@@ -81,16 +80,18 @@ class _VenueDetailState extends State<VenueDetail> {
 
         if (context.mounted) {
           if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Review deleted successfully")),
+            CustomToast.show(
+              context, 
+              message: "Review deleted successfully", 
+              isError: false
             );
-            // 3. Refresh list review agar item hilang
+            // Refresh list review agar item hilang
             _fetchReviews(request);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(response['message'] ?? "Failed to delete"),
-              ),
+            CustomToast.show(
+              context, 
+              message: response['message'] ?? "Failed to delete review",
+              isError: true,
             );
           }
         }
