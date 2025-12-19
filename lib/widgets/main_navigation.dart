@@ -10,15 +10,27 @@ import 'package:any_venue/venue/screens/my_venue_page.dart';
 import 'package:any_venue/widgets/create_modal.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+
+  final int initialIndex;
+
+  const MainNavigation({
+    super.key, 
+    this.initialIndex = 0, 
+  });
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
   final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +54,7 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
+
   // --- LOGIC MAP SCREEN ---
   Widget _getScreenForIndex(int index, bool isOwner) {
     // List Screen Asli
@@ -59,7 +72,7 @@ class _MainNavigationState extends State<MainNavigation> {
       const Center(child: Text("My Reviews")),
       const ProfilePage(),
     ];
-
+    
     if (isOwner) {
       // Mapping Index Navbar -> Index Screen
       // Nav: [0:Home, 1:Venue, 2:DUMMY, 3:Event, 4:Profile]

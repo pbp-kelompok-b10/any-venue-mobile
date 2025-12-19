@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MainNavigation(),
+                                  builder: (context) => MainNavigation(initialIndex: 0),
                                 ),
                               );
                               CustomToast.show(
