@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/widgets/toast.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/screens/venue_form.dart';
@@ -423,14 +424,20 @@ class _VenueDetailState extends State<VenueDetail> {
           Navigator.pop(context); // Tutup dialog
 
           if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Venue deleted successfully")),
+            CustomToast.show(
+              context,
+              message: "Venue deleted!",
+              subMessage: response['message'],
+              isError: false,
             );
-            // DELETE HARUS POP: Balik ke halaman list karena venue sudah tidak ada
+
             Navigator.pop(context, true);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(response['message'] ?? "Failed")),
+            CustomToast.show(
+              context,
+              message: "Failed to delete.",
+              subMessage: response['message'] ?? "An error ocurred.",
+              isError: true,
             );
           }
         }

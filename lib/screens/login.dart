@@ -221,8 +221,8 @@ class _LoginPageState extends State<LoginPage> {
                               );
                               CustomToast.show(
                                 context,
-                                message: "Login Successful!",
-                                subMessage: "$message Welcome back, $uname.",
+                                message: "$message",
+                                subMessage: "Welcome back, $uname.",
                                 isError: false,
                               );
                             }
