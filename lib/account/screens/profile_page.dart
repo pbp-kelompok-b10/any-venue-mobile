@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 import 'package:any_venue/account/widgets/header.dart';
 import 'package:any_venue/account/models/profile.dart';
 import 'package:any_venue/account/widgets/profile_info.dart';
@@ -19,9 +20,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Fungsi untuk mengambil data dari Django
   Future<Profile> fetchProfile(CookieRequest request) async {
-    // Sesuaikan URL sesuai device (localhost untuk web, 10.0.2.2 untuk emulator)
-    final response = await request.get("http://localhost:8000/account/api/profile/");
+    // NOTE: Ganti URL sesuai device:
+    // Android Emulator: http://10.0.2.2:8000/account/api/profile/
+    // Chrome / iOS: https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/
+    final response = await request.get(
+      "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/page/",
+    );
 
     if (response['status'] == true) {
       return Profile.fromJson(response['user_data']);

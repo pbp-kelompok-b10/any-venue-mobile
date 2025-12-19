@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:any_venue/main.dart';
 
-import 'package:any_venue/main.dart'; 
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
+import 'package:any_venue/review/screens/review_form.dart';
+
 import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
 
 class ReviewPage extends StatefulWidget {
-  final int venueId; 
+  final int venueId;
 
   const ReviewPage({super.key, required this.venueId});
 
@@ -34,7 +37,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
   Future<void> _fetchReviews() async {
     final request = context.read<CookieRequest>();
-    
+
     setState(() {
       _isLoading = true;
     });
@@ -42,12 +45,14 @@ class _ReviewPageState extends State<ReviewPage> {
     try {
       String endpoint = "";
       if (_selectedFilter == ReviewFilter.all) {
-        endpoint = 'http://localhost:8000/review/json/venue/${widget.venueId}/';
+        endpoint =
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/json/venue/${widget.venueId}/';
         if (_selectedRating != null) {
           endpoint += '?rating=$_selectedRating';
         }
       } else {
-        endpoint = 'http://localhost:8000/review/json/venue/${widget.venueId}/my/';
+        endpoint =
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/json/venue/${widget.venueId}/my/';
       }
 
       final response = await request.get(endpoint);
@@ -63,28 +68,60 @@ class _ReviewPageState extends State<ReviewPage> {
       debugPrint("Error fetching reviews: $e");
       if (mounted) {
         setState(() {
-          _reviews = []; 
+          _reviews = [];
           _isLoading = false;
         });
       }
     }
   }
 
+  Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
+    ConfirmationModal.show(
+      context,
+      title: "Delete Review?",
+      message: "Are you sure you want to delete your review?",
+      isDanger: true,
+      confirmText: "Delete",
+      icon: Icons.delete_outline_rounded,
+      onConfirm: () async {
+        final response = await request.post(
+          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
+          {},
+        );
+
+        if (context.mounted) {
+          if (response['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Review deleted successfully")),
+            );
+            _fetchReviews(); // Panggil fungsi fetch yang sudah ada di ReviewPage
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'] ?? "Failed")),
+            );
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    final String? currentUsername = request.jsonData['username'] ?? '';
     bool isRatingDisabled = _selectedFilter == ReviewFilter.my;
 
     // Filter data dari _reviews berdasarkan bintang yang dipilih
     final filteredReviews = _reviews.where((review) {
       if (_selectedFilter == ReviewFilter.all && _selectedRating != null) {
-        return review.rating == _selectedRating; 
+        return review.rating == _selectedRating;
       }
       return true; // Tampilkan semua jika tidak ada filter bintang
     }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(title: "Reviews"), 
+      appBar: const CustomAppBar(title: "Reviews"),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,11 +136,13 @@ class _ReviewPageState extends State<ReviewPage> {
                   _buildFilterButton(
                     label: "Show",
                     selectedValue: Text(
-                      _selectedFilter == ReviewFilter.all ? "All Reviews" : "My Review",
+                      _selectedFilter == ReviewFilter.all
+                          ? "All Reviews"
+                          : "My Review",
                       style: TextStyle(
-                        color: Colors.white, 
-                        fontWeight: FontWeight.w600, 
-                        fontSize: 13
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
                       ),
                     ),
                     onTap: () => _showFilterModal(),
@@ -127,12 +166,16 @@ class _ReviewPageState extends State<ReviewPage> {
                         : Text(
                             "Rating",
                             style: TextStyle(
-                              color: isRatingDisabled ? Colors.grey.shade400 : Colors.grey[700]!,
+                              color: isRatingDisabled
+                                  ? Colors.grey.shade400
+                                  : Colors.grey[700]!,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
-                          ), 
-                    onTap: isRatingDisabled ? null : () => _showRatingFilterModal(),
+                          ),
+                    onTap: isRatingDisabled
+                        ? null
+                        : () => _showRatingFilterModal(),
                     isActive: _selectedRating != null,
                     isDisabled: isRatingDisabled,
                     icon: Icons.keyboard_arrow_down,
@@ -144,28 +187,53 @@ class _ReviewPageState extends State<ReviewPage> {
 
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: MyApp.orange))
+                ? const Center(
+                    child: CircularProgressIndicator(color: MyApp.orange),
+                  )
                 : filteredReviews.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.rate_review_outlined, size: 48, color: Colors.grey[300]),
-                            const SizedBox(height: 16),
-                            Text(
-                              _selectedFilter == ReviewFilter.all
-                                  ? "No reviews yet."
-                                  : "You haven't reviewed this venue.",
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.rate_review_outlined,
+                          size: 48,
+                          color: Colors.grey[300],
                         ),
-                      )
-                    : ReviewList(
-                        reviews: filteredReviews,
-                        isHorizontal: false,
-                        scrollable: true,
-                      ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _selectedFilter == ReviewFilter.all
+                              ? "No reviews yet."
+                              : "You haven't reviewed this venue.",
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  )
+                : ReviewList(
+                    reviews: filteredReviews,
+                    isHorizontal: false,
+                    scrollable: true,
+
+                    currentUsername: currentUsername,
+
+                    onEdit: (review) async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ReviewFormPage(existingReview: review),
+                        ),
+                      );
+                      if (result == true) {
+                        _fetchReviews(); // Refresh list setelah edit
+                      }
+                    },
+
+                    onDelete: (review) {
+                      _handleDeleteReview(review, request);
+                    },
+                  ),
           ),
         ],
       ),
@@ -173,7 +241,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   // --- HELPER: FILTER BUTTON & MODAL ---
-Widget _buildFilterButton({
+  Widget _buildFilterButton({
     required String label,
     required Widget selectedValue,
     required VoidCallback? onTap,
@@ -181,8 +249,12 @@ Widget _buildFilterButton({
     bool isDisabled = false,
     IconData icon = Icons.keyboard_arrow_down,
   }) {
-    Color bgColor = isDisabled ? Colors.grey.shade100 : (isActive ? MyApp.darkSlate : Colors.white);
-    Color contentColor = isDisabled ? Colors.grey.shade400 : (isActive ? Colors.white : Colors.grey[700]!);
+    Color bgColor = isDisabled
+        ? Colors.grey.shade100
+        : (isActive ? MyApp.darkSlate : Colors.white);
+    Color contentColor = isDisabled
+        ? Colors.grey.shade400
+        : (isActive ? Colors.white : Colors.grey[700]!);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -190,7 +262,11 @@ Widget _buildFilterButton({
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isDisabled ? Colors.transparent : (isActive ? MyApp.darkSlate : Colors.grey.shade300)),
+          border: Border.all(
+            color: isDisabled
+                ? Colors.transparent
+                : (isActive ? MyApp.darkSlate : Colors.grey.shade300),
+          ),
         ),
         child: Row(
           children: [
@@ -203,7 +279,7 @@ Widget _buildFilterButton({
     );
   }
 
-// --- MODAL: SELECT VIEW (ALL VS MY REVIEW) ---
+  // --- MODAL: SELECT VIEW (ALL OR MY REVIEW) ---
   void _showFilterModal() {
     showModalBottomSheet(
       context: context,
@@ -222,10 +298,7 @@ Widget _buildFilterButton({
                 children: [
                   const Text(
                     "Select View",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   // Tombol Clear (Opsional, di sini untuk reset ke All)
                   if (_selectedFilter == ReviewFilter.my)
@@ -250,7 +323,8 @@ Widget _buildFilterButton({
                     label: Text("All Reviews"),
                     isSelected: _selectedFilter == ReviewFilter.all,
                     onSelected: (selected) {
-                      if (selected) setState(() => _selectedFilter = ReviewFilter.all);
+                      if (selected)
+                        setState(() => _selectedFilter = ReviewFilter.all);
                       _fetchReviews();
                       Navigator.pop(context);
                     },
@@ -262,7 +336,8 @@ Widget _buildFilterButton({
                       if (selected) {
                         setState(() {
                           _selectedFilter = ReviewFilter.my;
-                          _selectedRating = null; // Otomatis reset bintang sesuai permintaan
+                          _selectedRating =
+                              null; // Otomatis reset bintang sesuai permintaan
                         });
                       }
                       _fetchReviews();
@@ -298,10 +373,7 @@ Widget _buildFilterButton({
                 children: [
                   const Text(
                     "Select Rating",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   if (_selectedRating != null)
                     TextButton(
@@ -326,7 +398,9 @@ Widget _buildFilterButton({
                         (index) => Icon(
                           Icons.star_rounded,
                           size: 18,
-                          color: _selectedRating == star ? MyApp.orange : Colors.grey[600],
+                          color: _selectedRating == star
+                              ? MyApp.orange
+                              : Colors.grey[600],
                         ),
                       ),
                     ),
@@ -361,9 +435,7 @@ Widget _buildFilterButton({
         color: isSelected ? MyApp.orange : Colors.black,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: onSelected,
     );
   }
