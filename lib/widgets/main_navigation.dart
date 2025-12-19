@@ -5,6 +5,7 @@ import 'package:any_venue/main.dart';
 
 import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
+import 'package:any_venue/venue/screens/my_venue_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
@@ -17,6 +18,7 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
+  final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class _MainNavigationState extends State<MainNavigation> {
     // List Screen Asli
     final List<Widget> ownerScreens = [
       const HomePage(),
-      const Center(child: Text("My Venues")),
+      MyVenuePage(key: _myVenueKey),
       const Center(child: Text("My Events")),
       const ProfilePage(),
     ];
@@ -96,7 +98,12 @@ class _MainNavigationState extends State<MainNavigation> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => CreateActionModal.show(context),
+          onTap: () async {
+            final created = await CreateActionModal.show(context);
+            if (created == true) {
+              _myVenueKey.currentState?.refresh();
+            }
+          },
           customBorder: const CircleBorder(),
           child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
         ),
@@ -122,7 +129,7 @@ class _MainNavigationState extends State<MainNavigation> {
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         
-        // SOLUSI 1: Theme Wrapper untuk Hapus Shadow Abu
+        // Theme Wrapper untuk Hapus Shadow Abu
         child: Theme(
           data: ThemeData(
             splashColor: Colors.transparent,

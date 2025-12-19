@@ -3,16 +3,23 @@ import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_card.dart';
 import 'package:any_venue/venue/screens/venue_detail.dart';
 
+// Enum untuk menentukan tipe tampilan list
+enum VenueListType {
+  horizontalFeat, // Geser samping, random 5 (Home)
+  verticalSmall, // List ke bawah, card kecil (Search)
+  verticalLarge // List ke bawah, card besar (My Venue)
+}
+
 class VenueList extends StatefulWidget {
   final List<Venue> venues;
   final Function() onRefresh;
-  final bool isLarge; // True = Horizontal & Random 5, False = Vertical & All
+  final VenueListType listType; // Ganti bool isLarge dengan ini
   final bool scrollable;
 
   const VenueList({
     super.key,
     required this.venues,
-    this.isLarge = true, // Default mode Besar (Horizontal)
+    this.listType = VenueListType.horizontalFeat, // Default Home
     this.scrollable = false,
     required this.onRefresh,
   });
@@ -25,13 +32,16 @@ class _VenueListState extends State<VenueList> {
   @override
   Widget build(BuildContext context) {
     if (widget.venues.isEmpty) {
-      return const SizedBox.shrink(); // Jangan tampilkan apa-apa kalau data kosong
+      return const SizedBox.shrink();
     }
 
-    if (widget.isLarge) {
-      return _buildLargeHorizontalList();
-    } else {
-      return _buildSmallVerticalList();
+    switch (widget.listType) {
+      case VenueListType.horizontalFeat:
+        return _buildLargeHorizontalList();
+      case VenueListType.verticalSmall:
+        return _buildVerticalList(isCardSmall: true);
+      case VenueListType.verticalLarge:
+        return _buildVerticalList(isCardSmall: false);
     }
   }
 
@@ -41,37 +51,22 @@ class _VenueListState extends State<VenueList> {
   // ==========================================
   Widget _buildLargeHorizontalList() {
     final List<Venue> randomVenues = List<Venue>.from(widget.venues)..shuffle();
-    // Ambil 5 item atau seadanya jika data kurang dari 5
     final List<Venue> displayedVenues = randomVenues.take(5).toList();
 
     return SizedBox(
-      height: 340, // Tinggi area scroll
+      height: 340,
       child: ListView.separated(
-        // Padding horizontal agar item pertama & terakhir tidak mepet layar
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         scrollDirection: Axis.horizontal,
         itemCount: displayedVenues.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           return SizedBox(
-            width: 260, // Lebar fix agar ukuran card seragam
+            width: 260,
             child: VenueCard(
-              venue: displayedVenues[index], // Gunakan displayedVenues agar index sesuai
-              isSmall: false, // Mode Besar
-              onTap: () async { // Tambah async
-                // Tunggu hasil dari detail page
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VenueDetail(venue: displayedVenues[index]),
-                  ),
-                );
-
-                // Jika ada sinyal refresh (true), panggil onRefresh milik parent
-                if (result == true) {
-                  widget.onRefresh();
-                }
-              },
+              venue: displayedVenues[index],
+              isSmall: false, // Card Besar
+              onTap: () => _navigateToDetail(displayedVenues[index]),
             ),
           );
         },
@@ -80,38 +75,38 @@ class _VenueListState extends State<VenueList> {
   }
 
   // ==========================================
-  // LAYOUT 2: VERTICAL (LIST KE BAWAH)
-  // - Menampilkan SEMUA data
+  // LAYOUT 2 & 3: VERTICAL (LIST KE BAWAH)
+  // - Bisa Small atau Large tergantung parameter
   // ==========================================
-  Widget _buildSmallVerticalList() {
+  Widget _buildVerticalList({required bool isCardSmall}) {
     return ListView.builder(
       physics: widget.scrollable
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
-
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       itemCount: widget.venues.length,
       itemBuilder: (context, index) {
         return VenueCard(
           venue: widget.venues[index],
-          isSmall: true, // Mode Kecil
-          onTap: () async { // Tambah async
-            // Tunggu hasil dari detail page
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VenueDetail(venue: widget.venues[index]),
-              ),
-            );
-
-            // Jika ada sinyal refresh (true), panggil onRefresh milik parent
-            if (result == true) {
-              widget.onRefresh();
-            }
-          },
+          isSmall: isCardSmall, // Dinamis sesuai tipe
+          onTap: () => _navigateToDetail(widget.venues[index]),
         );
       },
     );
+  }
+
+  // Helper Navigation
+  Future<void> _navigateToDetail(Venue venue) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VenueDetail(venue: venue),
+      ),
+    );
+
+    if (result == true) {
+      widget.onRefresh();
+    }
   }
 }

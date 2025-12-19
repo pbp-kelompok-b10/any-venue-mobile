@@ -6,8 +6,8 @@ import 'package:any_venue/venue/screens/venue_form.dart';
 class CreateActionModal extends StatelessWidget {
   const CreateActionModal({super.key});
 
-  static void show(BuildContext context) {
-    showModalBottomSheet(
+  static Future<bool?> show(BuildContext context) {
+    return showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -42,12 +42,15 @@ class CreateActionModal extends StatelessWidget {
             iconColor: Colors.white,
             label: "New Venue",
             subLabel: "Add a sport field",
-            onTap: () {
-              Navigator.pop(context); // Tutup modal dulu
-              Navigator.push(
+            onTap: () async {
+              final result = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const VenueFormPage()),
+                MaterialPageRoute(builder: (_) => const VenueFormPage()),
               );
+
+              if (!context.mounted) return;
+
+              Navigator.pop(context, result == true);
             },
           ),
           
