@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import 'package:any_venue/main.dart'; 
+import 'package:any_venue/main.dart';
 
 import 'package:any_venue/screens/home_page.dart';
-import 'package:any_venue/venue/screens/venue_form.dart';
-
-import 'package:any_venue/account/models/profile.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
 
-class MainNavigation extends StatefulWidget {
+import 'package:any_venue/widgets/create_modal.dart';
 
+class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
   @override
@@ -25,221 +21,181 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    
     final String role = request.jsonData['role'] ?? 'USER';
     final bool isOwner = role == 'OWNER';
 
-    // LIST HALAMAN
-    final List<Widget> screens;
-    
-    if (isOwner) {
-      screens = [
-        const HomePage(),
-        const Center(child: Text("My Venues")), 
-        const Center(child: Text("My Events")), 
-        const ProfilePage(),     
-      ];
-    } else {
-      screens = [
-        const HomePage(),
-        const Center(child: Text("My Bookings")), 
-        const Center(child: Text("My Events")), 
-        const Center(child: Text("My Reviews")),  
-        const ProfilePage(),      
-      ];
-    }
-
-    // LIST ITEM NAVBAR
-    final List<BottomNavigationBarItem> items;
-
-    if (isOwner) {
-      items = const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.stadium_outlined), activeIcon: Icon(Icons.stadium_rounded), label: 'Venue'),
-        BottomNavigationBarItem(icon: Icon(Icons.confirmation_number_outlined), activeIcon: Icon(Icons.confirmation_number), label: 'Event'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
-      ];
-    } else {
-      items = const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home_filled), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), activeIcon: Icon(Icons.calendar_month), label: 'Booking'),
-        BottomNavigationBarItem(icon: Icon(Icons.confirmation_number_outlined), activeIcon: Icon(Icons.confirmation_number), label: 'Event'),
-        BottomNavigationBarItem(icon: Icon(Icons.star_outline_rounded), activeIcon: Icon(Icons.star_rounded), label: 'Review'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline_rounded), activeIcon: Icon(Icons.person_rounded), label: 'Profile'),
-      ];
-    }
-
-    if (_selectedIndex >= screens.length) {
-      _selectedIndex = 0;
-    }
+    // Generate Nav Items
+    final List<BottomNavigationBarItem> navItems = _getNavItems(isOwner);
 
     return Scaffold(
-      body: screens[_selectedIndex],
+      extendBody: true,
       
-      // ===============================================
-      // 1. TOMBOL TAMBAH (FAB) KHUSUS OWNER
-      // ===============================================
-      floatingActionButton: isOwner 
-        ? FloatingActionButton(
-            onPressed: () => _showCreateModal(context),
-            backgroundColor: MyApp.gumetalSlate, // Warna Orange biar mencolok
-            elevation: 5,
-            shape: const CircleBorder(),
-            child: const Icon(Icons.add, color: Colors.white, size: 28),
-          ) 
-        : null,
-      
+      // Ambil Screen berdasarkan index yang sudah di-handle logikanya
+      body: _getScreenForIndex(_selectedIndex, isOwner),
+
+      floatingActionButton: isOwner ? _buildGradientFab(context) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
-      // ===============================================
-      // 2. BOTTOM NAVIGATION BAR
-      // ===============================================
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: MyApp.gumetalSlate.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed, 
-          backgroundColor: Colors.white,
-          elevation: 0,
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          selectedItemColor: MyApp.gumetalSlate,
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10), // Font diperkecil sedikit agar muat 5
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 10),
-          items: items,
-        ),
-      ),
+      bottomNavigationBar: _buildModernBottomNavBar(navItems, isOwner),
     );
   }
 
-  // ===============================================
-  // 3. MODAL POPUP (Venue / Event)
-  // ===============================================
-  void _showCreateModal(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          height: 250, // Tinggi modal
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Create",
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 20, 
-                  fontWeight: FontWeight.w800,
-                  color: MyApp.gumetalSlate,
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              // PILIHAN 1: ADD VENUE
-              _buildOptionItem(
-                icon: Icons.stadium_rounded,
-                color: MyApp.gumetalSlate,
-                iconColor: Colors.white,
-                label: "New Venue",
-                subLabel: "Add a sport field",
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const VenueFormPage())
-                  );
-                },
-              ),
-              
-              const SizedBox(height: 16),
+  // --- LOGIC MAP SCREEN ---
+  Widget _getScreenForIndex(int index, bool isOwner) {
+    // List Screen Asli
+    final List<Widget> ownerScreens = [
+      const HomePage(),
+      const Center(child: Text("My Venues")),
+      const Center(child: Text("My Events")),
+      const ProfilePage(),
+    ];
 
-              // PILIHAN 2: ADD EVENT
-              _buildOptionItem(
-                icon: Icons.emoji_events_rounded,
-                color: MyApp.orange,
-                iconColor: Colors.white,
-                label: "New Event",
-                subLabel: "Host a tournament or match",
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Pindah ke Form Event (Create Mode)
-                },
-              ),
-            ],
+    final List<Widget> userScreens = [
+      const HomePage(),
+      const Center(child: Text("My Bookings")),
+      const Center(child: Text("My Events")),
+      const Center(child: Text("My Reviews")),
+      const ProfilePage(),
+    ];
+
+    if (isOwner) {
+      // Mapping Index Navbar -> Index Screen
+      // Nav: [0:Home, 1:Venue, 2:DUMMY, 3:Event, 4:Profile]
+      if (index == 0) return ownerScreens[0];
+      if (index == 1) return ownerScreens[1];
+      if (index == 3) return ownerScreens[2]; // Lompat dummy
+      if (index == 4) return ownerScreens[3];
+      return ownerScreens[0]; // Default fallback
+    } else {
+      if (index >= userScreens.length) return userScreens[0];
+      return userScreens[index];
+    }
+  }
+
+  // --- GRADIENT FAB ---
+  Widget _buildGradientFab(BuildContext context) {
+    return Container(
+      width: 60,
+      height: 60,
+      margin: const EdgeInsets.only(top: 30), // Margin top diperbesar agar FAB agak turun/pas di tengah curve
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [MyApp.gumetalSlate, MyApp.darkSlate],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: MyApp.gumetalSlate.withOpacity(0.4),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        );
-      },
-    );
-  }
-
-  // Widget Helper untuk Item Modal
-  Widget _buildOptionItem({
-    required IconData icon,
-    required Color color,
-    required Color iconColor,
-    required String label,
-    required String subLabel,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: MyApp.gumetalSlate,
-                  ),
-                ),
-                Text(
-                  subLabel,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            const Icon(Icons.keyboard_arrow_right_rounded, size: 16, color: Colors.grey),
-          ],
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => CreateActionModal.show(context),
+          customBorder: const CircleBorder(),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
         ),
       ),
     );
+  }
+
+  // --- BOTTOM NAV BAR ---
+  Widget _buildModernBottomNavBar(List<BottomNavigationBarItem> items, bool isOwner) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        
+        // SOLUSI 1: Theme Wrapper untuk Hapus Shadow Abu
+        child: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            currentIndex: _selectedIndex,
+            
+            onTap: (index) {
+              if (isOwner && index == 2) return; 
+              
+              setState(() => _selectedIndex = index);
+            },
+
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, height: 1.5),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11, height: 1.5),
+            selectedItemColor: MyApp.gumetalSlate,
+            unselectedItemColor: Colors.grey.shade400,
+            showUnselectedLabels: true,
+            items: items,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- HELPER ITEMS ---
+  BottomNavigationBarItem _buildNavItem(IconData iconOutline, IconData iconFilled, String label) {
+    return BottomNavigationBarItem(
+      icon: Padding(
+        padding: const EdgeInsets.only(bottom: 4.0),
+        child: Icon(iconOutline, size: 24),
+      ),
+      activeIcon: Padding(
+        padding: const EdgeInsets.only(bottom: 4.0),
+        child: Icon(iconFilled, size: 28),
+      ),
+      label: label,
+    );
+  }
+
+  // --- ITEM KOSONG (DUMMY) ---
+  BottomNavigationBarItem _buildDummyItem() {
+    return const BottomNavigationBarItem(
+      icon: SizedBox.shrink(), // Icon tidak terlihat
+      label: '', // Label kosong
+    );
+  }
+
+  List<BottomNavigationBarItem> _getNavItems(bool isOwner) {
+    if (isOwner) {
+      return [
+        _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home'),
+        _buildNavItem(Icons.stadium_outlined, Icons.stadium_rounded, 'Venue'),
+        
+        // Insert Dummy Item di tengah untuk memberi jarak FAB
+        _buildDummyItem(), 
+        
+        _buildNavItem(Icons.confirmation_number_outlined, Icons.confirmation_number_rounded, 'Event'),
+        _buildNavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+      ];
+    }
+    
+    // User biasa (Tanpa FAB, urutan normal 5 item)
+    return [
+      _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home'),
+      _buildNavItem(Icons.calendar_today_outlined, Icons.calendar_month_rounded, 'Booking'),
+      _buildNavItem(Icons.confirmation_number_outlined, Icons.confirmation_number_rounded, 'Event'),
+      _buildNavItem(Icons.star_outline_rounded, Icons.star_rounded, 'Review'),
+      _buildNavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+    ];
   }
 }
