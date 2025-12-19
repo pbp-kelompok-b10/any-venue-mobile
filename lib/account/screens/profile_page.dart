@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 import 'package:any_venue/account/widgets/header.dart';
-import 'package:any_venue/account/models/profile.dart'; // Pastikan path model benar
+import 'package:any_venue/account/models/profile.dart'; 
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,7 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // NOTE: Ganti URL sesuai device:
     // Android Emulator: http://10.0.2.2:8000/account/api/profile/
     // Chrome / iOS: http://localhost:8000/account/api/profile/
-    final response = await request.get("http://localhost:8000/account/api/profile/page/");
+    final response = await request.get("https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/account/api/profile/page/");
 
     if (response['status'] == true) {
       // Parsing JSON ke Model Profile
@@ -96,32 +97,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 32),
 
                         // --- Avatar Container ---
-                        Container(
-                          width: 100,
-                          height: 100,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: ShapeDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment(1.00, 0.50),
-                              end: Alignment(0.00, 0.50),
-                              colors: [
-                                MyApp.gumetalSlate,
-                                MyApp.darkSlate,
-                              ],
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(360),
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              initial,
-                              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                color: MyApp.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                        UserAvatar(
+                          initial: initial,
+                          size: 100,
                         ),
 
                         const SizedBox(height: 16),
