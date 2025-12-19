@@ -61,6 +61,40 @@ class _VenueDetailState extends State<VenueDetail> {
     }
   }
 
+  // Fungsi Delete Review
+  Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
+    // 1. Tampilkan Modal Konfirmasi
+    ConfirmationModal.show(
+      context,
+      title: "Delete Review?",
+      message: "Are you sure you want to delete your review?",
+      isDanger: true,
+      confirmText: "Delete",
+      icon: Icons.delete_outline_rounded,
+      onConfirm: () async {
+        // 2. Request ke Django
+        final response = await request.post(
+          'http://localhost:8000/review/delete-flutter/${review.id}/',
+          {},
+        );
+
+        if (context.mounted) {
+          if (response['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Review deleted successfully")),
+            );
+            // 3. Refresh list review agar item hilang
+            _fetchReviews(request);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'] ?? "Failed to delete")),
+            );
+          }
+        }
+      },
+    );
+  }
+
   Future<void> _refreshData() async {
     final request = context.read<CookieRequest>();
     try {
@@ -221,6 +255,29 @@ class _VenueDetailState extends State<VenueDetail> {
                               reviews: _reviews,
                               isHorizontal: true, 
                               scrollable: true,
+                              currentUsername: currentUsername, // Diambil dari variabel yang sudah kamu deklarasikan di awal build
+  
+                              // Callback Edit
+                              onEdit: (review) async {
+                                // Navigasi ke Form Edit
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ReviewFormPage(
+                                      existingReview: review, // Kirim objek review untuk diedit
+                                    ),
+                                  ),
+                                );
+                                // Jika sukses edit (return true), refresh data
+                                if (result == true && context.mounted) {
+                                  _fetchReviews(request);
+                                }
+                              },
+                              
+                              // Callback Delete
+                              onDelete: (review) {
+                                _handleDeleteReview(review, request);
+                              },
                             ),
                           
                           const SizedBox(height: 100),
