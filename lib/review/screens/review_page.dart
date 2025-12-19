@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:any_venue/main.dart';
 
-import 'package:any_venue/main.dart'; 
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
+import 'package:any_venue/review/screens/review_form.dart';
+
 import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
 
 class ReviewPage extends StatefulWidget {
   final int venueId; 
@@ -70,8 +73,40 @@ class _ReviewPageState extends State<ReviewPage> {
     }
   }
 
+  Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
+    ConfirmationModal.show(
+      context,
+      title: "Delete Review?",
+      message: "Are you sure you want to delete your review?",
+      isDanger: true,
+      confirmText: "Delete",
+      icon: Icons.delete_outline_rounded,
+      onConfirm: () async {
+        final response = await request.post(
+          'http://localhost:8000/review/delete-flutter/${review.id}/',
+          {},
+        );
+
+        if (context.mounted) {
+          if (response['status'] == 'success') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Review deleted successfully")),
+            );
+            _fetchReviews(); // Panggil fungsi fetch yang sudah ada di ReviewPage
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(response['message'] ?? "Failed")),
+            );
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    final String? currentUsername = request.jsonData['username'] ?? '';
     bool isRatingDisabled = _selectedFilter == ReviewFilter.my;
 
     // Filter data dari _reviews berdasarkan bintang yang dipilih
@@ -165,6 +200,26 @@ class _ReviewPageState extends State<ReviewPage> {
                         reviews: filteredReviews,
                         isHorizontal: false,
                         scrollable: true,
+
+                        currentUsername: currentUsername,
+    
+                        onEdit: (review) async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReviewFormPage(
+                                existingReview: review,
+                              ),
+                            ),
+                          );
+                          if (result == true) {
+                            _fetchReviews(); // Refresh list setelah edit
+                          }
+                        },
+                        
+                        onDelete: (review) {
+                          _handleDeleteReview(review, request);
+                        },
                       ),
           ),
         ],
@@ -173,7 +228,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   // --- HELPER: FILTER BUTTON & MODAL ---
-Widget _buildFilterButton({
+  Widget _buildFilterButton({
     required String label,
     required Widget selectedValue,
     required VoidCallback? onTap,
@@ -203,7 +258,7 @@ Widget _buildFilterButton({
     );
   }
 
-// --- MODAL: SELECT VIEW (ALL VS MY REVIEW) ---
+  // --- MODAL: SELECT VIEW (ALL OR MY REVIEW) ---
   void _showFilterModal() {
     showModalBottomSheet(
       context: context,
