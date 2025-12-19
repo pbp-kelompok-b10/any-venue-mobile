@@ -13,14 +13,26 @@ import 'package:any_venue/account/screens/profile_page.dart';
 
 class MainNavigation extends StatefulWidget {
 
-  const MainNavigation({super.key});
+  final int initialIndex;
+
+  const MainNavigation({
+    super.key, 
+    this.initialIndex = 0, 
+  });
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    // 3. Set index awal sesuai parameter yang dikirim
+    _selectedIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +82,7 @@ class _MainNavigationState extends State<MainNavigation> {
     }
 
     if (_selectedIndex >= screens.length) {
-      _selectedIndex = 0;
+      _selectedIndex = screens.length - 1; 
     }
 
     return Scaffold(
