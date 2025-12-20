@@ -1,3 +1,4 @@
+import 'package:any_venue/event/screens/event_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -179,9 +180,9 @@ class _MainNavigationState extends State<MainNavigation> {
                 subLabel: "Host a tournament or match",
                 onTap: () {
                   Navigator.pop(context);
-                  // TODO: Pindah ke Form Event (Create Mode)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Form Event Coming Soon!"))
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (context) => const EventFormPage())
                   );
                 },
               ),
