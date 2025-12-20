@@ -1,3 +1,7 @@
+import 'package:any_venue/event/models/event.dart';
+import 'package:any_venue/event/screens/event_page.dart';
+import 'package:any_venue/event/screens/event_page_detail.dart';
+import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +14,6 @@ import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
-
-// import 'package:any_venue/screens/search_page.dart';
-// import 'package:any_venue/screens/venue_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,11 +35,25 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  // Fetch API Events
-  Future<List<String>> _fetchEvents() async {
-    // TODO: ubah pake api
-    await Future.delayed(const Duration(seconds: 1));
-    return ["Moshfest 2024", "Java Jazz", "Synchronize Fest"];
+  // Fetch API Events with Sorting Logic
+  Future<List<EventEntry>> _fetchEvents(CookieRequest request) async {
+    final response = await request.get('http://localhost:8000/event/json/');
+    final List<EventEntry> allEvents = [];
+    for (var d in response) {
+      if (d != null) allEvents.add(EventEntry.fromJson(d));
+    }
+
+    final now = DateTime.now();
+    
+    // Separate Active and Past events
+    List<EventEntry> activeEvents = allEvents.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
+    List<EventEntry> pastEvents = allEvents.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
+
+    // Sort Active Events by closest date
+    activeEvents.sort((a, b) => a.date.compareTo(b.date));
+    
+    // Combine: Active first (sorted), then Past
+    return [...activeEvents, ...pastEvents];
   }
 
   @override
@@ -52,6 +67,7 @@ class _HomePageState extends State<HomePage> {
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 80,
         automaticallyImplyLeading: false,
@@ -60,7 +76,7 @@ class _HomePageState extends State<HomePage> {
 
         title: CustomSearchBar(
           hintText: "Cari venue atau event...",
-          readOnly: true, // Jadi tombol
+          readOnly: true, 
           onTap: () {
             Navigator.push(
               context,
@@ -172,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                     child: Text("Belum ada venue."),
                   );
                 } else {
-                  // Venue List Horizontal
                   return VenueList(
                     venues: snapshot.data!,
                     listType: VenueListType.horizontalFeat,
@@ -187,36 +202,54 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 180),
 
             // EVENTS
-            //           _buildSectionHeader("Upcoming Events", () {
-            //              // Navigate to All Events Page
-            //           }),
-            //           const SizedBox(height: 8),
-
-            //           FutureBuilder(
-            //             future: _fetchEvents(),
-            //             builder: (context, snapshot) {
-            //               if (snapshot.connectionState == ConnectionState.waiting) {
-            //                 return const SizedBox(
-            //                   height: 310,
-            //                   child: Center(child: CircularProgressIndicator())
-            //                 );
-            //               } else {
-            //                 // Event List Horizontal (Manual ListView)
-            //                 return SizedBox(
-            //                   height: 310,
-            //                   child: ListView.separated(
-            //                     padding: const EdgeInsets.symmetric(horizontal: 24),
-            //                     scrollDirection: Axis.horizontal,
-            //                     itemCount: snapshot.data!.length,
-            //                     separatorBuilder: (context, index) => const SizedBox(width: 16),
-            //                     itemBuilder: (context, index) {
-            //                       // return _buildEventCard(context, snapshot.data![index]);
-            //                     },
-            //                   ),
-            //                 );
-            //               }
-            //             },
-            //           ),
+            _buildSectionHeader("Upcoming Events", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EventPage()),
+              );
+            }),
+            const SizedBox(height: 16),
+            
+            FutureBuilder(
+              future: _fetchEvents(request),
+              builder: (context, AsyncSnapshot<List<EventEntry>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 150,
+                    child: Center(child: CircularProgressIndicator())
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    child: Text("Belum ada event."),
+                  );
+                } else {
+                  final events = snapshot.data!;
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    // Show top 3 based on the new sorting rules
+                    itemCount: events.length > 3 ? 3 : events.length,
+                    itemBuilder: (context, index) {
+                      final event = events[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: EventCard(
+                          event: event,
+                          onArrowTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -240,7 +273,7 @@ class _HomePageState extends State<HomePage> {
           ),
 
           MouseRegion(
-            cursor: SystemMouseCursors.click, // Ubah kursor jadi tangan
+            cursor: SystemMouseCursors.click, 
             child: GestureDetector(
               onTap: onTapSeeAll,
               child: Text(

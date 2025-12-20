@@ -92,7 +92,7 @@ class _MyReviewCardState extends State<MyReviewCard> {
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
+          children: [
             Stack(
               children: [
                 Container(
@@ -114,7 +114,6 @@ class _MyReviewCardState extends State<MyReviewCard> {
               ],
             ),
 
-            // --- BAGIAN : INFO VENUE & REVIEW ---
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

@@ -1,7 +1,12 @@
 
 # AnyVenue - Platform Booking Lapangan Olahraga Digital
 
-### Nama-nama Anggota Kelompok
+[![Build Status](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/status.svg?token=E1sYVsSUJBJ268ytgQZuEw&branch=main)](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c)
+
+## Download
+Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/installable-artifacts/61c46166f608608c/public-install-page/6467d99d82016b204772785493503150)
+
+## Nama-nama Anggota Kelompok
 - Alya Nabilla Khamil (2406358094)
 - Fakhri Husaini Romza (2406436972)
 - Keisha Vania Laurent (2406437331)
