@@ -74,14 +74,12 @@ class _MyReviewCardState extends State<MyReviewCard> {
   Widget build(BuildContext context) {
     final review = widget.review;
 
-    // --- PERUBAHAN UTAMA DI SINI ---
-    // Menggunakan Container + BoxDecoration untuk Custom BoxShadow
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          // Shadow custom sesuai request kamu
+
           BoxShadow(
             color: MyApp.gumetalSlate.withOpacity(0.2),
             blurRadius: 15,
@@ -89,13 +87,12 @@ class _MyReviewCardState extends State<MyReviewCard> {
           ),
         ],
       ),
-      // ClipRRect diperlukan agar gambar banner tidak keluar dari rounded corner
+
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // --- BAGIAN : GAMBAR VENUE (BANNER) ---
+
             Stack(
               children: [
                 Container(
@@ -123,7 +120,6 @@ class _MyReviewCardState extends State<MyReviewCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header: Nama Venue & Menu Option
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,7 +139,7 @@ class _MyReviewCardState extends State<MyReviewCard> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 4),
-                            // Lokasi (City / Address)
+                            // Lokasi 
                             Row(
                               children: [
                                 const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
