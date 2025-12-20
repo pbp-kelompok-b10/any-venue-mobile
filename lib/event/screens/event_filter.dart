@@ -3,7 +3,16 @@ import 'package:any_venue/widgets/components/button.dart';
 import 'package:flutter/material.dart';
 
 class EventFilterPage extends StatefulWidget {
-  const EventFilterPage({super.key});
+  final List<String> initialCategories;
+  final List<String> initialTypes;
+  final String? initialDate;
+
+  const EventFilterPage({
+    super.key,
+    this.initialCategories = const [],
+    this.initialTypes = const [],
+    this.initialDate,
+  });
 
   @override
   State<EventFilterPage> createState() => _EventFilterPageState();
@@ -12,31 +21,39 @@ class EventFilterPage extends StatefulWidget {
 class _EventFilterPageState extends State<EventFilterPage> {
   // Expansion state - All set to false initially
   final Map<String, bool> _isExpanded = {
-    'Cities': false,
     'Category': false,
     'Type': false,
     'Date': false,
   };
 
   // Selection state
-  final Set<String> _selectedCities = {};
-  final Set<String> _selectedCategories = {};
-  final Set<String> _selectedTypes = {};
+  late Set<String> _selectedCategories;
+  late Set<String> _selectedTypes;
   String? _selectedDate;
 
   // Filter Options
-  final List<String> _cities = [
-    "Depok", "Jakarta Pusat", "Jakarta Selatan", "Jakarta Timur", "Tangerang", "Tangerang Selatan"
-  ];
   final List<String> _categories = [
     "Badminton", "Basket", "Futsal", "Golf", "Mini Soccer", "Padel", "Pickleball", "Sepak Bola", "Squash", "Tenis", "Tenis Meja"
   ];
   final List<String> _types = ["Indoor", "Outdoor"];
-  final List<String> _dates = ["Closest", "Fartest"];
+  final List<String> _dates = ["Closest", "Farthest"];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with data from the previous state
+    _selectedCategories = Set.from(widget.initialCategories);
+    _selectedTypes = Set.from(widget.initialTypes);
+    _selectedDate = widget.initialDate;
+
+    // Expand sections that already have selected values
+    if (_selectedCategories.isNotEmpty) _isExpanded['Category'] = true;
+    if (_selectedTypes.isNotEmpty) _isExpanded['Type'] = true;
+    if (_selectedDate != null) _isExpanded['Date'] = true;
+  }
 
   void _clearAll() {
     setState(() {
-      _selectedCities.clear();
       _selectedCategories.clear();
       _selectedTypes.clear();
       _selectedDate = null;
@@ -107,8 +124,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFilterSection('Cities', _cities, _selectedCities),
-                      const Divider(height: 1),
                       _buildFilterSection('Category', _categories, _selectedCategories),
                       const Divider(height: 1),
                       _buildFilterSection('Type', _types, _selectedTypes),
@@ -135,7 +150,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
                 onPressed: () {
                   // Pass back the selected filters
                   Navigator.pop(context, {
-                    'cities': _selectedCities.toList(),
                     'categories': _selectedCategories.toList(),
                     'types': _selectedTypes.toList(),
                     'date': _selectedDate,
@@ -169,7 +183,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                     style: const TextStyle(
                       color: Color(0xFF1F2024),
                       fontSize: 16,
-                      fontWeight: FontWeight.w600, // Balanced weight
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -246,7 +260,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                     style: const TextStyle(
                       color: Color(0xFF1F2024),
                       fontSize: 16,
-                      fontWeight: FontWeight.w600, // Balanced weight
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -314,7 +328,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : MyApp.darkSlate,
-            fontSize: 14, // Increased from 12 to 14 for better balance
+            fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
         ),
