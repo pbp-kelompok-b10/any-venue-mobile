@@ -55,17 +55,15 @@ class _EventFormPageState extends State<EventFormPage> {
   Future<void> _fetchOwnerVenues() async {
     final request = context.read<CookieRequest>();
     try {
-      // Get all venues from server
-      final response = await request.get('http://localhost:8000/venue/api/venues-flutter/'); 
+      // Updated to production URL
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/'); 
       
       final List<Venue> list = [];
-      // Use current logged in username to match ownership
       final String currentUsername = request.jsonData['username'] ?? "";
 
       for (var d in response) {
         if (d != null) {
           Venue v = Venue.fromJson(d);
-          // Only add if the owner's username matches
           if (v.owner.username == currentUsername) {
             list.add(v);
           }
@@ -137,6 +135,7 @@ class _EventFormPageState extends State<EventFormPage> {
         children: [
           CustomScrollView(
             slivers: [
+              // --- Header ---
               SliverAppBar(
                 backgroundColor: const Color(0xFFFAFAFA),
                 surfaceTintColor: Colors.transparent,
@@ -154,6 +153,7 @@ class _EventFormPageState extends State<EventFormPage> {
                 ),
               ),
 
+              // --- Form Content ---
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -294,8 +294,8 @@ class _EventFormPageState extends State<EventFormPage> {
                     };
 
                     String url = isEdit 
-                        ? 'http://localhost:8000/event/update-flutter/${widget.event!.id}/'
-                        : 'http://localhost:8000/event/create-flutter/';
+                        ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/update-flutter/${widget.event!.id}/'
+                        : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/create-flutter/';
 
                     try {
                       final response = await request.postJson(url, jsonEncode(body));

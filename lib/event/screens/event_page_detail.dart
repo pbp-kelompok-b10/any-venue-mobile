@@ -31,7 +31,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Future<void> _checkRegistration() async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('http://localhost:8000/event/${widget.event.id}/check-registration/');
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/check-registration/');
       if (mounted) {
         setState(() {
           _isRegistered = response['is_registered'] ?? false;
@@ -292,11 +292,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
     VoidCallback? onPressed = () async {
       final request = context.read<CookieRequest>();
       try {
-        final response = await request.post('http://localhost:8000/event/${widget.event.id}/join/', {});
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/join/', {});
         if (context.mounted) {
           if (response['status'] == 'success') {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-            _checkRegistration(); // Refresh status
+            _checkRegistration(); 
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message']), backgroundColor: Colors.red));
           }

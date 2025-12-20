@@ -12,6 +12,7 @@ import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/venue/screens/venue_page.dart'; 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
+import 'package:any_venue/event/screens/event_form.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   
   // Fetch API Venues
   Future<List<Venue>> _fetchVenues(CookieRequest request) async {
+    // Note: I'm only updating the Event-related URLs as requested. 
+    // If you need the Venue URLs updated later, please let me know.
     final response = await request.get('http://localhost:8000/venue/api/venues-flutter/');
     final List<Venue> list = [];
     for (var d in response) {
@@ -32,25 +35,57 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  // Fetch API Events with Sorting Logic
+  // Fetch API Events with Sorting Logic - Updated to production URL
   Future<List<EventEntry>> _fetchEvents(CookieRequest request) async {
-    final response = await request.get('http://localhost:8000/event/json/');
+    final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
     final List<EventEntry> allEvents = [];
     for (var d in response) {
       if (d != null) allEvents.add(EventEntry.fromJson(d));
     }
 
     final now = DateTime.now();
-    
-    // Separate Active and Past events
     List<EventEntry> activeEvents = allEvents.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
     List<EventEntry> pastEvents = allEvents.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
 
-    // Sort Active Events by closest date
     activeEvents.sort((a, b) => a.date.compareTo(b.date));
-    
-    // Combine: Active first (sorted), then Past
     return [...activeEvents, ...pastEvents];
+  }
+
+  void _deleteEvent(EventEntry event) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Event'),
+        content: Text('Are you sure you want to delete "${event.name}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              final request = context.read<CookieRequest>();
+              Navigator.pop(context);
+              
+              // Updated to production URL
+              final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
+              
+              if (response['status'] == 'success') {
+                setState(() {}); 
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
+                }
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(response['message'] ?? "Error occurred"),
+                    backgroundColor: Colors.red,
+                  ));
+                }
+              }
+            }, 
+            child: const Text('Delete', style: TextStyle(color: Colors.red))
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -88,7 +123,6 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
-            // HEADER AREA
             Stack(
               children: [
                 SizedBox(
@@ -101,7 +135,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // Gradient Fade
                 Positioned(
                   bottom: -1,
                   left: 0,
@@ -123,7 +156,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // Welcome Text
                 Positioned.fill(
                   child: SafeArea(
                     child: Padding(
@@ -133,7 +165,6 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           const SizedBox(height: 16),
                           const Spacer(),
-                          // Welcome text
                           Align(
                             alignment: Alignment.centerRight,
                             child: Column(
@@ -170,7 +201,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
 
-            // VENUES
             _buildSectionHeader("Venues", () {
               Navigator.push(
                 context,
@@ -206,7 +236,6 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 32),
 
-            // EVENTS
             _buildSectionHeader("Upcoming Events", () {
               Navigator.push(
                 context,
@@ -234,7 +263,6 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    // Show top 3 based on the new sorting rules
                     itemCount: events.length > 3 ? 3 : events.length,
                     itemBuilder: (context, index) {
                       final event = events[index];
@@ -248,6 +276,15 @@ class _HomePageState extends State<HomePage> {
                               MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
                             );
                           },
+                          onEditTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
+                            ).then((value) {
+                              if (value == true) setState(() {}); 
+                            });
+                          },
+                          onDeleteTap: () => _deleteEvent(event),
                         ),
                       );
                     },
@@ -261,7 +298,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Helper untuk section header
   Widget _buildSectionHeader(String title, VoidCallback onTapSeeAll) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),

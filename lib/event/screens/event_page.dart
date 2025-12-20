@@ -17,7 +17,6 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
-  // Master list of events from server
   List<EventEntry> _allEvents = [];
   late List<EventEntry> _filteredEvents;
   bool _isLoading = true;
@@ -32,7 +31,6 @@ class _EventPageState extends State<EventPage> {
   void initState() {
     super.initState();
     _filteredEvents = [];
-    // Fetch data immediately
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchEvents();
     });
@@ -43,8 +41,8 @@ class _EventPageState extends State<EventPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Fetching from localhost:8000
-      final response = await request.get('http://localhost:8000/event/json/');
+      // Updated to production URL
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
       
       final List<EventEntry> list = [];
       for (var d in response) {
@@ -102,7 +100,7 @@ class _EventPageState extends State<EventPage> {
       context,
       MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
     ).then((value) {
-      if (value == true) _fetchEvents(); // Refresh on success
+      if (value == true) _fetchEvents(); 
     });
   }
 
@@ -119,11 +117,11 @@ class _EventPageState extends State<EventPage> {
               final request = context.read<CookieRequest>();
               Navigator.pop(context);
               
-              // Correct URL using 'delete-flutter/' suffix as in urls.py
-              final response = await request.post('http://localhost:8000/event/delete-flutter/${event.id}/', {});
+              // Updated to production URL
+              final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
               
               if (response['status'] == 'success') {
-                _fetchEvents(); // Refresh list
+                _fetchEvents(); 
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -167,7 +165,6 @@ class _EventPageState extends State<EventPage> {
       backgroundColor: const Color(0xFFFAFAFA),
       body: CustomScrollView(
         slivers: [
-          // App Bar
           SliverAppBar(
             backgroundColor: const Color(0xFFFAFAFA),
             surfaceTintColor: Colors.transparent,
@@ -183,7 +180,6 @@ class _EventPageState extends State<EventPage> {
               icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            // 'actions' with Add button removed from here
           ),
           SliverToBoxAdapter(
             child: Padding(
