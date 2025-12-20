@@ -6,6 +6,7 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
 import 'package:any_venue/venue/screens/my_venue_page.dart';
+import 'package:any_venue/review/screens/my_review_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
@@ -69,7 +70,7 @@ class _MainNavigationState extends State<MainNavigation> {
       const HomePage(),
       const Center(child: Text("My Bookings")),
       const Center(child: Text("My Events")),
-      const Center(child: Text("My Reviews")),
+      const MyReviewPage(),
       const ProfilePage(),
     ];
     
