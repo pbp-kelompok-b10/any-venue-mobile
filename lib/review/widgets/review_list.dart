@@ -5,13 +5,20 @@ import 'package:any_venue/review/widgets/review_card.dart';
 class ReviewList extends StatelessWidget {
   final List<Review> reviews;
   final bool isHorizontal; // True = Mode "Customer Reviews" (Geser Samping)
-  final bool scrollable; // Mengatur apakah list bisa discroll vertikal sendiri
+  final bool scrollable;   // Mengatur apakah list bisa discroll vertikal sendiri
+
+  final String? currentUsername;
+  final Function(Review)? onEdit;
+  final Function(Review)? onDelete;
 
   const ReviewList({
     super.key,
     required this.reviews,
     this.isHorizontal = false, // Default Vertikal (Halaman Detail)
     this.scrollable = true,
+    this.currentUsername,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -27,47 +34,52 @@ class ReviewList extends StatelessWidget {
     }
   }
 
-  // ==========================================
-  // LAYOUT 1: HORIZONTAL (GESER SAMPING)
-  // - Lebar Card Fixed (313px)
-  // - Tinggi Container Fixed
-  // ==========================================
+  // LAYOUT HORIZONTAL (list ke samping buat customer reviews di venue_detail)
   Widget _buildHorizontalList() {
     return SizedBox(
-      height: 240, // Tinggi area scroll (disesuaikan dengan konten card)
+      height: 240,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        clipBehavior: Clip.none,
+        padding: const EdgeInsets.symmetric(vertical: 24),
         scrollDirection: Axis.horizontal,
         itemCount: reviews.length,
         separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
+          final review = reviews[index];
           return SizedBox(
-            width: 313, // Lebar FIX sesuai desain Figma (image_62893b)
-            child: ReviewCard(review: reviews[index]),
+            width: 300,
+            child: ReviewCard(
+              review: review, 
+              isCompact: true,
+              currentUsername: currentUsername,
+              onEdit: onEdit != null ? () => onEdit!(review) : null,
+              onDelete: onDelete != null ? () => onDelete!(review) : null,
+            ),
           );
         },
       ),
     );
   }
 
-  // ==========================================
-  // LAYOUT 2: VERTICAL (LIST KE BAWAH)
-  // - Lebar Card Flexible (Mengikuti Layar)
-  // - Digunakan di halaman "All Reviews"
-  // ==========================================
+  // LAYOUT VERTICAL (list ke bawah buat review_page)
   Widget _buildVerticalList() {
     return ListView.separated(
       physics: scrollable
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
-      shrinkWrap: !scrollable, // Agar tidak error jika ditaruh dalam SingleChildScrollView
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      shrinkWrap: !scrollable,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
       itemCount: reviews.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
-        // Di sini kita TIDAK membungkus dengan SizedBox width
-        // sehingga card akan otomatis melebar (stretch)
-        return ReviewCard(review: reviews[index]);
+        final review = reviews[index];
+        return ReviewCard(
+          review: review, 
+          isCompact: false,
+          currentUsername: currentUsername,
+          onEdit: onEdit != null ? () => onEdit!(review) : null,
+          onDelete: onDelete != null ? () => onDelete!(review) : null,
+        );
       },
     );
   }

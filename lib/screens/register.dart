@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:any_venue/screens/login.dart';
+import 'package:any_venue/screens/welcome_screen.dart';
 import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/widgets/components/arrow_button.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +31,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    const Color textDark = Color(0xFF13123A);
     const Color inputBg = Color(0xFFFAFAFA);
     const Color borderGray = Color(0xFFE0E0E6);
 
@@ -41,25 +44,43 @@ class _RegisterPageState extends State<RegisterPage> {
             // Ini membuat konten berada di tengah jika layar besar,
             // tapi tetap bisa discroll jika keyboard muncul.
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: IntrinsicHeight(
                   child: Form(
                     key: _formKey,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center, // Konten di tengah vertikal
+                      mainAxisAlignment:
+                          MainAxisAlignment.center, // Konten di tengah vertikal
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 40), // Top safe area margin manual
+                        const SizedBox(height: 40),
+
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: ArrowButton(
+                              isLeft: true,
+                              size: 50.0,
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const WelcomeScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
 
                         // --- HEADER ---
                         Text(
                           'Create new\naccount',
                           style: GoogleFonts.nunitoSans(
-                            color: textDark,
+                            color: MyApp.gumetalSlate,
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
                             height: 1.2,
@@ -74,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               TextSpan(
                                 text: 'Already have an account? ',
                                 style: GoogleFonts.nunitoSans(
-                                  color: textDark,
+                                  color: MyApp.gumetalSlate,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -86,7 +107,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const LoginPage()),
+                                        builder: (context) => const LoginPage(),
+                                      ),
                                     );
                                   },
                                 style: GoogleFonts.nunitoSans(
@@ -99,7 +121,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                         const SizedBox(height: 24), // Jarak ke form diperkecil
-
                         // --- INPUTS ---
                         // Menggunakan Column untuk input agar coding lebih rapi & compact
                         _buildInputGroup(
@@ -109,7 +130,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           inputBg: inputBg,
                           borderGray: borderGray,
                         ),
-                        const SizedBox(height: 12), // Jarak antar input Rapat (Compact)
+                        const SizedBox(
+                          height: 12,
+                        ), // Jarak antar input Rapat (Compact)
 
                         _buildInputGroup(
                           label: "Password",
@@ -129,8 +152,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           borderGray: borderGray,
                           isPassword: true,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Required";
-                            if (value != _passwordController.text) return "Mismatch";
+                            if (value == null || value.isEmpty)
+                              return "Required";
+                            if (value != _passwordController.text)
+                              return "Mismatch";
                             return null;
                           },
                         ),
@@ -146,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             height: 1.4,
                           ),
                         ),
-                        
+
                         // --- CHECKBOX OWNER ---
                         // Menggunakan Transform untuk menghilangkan default padding checkbox
                         Row(
@@ -157,7 +182,10 @@ class _RegisterPageState extends State<RegisterPage> {
                               child: Checkbox(
                                 value: isOwner,
                                 activeColor: MyApp.darkSlate,
-                                side: const BorderSide(color: borderGray, width: 1.5),
+                                side: const BorderSide(
+                                  color: borderGray,
+                                  width: 1.5,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
@@ -172,99 +200,83 @@ class _RegisterPageState extends State<RegisterPage> {
                             Text(
                               'I am an Owner',
                               style: GoogleFonts.nunitoSans(
-                                color: textDark,
+                                color: MyApp.gumetalSlate,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
                           ],
                         ),
-                        
+
                         const SizedBox(height: 24),
 
-                        // --- BUTTON ---
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _isLoading
-                                ? null
-                                : () async {
-                                    if (_formKey.currentState!.validate()) {
-                                      setState(() => _isLoading = true);
-                                      String username = _usernameController.text;
-                                      String password1 = _passwordController.text;
-                                      String password2 = _confirmPasswordController.text;
+                        // --- BUTTON REFACTORED ---
+                        CustomButton(
+                          text: 'Sign Up',
+                          isFullWidth: true,
+                          isLoading:
+                              _isLoading, // Otomatis handle loading spinner
+                          // Masukkan dua warna gradasi sesuai desainmu
+                          gradientColors: const [
+                            MyApp.gumetalSlate,
+                            MyApp.darkSlate,
+                          ],
+                          onPressed: () async {
+                            // Validasi Form
+                            if (_formKey.currentState!.validate()) {
+                              setState(
+                                () => _isLoading = true,
+                              ); // Set loading state
 
-                                      final response = await request.postJson(
-                                        "http://localhost:8000/auth/api/register/",
-                                        jsonEncode({
-                                          "username": username,
-                                          "password1": password1,
-                                          "password2": password2,
-                                          "is_owner": isOwner.toString(),
-                                        }),
-                                      );
+                              String username = _usernameController.text;
+                              String password1 = _passwordController.text;
+                              String password2 =
+                                  _confirmPasswordController.text;
 
-                                      setState(() => _isLoading = false);
+                              // --- REQUEST API ---
+                              final response = await request.postJson(
+                                "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/auth/api/register/",
+                                jsonEncode({
+                                  "username": username,
+                                  "password1": password1,
+                                  "password2": password2,
+                                  "is_owner": isOwner.toString(),
+                                }),
+                              );
 
-                                      if (context.mounted) {
-                                        if (response["success"] == true) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text(response["message"])),
-                                          );
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => const LoginPage(),
-                                            ),
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Text(response["error"] ?? "Failed"),
-                                              backgroundColor: MyApp.orange,
-                                            ),
-                                          );
-                                        }
-                                      }
-                                    }
-                                  },
-                            borderRadius: BorderRadius.circular(14),
-                            child: Container(
-                              width: double.infinity,
-                              height: 50, // Tinggi tombol standar
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment(0.50, -0.00),
-                                  end: Alignment(0.50, 1.00),
-                                  colors: [MyApp.gumetalSlate, MyApp.darkSlate],
-                                ),
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: MyApp.darkSlate.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 24, 
-                                      width: 24, 
-                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                                    )
-                                  : Text(
-                                      'Sign Up',
-                                      style: GoogleFonts.nunitoSans(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                              setState(
+                                () => _isLoading = false,
+                              ); // Stop loading state
+
+                              // --- HANDLE RESPONSE ---
+                              if (context.mounted) {
+                                bool isSuccess = response["success"] == true;
+                                final String title = isSuccess
+                                    ? "Registration Successful"
+                                    : "Registration Failed";
+                                final String detail = isSuccess
+                                    ? "Your account has been created!" // Pakai variable 'username' yang sudah ada
+                                    : (response["error"] ??
+                                          "An error occurred.");
+
+                                CustomToast.show(
+                                  context,
+                                  message: title,
+                                  subMessage: detail,
+                                  isError: !isSuccess,
+                                );
+
+                                if (isSuccess) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const LoginPage(),
                                     ),
-                            ),
-                          ),
+                                  );
+                                }
+                              }
+                            }
+                          },
                         ),
                         const SizedBox(height: 20), // Bottom padding
                       ],
@@ -308,8 +320,14 @@ class _RegisterPageState extends State<RegisterPage> {
             filled: true,
             fillColor: inputBg,
             hintText: hint,
-            hintStyle: GoogleFonts.nunitoSans(color: const Color(0xFFC7C7D1), fontSize: 14),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Padding dalam input diperkecil
+            hintStyle: GoogleFonts.nunitoSans(
+              color: const Color(0xFFC7C7D1),
+              fontSize: 14,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ), // Padding dalam input diperkecil
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: borderGray, width: 1),
@@ -327,10 +345,13 @@ class _RegisterPageState extends State<RegisterPage> {
               borderSide: BorderSide(color: MyApp.orange, width: 1.5),
             ),
           ),
-          validator: validator ?? (value) {
-            if (value == null || value.isEmpty) return "$label cannot be empty";
-            return null;
-          },
+          validator:
+              validator ??
+              (value) {
+                if (value == null || value.isEmpty)
+                  return "$label cannot be empty";
+                return null;
+              },
         ),
       ],
     );

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart'; 
 import 'package:any_venue/screens/register.dart';
 import 'package:any_venue/screens/login.dart';
-import 'package:any_venue/widgets/main_navigation.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -44,10 +44,10 @@ class WelcomeScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.6, 1.0],
+                  stops: const [0.0, 0.7, 1.0],
                   colors: [
                     Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.8),
+                    Colors.white.withOpacity(0.6),
                     Colors.white, 
                   ],
                 ),
@@ -60,87 +60,91 @@ class WelcomeScreen extends StatelessWidget {
           // ------------------------------------------------
           Align(
             alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Welcome\nto AnyVenue!",
-                    style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w800,
-                      color: MyApp.gumetalSlate,
+            child: SingleChildScrollView( 
+              child: Padding(
+                // Artinya: Jarak dari bawah adalah 10% dari tinggi layar apapun devicenya.
+                padding: EdgeInsets.only(
+                  left: 24.0, 
+                  right: 24.0, 
+                  bottom: size.height * 0.12, // <-- INI KUNCINYA
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Welcome\nto AnyVenue!",
+                      style: GoogleFonts.nunitoSans(
+                        // Tips: Font juga bisa dibuat responsif
+                        fontSize: size.width < 600 ? 34 : 42, 
+                        fontWeight: FontWeight.w800,
+                        color: MyApp.gumetalSlate,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Deskripsi
-                  const Text(
-                    "Cari, sewa, dan ikuti berbagai event olahraga dengan cara baru yang lebih simpel dan efisien.",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey,
-                      height: 1.5,
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Cari, sewa, dan ikuti berbagai event olahraga dengan cara baru yang lebih simpel dan efisien.",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: MyApp.gumetalSlate,
+                        height: 1.5,
+                      ),
                     ),
-                  ),
+                    
+                    // Gunakan jarak proporsional juga (misal 5% layar)
+                    SizedBox(height: size.height * 0.05), 
 
-                  const SizedBox(height: 40), 
+                    CustomButton(
+                      text: "Get Started",
+                      isFullWidth: true,
+                      gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate],
+                      icon: Icons.arrow_circle_right_outlined,
+                      onPressed: () {
+                         Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => RegisterPage()),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
 
-                  // Tombol Get Started
-                  CustomButton(
-                    text: "Get Started",
-                    isFullWidth: true,
-                    color: MyApp.darkSlate,
-                    icon: Icons.arrow_circle_right_outlined,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Link Sign In
-                  Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Already have an account? ",
-                          style: TextStyle(
-                            color: MyApp.gumetalSlate.withOpacity(0.8),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                    // Link Sign In
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Already have an account? ",
+                            style: TextStyle(
+                              color: MyApp.gumetalSlate.withOpacity(0.8),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginPage()),
-                              );
-                            },
-                            child: Text(
-                              "Sign In",
-                              style: TextStyle(
-                                color: MyApp.orange,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                          MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                                );
+                              },
+                              child: Text(
+                                "Sign In",
+                                style: TextStyle(
+                                  color: MyApp.orange,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
