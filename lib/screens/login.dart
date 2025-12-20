@@ -20,8 +20,9 @@ class LoginApp extends StatelessWidget {
       title: 'Login',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
-            .copyWith(secondary: Colors.blueAccent[400]),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.blue,
+        ).copyWith(secondary: Colors.blueAccent[400]),
         textTheme: GoogleFonts.nunitoSansTextTheme(),
       ),
       home: const LoginPage(),
@@ -55,9 +56,7 @@ class _LoginPageState extends State<LoginPage> {
         builder: (context, constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
-              ),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: IntrinsicHeight(
@@ -77,7 +76,9 @@ class _LoginPageState extends State<LoginPage> {
                             onTap: () {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                                MaterialPageRoute(
+                                  builder: (context) => const WelcomeScreen(),
+                                ),
                               );
                             },
                           ),
@@ -115,12 +116,14 @@ class _LoginPageState extends State<LoginPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const RegisterPage(),
+                                      builder: (context) =>
+                                          const RegisterPage(),
                                     ),
                                   );
                                 },
                               style: GoogleFonts.nunitoSans(
-                                color: MyApp.orange, // Menggunakan warna dari main.dart
+                                color: MyApp
+                                    .orange, // Menggunakan warna dari main.dart
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -157,7 +160,9 @@ class _LoginPageState extends State<LoginPage> {
                           activeColor: MyApp.darkSlate,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
                               color: const Color(0xFFC7C7D1),
                             ),
                             onPressed: () {
@@ -174,8 +179,12 @@ class _LoginPageState extends State<LoginPage> {
                       CustomButton(
                         text: 'Sign In',
                         isFullWidth: true,
-                        isLoading: _isLoading, // Otomatis mengatur spinner & disable klik
-                        gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate], // Warna Gradasi
+                        isLoading:
+                            _isLoading, // Otomatis mengatur spinner & disable klik
+                        gradientColors: const [
+                          MyApp.gumetalSlate,
+                          MyApp.darkSlate,
+                        ], // Warna Gradasi
                         onPressed: () async {
                           // 1. Mulai Loading
                           setState(() {
@@ -188,11 +197,8 @@ class _LoginPageState extends State<LoginPage> {
                           // 2. Request API
                           // Ganti URL sesuai environment (localhost / 10.0.2.2)
                           final response = await request.login(
-                            "http://localhost:8000/auth/api/login/",
-                            {
-                              'username': username,
-                              'password': password,
-                            },
+                            "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/auth/api/login/",
+                            {'username': username, 'password': password},
                           );
 
                           // 3. Selesai Loading
@@ -210,13 +216,13 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MainNavigation(),
+                                  builder: (context) => MainNavigation(initialIndex: 0),
                                 ),
                               );
                               CustomToast.show(
                                 context,
-                                message: "Login Successful!",
-                                subMessage: "$message Welcome back, $uname.",
+                                message: "$message",
+                                subMessage: "Welcome back, $uname.",
                                 isError: false,
                               );
                             }
@@ -226,7 +232,8 @@ class _LoginPageState extends State<LoginPage> {
                               CustomToast.show(
                                 context,
                                 message: "Login Failed",
-                                subMessage: response['message'] ?? 'Unknown error',
+                                subMessage:
+                                    response['message'] ?? 'Unknown error',
                                 isError: true, // Warna jadi Orange
                               );
                             }
@@ -283,9 +290,7 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: activeColor, width: 1.5),
       ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 }

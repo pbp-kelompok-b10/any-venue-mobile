@@ -1,17 +1,21 @@
+import 'package:any_venue/event/models/event.dart';
+import 'package:any_venue/event/screens/event_page.dart';
+import 'package:any_venue/event/screens/event_page_detail.dart';
+import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:any_venue/main.dart'; 
+import 'package:any_venue/main.dart';
+import 'package:any_venue/screens/search_page.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 
-import 'package:any_venue/venue/screens/venue_page.dart'; 
+import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 
-// import 'package:any_venue/screens/search_page.dart';
-// import 'package:any_venue/screens/venue_page.dart';
+import 'package:any_venue/event/widgets/event_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,10 +25,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   // Fetch API Venues
   Future<List<Venue>> _fetchVenues(CookieRequest request) async {
-    final response = await request.get('http://localhost:8000/venue/api/venues-flutter/');
+    final response = await request.get(
+      'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/',
+    );
     final List<Venue> list = [];
     for (var d in response) {
       if (d != null) list.add(Venue.fromJson(d));
@@ -32,11 +37,25 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  // Fetch API Events
-  Future<List<String>> _fetchEvents() async {
-    // TODO: ubah pake api
-    await Future.delayed(const Duration(seconds: 1));
-    return ["Moshfest 2024", "Java Jazz", "Synchronize Fest"];
+  // Fetch API Events with Sorting Logic
+  Future<List<EventEntry>> _fetchEvents(CookieRequest request) async {
+    final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
+    final List<EventEntry> allEvents = [];
+    for (var d in response) {
+      if (d != null) allEvents.add(EventEntry.fromJson(d));
+    }
+
+    final now = DateTime.now();
+    
+    // Separate Active and Past events
+    List<EventEntry> activeEvents = allEvents.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
+    List<EventEntry> pastEvents = allEvents.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
+
+    // Sort Active Events by closest date
+    activeEvents.sort((a, b) => a.date.compareTo(b.date));
+    
+    // Combine: Active first (sorted), then Past
+    return [...activeEvents, ...pastEvents];
   }
 
   @override
@@ -50,26 +69,25 @@ class _HomePageState extends State<HomePage> {
 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 80,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         titleSpacing: 12,
         centerTitle: true,
 
         title: CustomSearchBar(
           hintText: "Cari venue atau event...",
-          readOnly: true, // Jadi tombol
+          readOnly: true, 
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => const SearchPage()),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchPage()),
+            );
           },
         ),
 
-        actions: const [
-          SizedBox(width: 24),
-        ],
+        actions: const [SizedBox(width: 24)],
       ),
 
       body: SingleChildScrollView(
@@ -85,9 +103,10 @@ class _HomePageState extends State<HomePage> {
                   // 1. Background Image
                   Positioned.fill(
                     child: Image.asset(
-                      'assets/images/header.jpg', 
+                      'assets/images/header.jpg',
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(color: MyApp.darkSlate),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(color: MyApp.darkSlate),
                     ),
                   ),
 
@@ -96,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                     bottom: -1,
                     left: 0,
                     right: 0,
-                    height: 200, 
+                    height: 200,
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -105,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                           colors: [
                             Colors.white.withOpacity(0.0),
                             Colors.white.withOpacity(0.8),
-                            Colors.white, 
+                            Colors.white,
                           ],
                           stops: const [0.0, 0.5, 1.0],
                         ),
@@ -115,7 +134,7 @@ class _HomePageState extends State<HomePage> {
 
                   // 3. Welcome Text (FIXED: Pakai Positioned, bukan Column + Spacer)
                   Positioned(
-                    bottom: 20, 
+                    bottom: 20,
                     right: 24,
                     left: 24, // Agar tidak overflow jika teks panjang
                     child: Column(
@@ -155,15 +174,15 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => const VenuePage()),
               );
             }),
-            const SizedBox(height: 16),
-            
+            const SizedBox(height: 8),
+
             FutureBuilder(
               future: _fetchVenues(request),
               builder: (context, AsyncSnapshot<List<Venue>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
-                    height: 310, 
-                    child: Center(child: CircularProgressIndicator())
+                    height: 310,
+                    child: Center(child: CircularProgressIndicator()),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Padding(
@@ -171,51 +190,54 @@ class _HomePageState extends State<HomePage> {
                     child: Text("Belum ada venue."),
                   );
                 } else {
-                  // Venue List Horizontal
                   return VenueList(
                     venues: snapshot.data!,
-                    isLarge: true, 
+                    listType: VenueListType.horizontalFeat,
                     onRefresh: () {
-                      setState(() {}); 
+                      setState(() {});
                     },
                   );
                 }
               },
             ),
 
-            const SizedBox(height: 180),
-
             // EVENTS
-  //           _buildSectionHeader("Upcoming Events", () {
-  //              // Navigate to All Events Page
-  //           }),
-  //           const SizedBox(height: 16),
+            _buildSectionHeader("Events", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const EventPage()),
+              );
+            }),
+            const SizedBox(height: 16),
             
-  //           FutureBuilder(
-  //             future: _fetchEvents(),
-  //             builder: (context, snapshot) {
-  //               if (snapshot.connectionState == ConnectionState.waiting) {
-  //                 return const SizedBox(
-  //                   height: 310,
-  //                   child: Center(child: CircularProgressIndicator())
-  //                 );
-  //               } else {
-  //                 // Event List Horizontal (Manual ListView)
-  //                 return SizedBox(
-  //                   height: 310,
-  //                   child: ListView.separated(
-  //                     padding: const EdgeInsets.symmetric(horizontal: 24),
-  //                     scrollDirection: Axis.horizontal,
-  //                     itemCount: snapshot.data!.length,
-  //                     separatorBuilder: (context, index) => const SizedBox(width: 16),
-  //                     itemBuilder: (context, index) {
-  //                       // return _buildEventCard(context, snapshot.data![index]);
-  //                     },
-  //                   ),
-  //                 );
-  //               }
-  //             },
-  //           ),
+            FutureBuilder(
+              future: _fetchEvents(request),
+              builder: (context, AsyncSnapshot<List<EventEntry>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 290, // Sesuaikan tinggi loading space
+                    child: Center(child: CircularProgressIndicator())
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    child: Text("There is no event yet."),
+                  );
+                } else {
+                  final events = snapshot.data!;
+
+                  return EventList(
+                    events: events,
+                    listType: EventListType.horizontalFeat, // Tipe Horizontal Besar
+                    onRefresh: () {
+                      setState(() {
+                        // Refresh halaman home jika kembali dari detail
+                      });
+                    },
+                  );
+                }
+              },
+            ),
           ],
         ),
       ),
@@ -239,7 +261,7 @@ class _HomePageState extends State<HomePage> {
           ),
 
           MouseRegion(
-            cursor: SystemMouseCursors.click, // Ubah kursor jadi tangan
+            cursor: SystemMouseCursors.click, 
             child: GestureDetector(
               onTap: onTapSeeAll,
               child: Text(

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/button.dart';
+
+typedef AsyncVoidCallback = Future<void> Function();
 
 class ConfirmationModal extends StatelessWidget {
   final String title;
   final String message;
   final String confirmText;
   final String cancelText;
-  final VoidCallback onConfirm;
-  final bool isDanger; // True = Warna Orange/Merah (untuk Delete), False = Warna Biasa
+  final AsyncVoidCallback onConfirm;
+  final bool
+  isDanger; // True = Warna Orange/Merah (untuk Delete), False = Warna Biasa
   final IconData? icon;
 
   const ConfirmationModal({
@@ -23,17 +27,17 @@ class ConfirmationModal extends StatelessWidget {
   });
 
   // --- STATIC METHOD UNTUK MEMANGGIL DIALOG ---
-  static void show(
+  static Future<void> show(
     BuildContext context, {
     required String title,
     required String message,
-    required VoidCallback onConfirm,
+    required AsyncVoidCallback onConfirm,
     String confirmText = "Confirm",
     String cancelText = "Cancel",
     bool isDanger = false,
     IconData? icon,
   }) {
-    showDialog(
+    return showDialog<void>(
       context: context,
       builder: (context) => ConfirmationModal(
         title: title,
@@ -51,7 +55,8 @@ class ConfirmationModal extends StatelessWidget {
   Widget build(BuildContext context) {
     // Tentukan warna berdasarkan tipe dialog (Danger / Normal)
     final Color themeColor = isDanger ? MyApp.orange : MyApp.gumetalSlate;
-    final IconData iconData = icon ?? (isDanger ? Icons.warning_rounded : Icons.info_rounded);
+    final IconData iconData =
+        icon ?? (isDanger ? Icons.warning_rounded : Icons.info_rounded);
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -60,7 +65,8 @@ class ConfirmationModal extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Agar tinggi dialog menyesuaikan konten
+          mainAxisSize:
+              MainAxisSize.min, // Agar tinggi dialog menyesuaikan konten
           children: [
             // 1. ICON BULAT DI TENGAH
             Container(
@@ -69,11 +75,7 @@ class ConfirmationModal extends StatelessWidget {
                 color: themeColor.withOpacity(0.1), // Background transparan
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                iconData,
-                size: 32,
-                color: themeColor,
-              ),
+              child: Icon(iconData, size: 32, color: themeColor),
             ),
             const SizedBox(height: 20),
 
@@ -101,53 +103,36 @@ class ConfirmationModal extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            // 4. TOMBOL AKSI (Row)
+            // 4. TOMBOL AKSI
             Row(
               children: [
-                // Tombol Cancel
+                // --- TOMBOL CANCEL ---
                 Expanded(
-                  child: OutlinedButton(
+                  child: CustomButton(
+                    text: cancelText,
+                    isOutlined: true,
+                    isFullWidth: true, // Agar memenuhi lebar Expanded
+                    color: Colors.grey,
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: Colors.grey.shade300),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      foregroundColor: Colors.grey[700],
-                    ),
-                    child: Text(
-                      cancelText,
-                      style: GoogleFonts.nunitoSans(fontWeight: FontWeight.bold),
-                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
 
-                // Tombol Confirm
+                const SizedBox(width: 12), // Jarak antar tombol
+                // --- TOMBOL CONFIRM ---
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: CustomButton(
+                    text: confirmText,
+                    isOutlined: false,
+                    isFullWidth: true,
+                    color: MyApp.orange,
+                    onPressed: () async {
                       Navigator.pop(context); // Tutup dialog dulu
-                      onConfirm(); // Jalankan aksi
+                      await onConfirm(); // Jalankan aksi
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: themeColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      confirmText,
-                      style: GoogleFonts.nunitoSans(fontWeight: FontWeight.bold),
-                    ),
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),

@@ -9,12 +9,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     required this.title,
-    this.showBackButton = true,
+    this.showBackButton = true, // Default true, set false untuk hilangkan back button
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      centerTitle: !showBackButton, // Kalau ga ada back button, center title true
+
+      // Jika showBackButton = false, kita ingin benar-benar kosong, bukan diganti icon default
+      automaticallyImplyLeading: false,
+
       title: Text(
         title,
         style: GoogleFonts.nunitoSans(
@@ -23,6 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           fontSize: 18,
         ),
       ),
+      
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: Colors.white,
@@ -30,18 +36,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
       flexibleSpace: Container(
         decoration: BoxDecoration(
-          color: Colors.white, 
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: MyApp.gumetalSlate.withOpacity(0.08), 
-              blurRadius: 15, 
-              offset: const Offset(0, 4), 
-              spreadRadius: 0, 
+              color: MyApp.gumetalSlate.withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
             ),
           ],
         ),
       ),
 
+      // 3. LOGIC TOMBOL BACK
       leading: showBackButton
           ? IconButton(
               icon: const Icon(
@@ -49,9 +56,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 size: 32,
                 color: MyApp.gumetalSlate,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, true),
             )
-          : null,
+          : null, // Jika false, leading menjadi null (kosong)
     );
   }
 
