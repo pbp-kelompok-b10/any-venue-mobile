@@ -8,6 +8,8 @@ void main() {
   runApp(const MyApp());
 }
 
+// tes
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -15,11 +17,13 @@ class MyApp extends StatelessWidget {
   static const Color orange = Color(0xFFE9631A);
   static const Color darkSlate = Color(0xFF315672);
   static const Color gumetalSlate = Color(0xFF293241);
-  static const Color deepWhite = Color(0xEBEBEB);
+  static const Color deepWhite = Color(0xFFEBEBEB);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final TextTheme baseTextTheme = ThemeData.light().textTheme;
+
     return Provider(
       create: (_) {
         CookieRequest request = CookieRequest();
@@ -42,7 +46,7 @@ class MyApp extends StatelessWidget {
             error: orange,
             onError: white,
           ),
-          textTheme: GoogleFonts.nunitoSansTextTheme(),
+          textTheme: GoogleFonts.nunitoSansTextTheme(baseTextTheme),
         ),
         home: const SplashScreen(),
       ),

@@ -5,11 +5,13 @@ import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'package:any_venue/main.dart'; 
+import 'package:any_venue/main.dart';
+import 'package:any_venue/screens/search_page.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 
-import 'package:any_venue/venue/screens/venue_page.dart'; 
+import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 import 'package:any_venue/event/screens/event_form.dart';
@@ -22,12 +24,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   // Fetch API Venues
   Future<List<Venue>> _fetchVenues(CookieRequest request) async {
-    // Note: I'm only updating the Event-related URLs as requested. 
-    // If you need the Venue URLs updated later, please let me know.
-    final response = await request.get('http://localhost:8000/venue/api/venues-flutter/');
+    final response = await request.get(
+      'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/',
+    );
     final List<Venue> list = [];
     for (var d in response) {
       if (d != null) list.add(Venue.fromJson(d));
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 80,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         titleSpacing: 12,
         centerTitle: true,
 
@@ -110,95 +111,91 @@ class _HomePageState extends State<HomePage> {
           hintText: "Cari venue atau event...",
           readOnly: true, 
           onTap: () {
-            // TODO: Navigate to SearchPage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchPage()),
+            );
           },
         ),
 
-        actions: const [
-          SizedBox(width: 24),
-        ],
+        actions: const [SizedBox(width: 24)],
       ),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 100),
         child: Column(
           children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: 340,
-                  width: double.infinity,
-                  child: Image.asset(
-                    'assets/images/header.jpg', 
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(color: MyApp.darkSlate),
+            // HEADER AREA
+            SizedBox(
+              height: 340, // Tinggi container header
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  // 1. Background Image
+                  Positioned.fill(
+                    child: Image.asset(
+                      'assets/images/header.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Container(color: MyApp.darkSlate),
+                    ),
                   ),
-                ),
 
-                Positioned(
-                  bottom: -1,
-                  left: 0,
-                  right: 0,
-                  height: 200, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withOpacity(0.0),
-                          Colors.white.withOpacity(0.8),
-                          Colors.white, 
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
+                  // 2. Gradient Fade
+                  Positioned(
+                    bottom: -1,
+                    left: 0,
+                    right: 0,
+                    height: 200,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white.withOpacity(0.0),
+                            Colors.white.withOpacity(0.8),
+                            Colors.white,
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                Positioned.fill(
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          const Spacer(),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "Welcome,",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: MyApp.gumetalSlate.withOpacity(0.8),
-                                  ),
-                                ),
-                                Text(
-                                  "$username!",
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900,
-                                    color: MyApp.gumetalSlate,
-                                    height: 1.1,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
+                  // 3. Welcome Text (FIXED: Pakai Positioned, bukan Column + Spacer)
+                  Positioned(
+                    bottom: 20,
+                    right: 24,
+                    left: 24, // Agar tidak overflow jika teks panjang
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Welcome,",
+                          style: GoogleFonts.nunitoSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: MyApp.gumetalSlate.withOpacity(0.8),
                           ),
-                          const SizedBox(height: 60), 
-                        ],
-                      ),
+                        ),
+                        Text(
+                          "$username!",
+                          textAlign: TextAlign.right,
+                          style: GoogleFonts.nunitoSans(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            color: MyApp.gumetalSlate,
+                            height: 1.1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
 
             _buildSectionHeader("Venues", () {
@@ -207,15 +204,15 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => const VenuePage()),
               );
             }),
-            const SizedBox(height: 16),
-            
+            const SizedBox(height: 8),
+
             FutureBuilder(
               future: _fetchVenues(request),
               builder: (context, AsyncSnapshot<List<Venue>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
-                    height: 310, 
-                    child: Center(child: CircularProgressIndicator())
+                    height: 310,
+                    child: Center(child: CircularProgressIndicator()),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Padding(
@@ -225,16 +222,16 @@ class _HomePageState extends State<HomePage> {
                 } else {
                   return VenueList(
                     venues: snapshot.data!,
-                    isLarge: true, 
+                    listType: VenueListType.horizontalFeat,
                     onRefresh: () {
-                      setState(() {}); 
+                      setState(() {});
                     },
                   );
                 }
               },
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 180),
 
             _buildSectionHeader("Upcoming Events", () {
               Navigator.push(
@@ -306,10 +303,10 @@ class _HomePageState extends State<HomePage> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: GoogleFonts.nunitoSans(
               fontSize: 19,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF293241),
+              color: MyApp.gumetalSlate,
             ),
           ),
 
@@ -317,9 +314,9 @@ class _HomePageState extends State<HomePage> {
             cursor: SystemMouseCursors.click, 
             child: GestureDetector(
               onTap: onTapSeeAll,
-              child: const Text(
+              child: Text(
                 "See all",
-                style: TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 14,
                   color: MyApp.orange,
                   fontWeight: FontWeight.bold,

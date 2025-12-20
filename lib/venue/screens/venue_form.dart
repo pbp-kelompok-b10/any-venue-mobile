@@ -4,7 +4,9 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'package:any_venue/main.dart';
-import 'package:any_venue/widgets/components/button.dart'; 
+import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/toast.dart';
 
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/models/city.dart';
@@ -21,15 +23,15 @@ class VenueFormPage extends StatefulWidget {
 
 class _VenueFormPageState extends State<VenueFormPage> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers & State Input
   String _name = "";
   int _price = 0;
   String _address = "";
   String _description = "";
   String _imageUrl = "";
-  String _type = "Indoor"; 
-  
+  String _type = "Indoor";
+
   // State untuk Dropdown Data Master
   String? _selectedCity;
   String? _selectedCategory;
@@ -44,7 +46,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // 1. Fetch Data Kota & Kategori saat form dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchMasterData();
@@ -58,7 +60,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
       _description = widget.venue!.description;
       _imageUrl = widget.venue!.imageUrl;
       _type = widget.venue!.type;
-      
+
       // Set nilai awal dropdown
       _selectedCity = widget.venue!.city.name;
       _selectedCategory = widget.venue!.category.name;
@@ -69,17 +71,21 @@ class _VenueFormPageState extends State<VenueFormPage> {
   Future<void> _fetchMasterData() async {
     final request = context.read<CookieRequest>();
     try {
-      const String baseUrl = "http://localhost:8000"; 
+      const String baseUrl = "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id";
 
       // Ambil Data Cities
-      final responseCities = await request.get('$baseUrl/venue/api/cities-flutter/');
+      final responseCities = await request.get(
+        '$baseUrl/venue/api/cities-flutter/',
+      );
       final List<City> cities = [];
       for (var d in responseCities) {
         if (d != null) cities.add(City.fromJson(d));
       }
 
       // Ambil Data Categories
-      final responseCategories = await request.get('$baseUrl/venue/api/categories-flutter/');
+      final responseCategories = await request.get(
+        '$baseUrl/venue/api/categories-flutter/',
+      );
       final List<Category> categories = [];
       for (var d in responseCategories) {
         if (d != null) categories.add(Category.fromJson(d));
@@ -91,11 +97,13 @@ class _VenueFormPageState extends State<VenueFormPage> {
           _categoryList = categories;
           _isLoadingData = false;
 
-          if (_selectedCity != null && !_cityList.any((c) => c.name == _selectedCity)) {
-             _selectedCity = null; 
+          if (_selectedCity != null &&
+              !_cityList.any((c) => c.name == _selectedCity)) {
+            _selectedCity = null;
           }
-          if (_selectedCategory != null && !_categoryList.any((c) => c.name == _selectedCategory)) {
-             _selectedCategory = null; 
+          if (_selectedCategory != null &&
+              !_categoryList.any((c) => c.name == _selectedCategory)) {
+            _selectedCategory = null;
           }
         });
       }
@@ -112,21 +120,10 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          isEdit ? "Edit Venue" : "Create New Venue",
-          style: const TextStyle(fontWeight: FontWeight.bold, color: MyApp.gumetalSlate),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+      appBar: const CustomAppBar(title: "Create New Venue"),
       // Tampilkan Loading jika data dropdown belum siap
-      body: _isLoadingData 
-          ? const Center(child: CircularProgressIndicator()) 
+      body: _isLoadingData
+          ? const Center(child: CircularProgressIndicator())
           : Form(
               key: _formKey,
               child: SingleChildScrollView(
@@ -138,9 +135,12 @@ class _VenueFormPageState extends State<VenueFormPage> {
                     _buildSectionLabel("Venue Name"),
                     TextFormField(
                       initialValue: _name,
-                      decoration: _inputDecoration("e.g. Gor Badminton Sejahtera"),
+                      decoration: _inputDecoration(
+                        "e.g. Gor Badminton Sejahtera",
+                      ),
                       onChanged: (val) => _name = val,
-                      validator: (val) => val!.isEmpty ? "Name cannot be empty" : null,
+                      validator: (val) =>
+                          val!.isEmpty ? "Name cannot be empty" : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -153,11 +153,15 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Price (Rp)"),
                               TextFormField(
-                                initialValue: _price > 0 ? _price.toString() : "",
+                                initialValue: _price > 0
+                                    ? _price.toString()
+                                    : "",
                                 keyboardType: TextInputType.number,
                                 decoration: _inputDecoration("50000"),
-                                onChanged: (val) => _price = int.tryParse(val) ?? 0,
-                                validator: (val) => val!.isEmpty ? "Required" : null,
+                                onChanged: (val) =>
+                                    _price = int.tryParse(val) ?? 0,
+                                validator: (val) =>
+                                    val!.isEmpty ? "Required" : null,
                               ),
                             ],
                           ),
@@ -169,9 +173,17 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Type"),
                               DropdownButtonFormField<String>(
-                                value: _type,
-                                items: _types.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
-                                onChanged: (val) => setState(() => _type = val!),
+                                initialValue: _type,
+                                items: _types
+                                    .map(
+                                      (t) => DropdownMenuItem(
+                                        value: t,
+                                        child: Text(t),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) =>
+                                    setState(() => _type = val!),
                                 decoration: _inputDecoration("Select"),
                               ),
                             ],
@@ -191,16 +203,21 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("City"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCity,
+                                initialValue: _selectedCity,
                                 hint: const Text("Select City"),
                                 items: _cityList.map((city) {
                                   return DropdownMenuItem<String>(
                                     value: city.name,
-                                    child: Text(city.name, overflow: TextOverflow.ellipsis),
+                                    child: Text(
+                                      city.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   );
                                 }).toList(),
-                                onChanged: (val) => setState(() => _selectedCity = val),
-                                validator: (val) => val == null ? "Required" : null,
+                                onChanged: (val) =>
+                                    setState(() => _selectedCity = val),
+                                validator: (val) =>
+                                    val == null ? "Required" : null,
                                 decoration: _inputDecoration("Select"),
                                 isExpanded: true,
                               ),
@@ -208,7 +225,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        
+
                         // Dropdown Category
                         Expanded(
                           child: Column(
@@ -216,16 +233,21 @@ class _VenueFormPageState extends State<VenueFormPage> {
                             children: [
                               _buildSectionLabel("Category"),
                               DropdownButtonFormField<String>(
-                                value: _selectedCategory,
+                                initialValue: _selectedCategory,
                                 hint: const Text("Select Category"),
                                 items: _categoryList.map((cat) {
                                   return DropdownMenuItem<String>(
                                     value: cat.name,
-                                    child: Text(cat.name, overflow: TextOverflow.ellipsis),
+                                    child: Text(
+                                      cat.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   );
                                 }).toList(),
-                                onChanged: (val) => setState(() => _selectedCategory = val),
-                                validator: (val) => val == null ? "Required" : null,
+                                onChanged: (val) =>
+                                    setState(() => _selectedCategory = val),
+                                validator: (val) =>
+                                    val == null ? "Required" : null,
                                 decoration: _inputDecoration("Select"),
                                 isExpanded: true,
                               ),
@@ -241,9 +263,12 @@ class _VenueFormPageState extends State<VenueFormPage> {
                     TextFormField(
                       initialValue: _address,
                       maxLines: 2,
-                      decoration: _inputDecoration("Street name, number, district..."),
+                      decoration: _inputDecoration(
+                        "Street name, number, district...",
+                      ),
                       onChanged: (val) => _address = val,
-                      validator: (val) => val!.isEmpty ? "Address is required" : null,
+                      validator: (val) =>
+                          val!.isEmpty ? "Address is required" : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -252,9 +277,12 @@ class _VenueFormPageState extends State<VenueFormPage> {
                     TextFormField(
                       initialValue: _description,
                       maxLines: 4,
-                      decoration: _inputDecoration("Describe your venue facilities..."),
+                      decoration: _inputDecoration(
+                        "Describe your venue facilities...",
+                      ),
                       onChanged: (val) => _description = val,
-                      validator: (val) => val!.isEmpty ? "Description is required" : null,
+                      validator: (val) =>
+                          val!.isEmpty ? "Description is required" : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -264,30 +292,35 @@ class _VenueFormPageState extends State<VenueFormPage> {
                       initialValue: _imageUrl,
                       decoration: _inputDecoration("https://..."),
                       onChanged: (val) => _imageUrl = val,
-                      validator: (val) => val!.isEmpty ? "Image URL is required" : null,
+                      validator: (val) =>
+                          val!.isEmpty ? "Image URL is required" : null,
                     ),
-                    
+
                     const SizedBox(height: 40),
 
                     // TOMBOL SAVE (PAKAI CUSTOM BUTTON)
                     CustomButton(
                       text: isEdit ? "Update Venue" : "Create Venue",
-                      color: MyApp.darkSlate,
+                      gradientColors: const [
+                        MyApp.gumetalSlate,
+                        MyApp.darkSlate,
+                      ],
                       isFullWidth: true,
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          const String baseUrl = "http://localhost:8000"; 
-                          String url = isEdit 
+                          const String baseUrl =
+                              "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id";
+                          String url = isEdit
                               ? '$baseUrl/venue/api/edit-flutter/${widget.venue!.id}/'
                               : '$baseUrl/venue/api/create-flutter/';
-                          
+
                           // Kirim Data
                           final response = await request.postJson(
                             url,
                             jsonEncode({
                               "name": _name,
                               "price": _price,
-                              "city": _selectedCity, 
+                              "city": _selectedCity,
                               "category": _selectedCategory,
                               "type": _type,
                               "address": _address,
@@ -298,33 +331,50 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
                           if (context.mounted) {
                             if (response['status'] == 'success') {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-                              
+                              // SUKSES
+                              CustomToast.show(
+                                context,
+                                message: isEdit
+                                    ? "Venue Updated!"
+                                    : "Venue Created!",
+                                subMessage:
+                                    response['message'] ??
+                                    "Your venue is ready.",
+                                isError: false,
+                              );
+
                               Navigator.pop(context, true);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(response['message'] ?? "Error occurred"),
-                                backgroundColor: Colors.red,
-                              ));
+                              // GAGAL
+                              CustomToast.show(
+                                context,
+                                message: "Action Failed",
+                                subMessage:
+                                    response['message'] ??
+                                    "An error occurred on the server.",
+                                isError: true,
+                              );
                             }
                           }
                         }
                       },
                     ),
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),
             ),
     );
   }
-  
+
   Widget _buildSectionLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 4),
       child: Text(
-        label, 
-        style: const TextStyle(fontWeight: FontWeight.bold, color: MyApp.gumetalSlate)
+        label,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: MyApp.gumetalSlate,
+        ),
       ),
     );
   }
@@ -335,9 +385,18 @@ class _VenueFormPageState extends State<VenueFormPage> {
       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
       filled: true,
       fillColor: const Color(0xFFFAFAFA),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: MyApp.orange, width: 2)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: MyApp.orange, width: 2),
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
   }

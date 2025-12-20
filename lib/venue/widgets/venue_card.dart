@@ -18,7 +18,7 @@ class VenueCard extends StatelessWidget {
 
   // Helper URL Proxy
   String get _imageUrl {
-    return 'http://localhost:8000/venue/proxy-image/?url=${Uri.encodeComponent(venue.imageUrl)}';
+    return 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/proxy-image/?url=${Uri.encodeComponent(venue.imageUrl)}';
   }
 
   @override
@@ -196,7 +196,7 @@ class VenueCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\Rp ${venue.price}",
+                  "Rp ${venue.price}",
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,

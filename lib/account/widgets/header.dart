@@ -30,7 +30,6 @@ class Header extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          // Shadow custom kamu (tetap dipertahankan)
           BoxShadow(
             color: const Color(0x0C683BFC), 
             blurRadius: 12,
@@ -41,7 +40,7 @@ class Header extends StatelessWidget {
       ),
       
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Jika ingin fitur back button seperti AppBar contoh:
@@ -66,7 +65,7 @@ class Header extends StatelessWidget {
             style: const TextStyle( // Style disamakan persis dengan contoh target
               color: MyApp.gumetalSlate,
               fontWeight: FontWeight.bold,
-              fontSize: 18, 
+              fontSize: 20, 
               // height: 1.50, // Dihapus atau di-set normal agar center vertikalnya pas
             ),
           ),
