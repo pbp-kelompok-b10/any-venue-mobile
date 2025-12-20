@@ -8,12 +8,16 @@ class SlotsSection extends StatelessWidget {
     required this.selectedSlotIds,
     required this.onToggle,
     required this.isSlotPast,
+    this.onCancelBookedSlot,
+    this.cancellingSlotIds,
   });
 
   final Future<List<BookingSlot>> futureSlots;
   final Set<int> selectedSlotIds;
   final void Function(BookingSlot) onToggle;
   final bool Function(BookingSlot) isSlotPast;
+  final void Function(BookingSlot)? onCancelBookedSlot;
+  final Set<int>? cancellingSlotIds;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,7 @@ class SlotsSection extends StatelessWidget {
           runSpacing: 8,
           children: slots.map((slot) {
             final isSelected = selectedSlotIds.contains(slot.id);
+            final isCancelling = cancellingSlotIds?.contains(slot.id) ?? false;
 
             Color bg;
             Color border;
@@ -68,7 +73,15 @@ class SlotsSection extends StatelessWidget {
             }
 
             return GestureDetector(
-              onTap: () => onToggle(slot),
+              onTap: isCancelling
+                  ? null
+                  : () {
+                      if (slot.isBookedByUser && onCancelBookedSlot != null) {
+                        onCancelBookedSlot!(slot);
+                        return;
+                      }
+                      onToggle(slot);
+                    },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                 decoration: BoxDecoration(
@@ -85,14 +98,23 @@ class SlotsSection extends StatelessWidget {
                         ]
                       : null,
                 ),
-                child: Text(
-                  '${slot.startTime} - ${slot.endTime}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: text,
-                  ),
-                ),
+                child: isCancelling
+                    ? SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: bg == Colors.white ? const Color(0xFFE9631A) : Colors.white,
+                        ),
+                      )
+                    : Text(
+                        '${slot.startTime} - ${slot.endTime}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: text,
+                        ),
+                      ),
               ),
             );
           }).toList(),

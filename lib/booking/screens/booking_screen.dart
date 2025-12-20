@@ -10,6 +10,7 @@ import 'package:any_venue/booking/widgets/slots_section.dart';
 import 'package:any_venue/booking/widgets/summary_box.dart';
 import 'package:any_venue/booking/widgets/venue_header_card.dart';
 import 'package:any_venue/venue/screens/venue_page.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
 
 import '../models/booking_slot.dart';
 
@@ -39,6 +40,7 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime _selectedDate = DateTime.now();
   DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
   final Set<int> _selectedSlotIds = {};
+  final Set<int> _cancellingSlotIds = {};
   bool _isSubmitting = false;
 
   Future<List<BookingSlot>> _fetchSlots(CookieRequest request) async {
@@ -148,6 +150,56 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
+  Future<void> _cancelBookedSlot(CookieRequest request, BookingSlot slot) async {
+    if (_cancellingSlotIds.contains(slot.id)) return;
+
+    ConfirmationModal.show(
+      context,
+      title: 'Batalkan booking?',
+      message: 'Slot ${slot.startTime} - ${slot.endTime} akan dibatalkan.',
+      confirmText: 'Batalkan',
+      cancelText: 'Kembali',
+      isDanger: true,
+      onConfirm: () async {
+        setState(() {
+          _cancellingSlotIds.add(slot.id);
+        });
+
+        try {
+          final res = await request.postJson(
+            'http://10.0.2.2:8000/booking/cancel-flutter/',
+            jsonEncode({'slot_id': slot.id}),
+          );
+
+          if (!mounted) return;
+
+          if (res['status'] == 'success') {
+            _selectedSlotIds.remove(slot.id);
+            setState(() {}); // rebuild to refetch slots
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Booking dibatalkan.')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(res['message'] ?? 'Gagal membatalkan booking.')),
+            );
+          }
+        } catch (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Terjadi kesalahan server.')),
+          );
+        } finally {
+          if (mounted) {
+            setState(() {
+              _cancellingSlotIds.remove(slot.id);
+            });
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
@@ -197,6 +249,8 @@ class _BookingScreenState extends State<BookingScreen> {
                     selectedSlotIds: _selectedSlotIds,
                     onToggle: _toggleSlot,
                     isSlotPast: _isSlotPast,
+                    onCancelBookedSlot: (slot) => _cancelBookedSlot(request, slot),
+                    cancellingSlotIds: _cancellingSlotIds,
                   ),
                   const SizedBox(height: 24),
                   SummaryBox(

@@ -3,9 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:any_venue/booking/models/booking.dart';
 
 class BookingCard extends StatelessWidget {
-  const BookingCard({super.key, required this.booking});
+  const BookingCard({super.key, required this.booking, this.onArrowTap});
 
   final Booking booking;
+  final VoidCallback? onArrowTap;
 
   @override
   Widget build(BuildContext context) {
@@ -79,15 +80,19 @@ class BookingCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                InkWell(
+                  onTap: onArrowTap,
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                    ),
+                    child: const Icon(Icons.chevron_right, color: Color(0xFF1F2937)),
                   ),
-                  child: const Icon(Icons.chevron_right, color: Color(0xFF1F2937)),
                 ),
               ],
             ),
