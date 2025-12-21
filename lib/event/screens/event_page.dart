@@ -102,7 +102,9 @@ class _EventPageState extends State<EventPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
-    );
+    ).then((value) {
+      if (value == true) _fetchEvents(); // Refresh if event was edited or deleted in detail page
+    });
   }
 
   void _navigateToForm({EventEntry? event}) {
@@ -110,7 +112,7 @@ class _EventPageState extends State<EventPage> {
       context,
       MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
     ).then((value) {
-      if (value == true) _fetchEvents();
+      if (value == true) _fetchEvents(); 
     });
   }
 
@@ -123,12 +125,11 @@ class _EventPageState extends State<EventPage> {
       isDanger: true,
       onConfirm: () async {
         final request = context.read<CookieRequest>();
-
         final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
-
+        
         if (mounted) {
           if (response['status'] == 'success') {
-            _fetchEvents();
+            _fetchEvents(); 
             CustomToast.show(context, message: "Event Deleted", subMessage: response['message'], isError: false);
           } else {
             CustomToast.show(context, message: "Delete Failed", subMessage: response['message'], isError: true);
@@ -229,10 +230,8 @@ class _EventPageState extends State<EventPage> {
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: EventCard(
                         event: event, 
-                        onTap: () {},
+                        onTap: () => _navigateToDetail(event),
                         onArrowTap: () => _navigateToDetail(event),
-                        onEditTap: () => _navigateToForm(event: event),
-                        onDeleteTap: () => _deleteEvent(event),
                       ),
                     );
                   },

@@ -32,6 +32,7 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   late int _selectedIndex;
   final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
+  final GlobalKey<MyEventPageState> _myEventKey = GlobalKey<MyEventPageState>();
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final List<Widget> ownerScreens = [
       const HomePage(),
       MyVenuePage(key: _myVenueKey),
-      MyEventPage(),
+      MyEventPage(key: _myEventKey),
       const ProfilePage(),
     ];
 
@@ -122,6 +123,9 @@ class _MainNavigationState extends State<MainNavigation> {
             final created = await CreateActionModal.show(context);
             if (created == true) {
               _myVenueKey.currentState?.refresh();
+              if (_myEventKey.currentContext != null) {
+                _myEventKey.currentState?.refresh();
+              }
             }
           },
           customBorder: const CircleBorder(),

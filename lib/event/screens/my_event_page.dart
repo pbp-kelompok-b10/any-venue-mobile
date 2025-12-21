@@ -8,25 +8,24 @@ import 'package:any_venue/main.dart';
 // --- WIDGETS ---
 import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
-import 'package:any_venue/widgets/components/custom_button.dart'; 
+import 'package:any_venue/widgets/components/button.dart'; 
 import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/toast.dart';
 
 // --- MODELS & EVENT WIDGETS ---
 import 'package:any_venue/event/models/event.dart'; 
 import 'package:any_venue/event/widgets/event_list.dart';
+import 'package:any_venue/event/screens/event_form.dart'; 
 
-// PASTIKAN IMPORT INI BENAR SESUAI FOLDER PROJECT KAMU
-import 'package:any_venue/event/screens/event_form_page.dart'; 
-
-class MyEventsPage extends StatefulWidget {
-  const MyEventsPage({super.key});
+class MyEventPage extends StatefulWidget {
+  const MyEventPage({super.key});
 
   @override
-  State<MyEventsPage> createState() => _MyEventsPageState();
+  State<MyEventPage> createState() => MyEventPageState(); 
 }
 
-class _MyEventsPageState extends State<MyEventsPage> {
+
+class MyEventPageState extends State<MyEventPage> {
   // 1. Search & Filter State
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
@@ -36,6 +35,9 @@ class _MyEventsPageState extends State<MyEventsPage> {
   List<EventEntry> _allMyEvents = []; 
   List<EventEntry> _displayedEvents = []; 
   bool _isLoading = true;
+
+
+  Future<void> refresh() => _fetchAllEvents();
 
   @override
   void initState() {
@@ -57,7 +59,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
     setState(() => _isLoading = true);
 
     try {
-      // GANTI URL INI SESUAI ENDPOINT KAMU
       final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
       
       List<EventEntry> list = [];
@@ -176,30 +177,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
         showBackButton: false, 
       ),
       
-      // ============================================================
-      // INI YANG PALING PENTING: TOMBOL CREATE (+)
-      // ============================================================
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: MyApp.gumetalSlate, 
-        child: const Icon(Icons.add, color: Colors.white),
-        onPressed: () async {
-          // 1. Pindah ke halaman form pembuatan event
-          // 2. Gunakan 'await' untuk menunggu user selesai membuat event
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const EventFormPage(), // Tidak bawa parameter event karena BARU
-            ),
-          );
-
-          // 3. Jika user berhasil save (result == true), refresh data otomatis!
-          if (result == true) {
-            _fetchAllEvents();
-          }
-        },
-      ),
-      // ============================================================
-
+      
       body: Column(
         children: [
           // 1. Search Bar

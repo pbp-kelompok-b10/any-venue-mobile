@@ -12,6 +12,10 @@ import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 
+// Import Model & Widget Event (Ditambahkan)
+import 'package:any_venue/event/models/event.dart';
+import 'package:any_venue/event/widgets/event_list.dart';
+
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -27,7 +31,9 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   // 2. State Variables
   String _searchQuery = "";
   List<Venue> _allVenues = []; // Menyimpan semua data dari API
+  List<EventEntry> _allEvents = []; // Menyimpan semua data event dari API (Ditambahkan)
   bool _isLoading = true;
+  bool _isEventsLoading = true; // Indikator loading khusus event (Ditambahkan)
 
   @override
   void initState() {
@@ -35,9 +41,10 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     // Inisialisasi Tab Controller (Length 2: Venue & Event)
     _tabController = TabController(length: 2, vsync: this);
 
-    // Fetch data venue saat halaman dibuka
+    // Fetch data venue & event saat halaman dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchVenues();
+      _fetchEvents();
     });
   }
 
@@ -48,7 +55,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  // --- API FETCHING ---
+  // --- API FETCHING VENUES ---
   Future<void> _fetchVenues() async {
     final request = context.read<CookieRequest>();
     try {
@@ -75,7 +82,34 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     }
   }
 
-  // --- FILTER LOGIC (MULTI-ATTRIBUTE) ---
+  // --- API FETCHING EVENTS  ---
+  Future<void> _fetchEvents() async {
+    final request = context.read<CookieRequest>();
+    try {
+      final response = await request.get(
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/',
+      );
+      
+      List<EventEntry> list = [];
+      for (var d in response) {
+        if (d != null) list.add(EventEntry.fromJson(d));
+      }
+
+      if (mounted) {
+        setState(() {
+          _allEvents = list;
+          _isEventsLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching events: $e");
+      if (mounted) {
+        setState(() => _isEventsLoading = false);
+      }
+    }
+  }
+
+  // --- FILTER LOGIC VENUES (MULTI-ATTRIBUTE) ---
   List<Venue> _getFilteredVenues() {
     // 1. Jika query kosong, kembalikan list kosong (sesuai request)
     if (_searchQuery.isEmpty) {
@@ -95,6 +129,25 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
 
       // Return true jika SALAH SATU atribut cocok
       return matchName || matchCity || matchCategory || matchAddress || matchType;
+    }).toList();
+  }
+
+  // --- FILTER LOGIC EVENTS  ---
+  List<EventEntry> _getFilteredEvents() {
+    // 1. Jika query kosong, kembalikan list kosong
+    if (_searchQuery.isEmpty) {
+      return [];
+    }
+
+    // 2. Filter berdasarkan keyword di berbagai atribut event
+    return _allEvents.where((event) {
+      final query = _searchQuery.toLowerCase();
+      
+      return event.name.toLowerCase().contains(query) ||
+             event.venueName.toLowerCase().contains(query) ||
+             event.venueAddress.toLowerCase().contains(query) ||
+             event.venueCategory.toLowerCase().contains(query) ||
+             event.venueType.toLowerCase().contains(query);
     }).toList();
   }
 
@@ -149,8 +202,8 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
                 // --- TAB 1: VENUE LIST ---
                 _buildVenueTab(),
 
-                // --- TAB 2: EVENT PLACEHOLDER ---
-                _buildEventTabPlaceholder(),
+                // --- TAB 2: EVENT LIST ---
+                _buildEventTab(),
               ],
             ),
           ),
@@ -187,29 +240,32 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildEventTabPlaceholder() {
-    // Placeholder Event Logic (Mirip Venue tapi datanya dummy dulu)
+  // --- TAB 2: EVENT LIST ---
+  Widget _buildEventTab() {
+    // Kondisi 1: Masih Loading Data
+    if (_isEventsLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    // Kondisi 2: User belum mengetik apa-apa
     if (_searchQuery.isEmpty) {
       return _buildInitialState("Type to search upcoming events...");
     }
-    
-    // Tampilan Placeholder Hasil Search Event
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.event_busy, size: 64, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            "Event search coming soon!",
-            style: TextStyle(color: Colors.grey[600], fontSize: 16),
-          ),
-          Text(
-            "You searched for: \"$_searchQuery\"",
-            style: const TextStyle(color: MyApp.orange, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
+
+    // Ambil hasil filter event
+    final filteredList = _getFilteredEvents();
+
+    // Kondisi 3: Tidak ada hasil
+    if (filteredList.isEmpty) {
+      return _buildEmptyState("No events found for '$_searchQuery'");
+    }
+
+    // Kondisi 4: Menampilkan Hasil Event
+    return EventList(
+      events: filteredList,
+      listType: EventListType.verticalSmall,
+      scrollable: true,
+      onRefresh: _fetchEvents,
     );
   }
 
