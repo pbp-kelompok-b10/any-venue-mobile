@@ -293,8 +293,7 @@ class _VenueDetailState extends State<VenueDetail> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ReviewFormPage(
-                                      existingReview:
-                                          review, // Kirim objek review untuk diedit
+                                      existingReview: review, // Kirim objek review untuk diedit
                                     ),
                                   ),
                                 );
@@ -372,8 +371,9 @@ class _VenueDetailState extends State<VenueDetail> {
                       MaterialPageRoute(
                         builder: (context) => ReviewFormPage(
                           // Jika Edit -> kirim existingReview
-                          // Jika Add  -> kirim venueId
+                          // Jika Add  -> kirim venueId & venue
                           venueId: hasReviewed ? null : _venue.id,
+                          venue: hasReviewed ? null : _venue,
                           existingReview: userReview,
                         ),
                       ),
