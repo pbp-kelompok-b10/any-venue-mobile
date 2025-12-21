@@ -225,7 +225,7 @@ class _BookingScreenState extends State<BookingScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FA),
       appBar: const CustomAppBar(
-        title: 'Booking Ticket',
+        title: 'Booking Venue',
         showBackButton: true,
       ),
       
