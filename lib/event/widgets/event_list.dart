@@ -15,7 +15,7 @@ class EventList extends StatefulWidget {
   final EventListType listType;
   final bool scrollable;
   
-  // Callback khusus untuk Owner/Actions
+  // These callbacks are no longer used by EventCard but kept for backward compatibility if needed
   final Function(EventEntry)? onEdit;
   final Function(EventEntry)? onDelete;
 
@@ -70,8 +70,7 @@ class _EventListState extends State<EventList> {
             width: 260, 
             child: EventCard(
               event: displayedEvents[index],
-              isSmall: false, // Card Besar
-              showControls: false, // HIDE Edit/Delete on Homepage (Horizontal Layout)
+              isSmall: false,
               onTap: () => _navigateToDetail(displayedEvents[index]),
               onArrowTap: () => _navigateToDetail(displayedEvents[index]),
             ),
@@ -98,11 +97,9 @@ class _EventListState extends State<EventList> {
         final event = widget.events[index];
         return EventCard(
           event: event,
-          isSmall: isCardSmall, // Dinamis sesuai tipe
+          isSmall: isCardSmall,
           onTap: () => _navigateToDetail(event),
           onArrowTap: () => _navigateToDetail(event),
-          onEditTap: widget.onEdit != null ? () => widget.onEdit!(event) : null,
-          onDeleteTap: widget.onDelete != null ? () => widget.onDelete!(event) : null,
         );
       },
     );
