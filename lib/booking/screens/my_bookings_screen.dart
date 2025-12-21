@@ -23,8 +23,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   Future<List<Booking>> _fetchBookings(CookieRequest request) async {
     final endpoint = showPast
-        ? 'http://10.0.2.2:8000/booking/mybookings/past/json/'
-        : 'http://10.0.2.2:8000/booking/mybookings/upcoming/json/';
+      ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/past/json/'
+      : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/upcoming/json/';
 
     final response = await request.get(endpoint);
     final jsonString = jsonEncode(response);
@@ -32,15 +32,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   Future<void> _openBookingVenue(CookieRequest request, Booking booking) async {
-    if (_navigatingSlots.contains(booking.slot)) return;
+    if (_navigatingSlots.contains(booking.slotId)) return;
 
     setState(() {
-      _navigatingSlots.add(booking.slot);
+      _navigatingSlots.add(booking.slotId);
     });
 
     try {
       final res = await request.get(
-        'http://10.0.2.2:8000/booking/slot-venue-flutter/${booking.slot}/',
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/slot-venue-flutter/${booking.slotId}/',
       );
 
       if (!mounted) return;
@@ -57,6 +57,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venueAddress: v['address'],
               venueType: v['type'],
               venueImageUrl: v['image_url'],
+              initialDate: booking.slotDate,
+              focusSlotId: booking.slotId,
             ),
           ),
         );
@@ -73,7 +75,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _navigatingSlots.remove(booking.slot);
+          _navigatingSlots.remove(booking.slotId);
         });
       }
     }

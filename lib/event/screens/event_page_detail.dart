@@ -3,9 +3,12 @@ import 'package:any_venue/event/screens/event_form.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/label.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -42,7 +45,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Future<void> _checkRegistration() async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/check-registration/');
+      final response = await request.get(
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/check-registration/',
+      );
       if (mounted) {
         setState(() {
           _isRegistered = response['is_registered'] ?? false;
@@ -59,19 +64,34 @@ class _EventDetailPageState extends State<EventDetailPage> {
     ConfirmationModal.show(
       context,
       title: 'Delete Event',
-      message: 'Are you sure you want to delete "${widget.event.name}"? This action cannot be undone.',
+      message:
+          'Are you sure you want to delete "${widget.event.name}"? This action cannot be undone.',
       confirmText: 'Delete',
       isDanger: true,
+      icon: Icons.delete_outline,
       onConfirm: () async {
         final request = context.read<CookieRequest>();
-        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${widget.event.id}/', {});
-        
+        final response = await request.post(
+          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${widget.event.id}/',
+          {},
+        );
+
         if (mounted) {
           if (response['status'] == 'success') {
-            CustomToast.show(context, message: "Event Deleted", subMessage: response['message'], isError: false);
-            Navigator.pop(context, true); 
+            CustomToast.show(
+              context,
+              message: "Event Deleted",
+              subMessage: response['message'],
+              isError: false,
+            );
+            Navigator.pop(context, true);
           } else {
-            CustomToast.show(context, message: "Delete Failed", subMessage: response['message'], isError: true);
+            CustomToast.show(
+              context,
+              message: "Delete Failed",
+              subMessage: response['message'],
+              isError: true,
+            );
           }
         }
       },
@@ -80,8 +100,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   String _formatEventDate(DateTime date) {
     const monthAbbreviations = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${monthAbbreviations[date.month - 1]} ${date.year}';
   }
@@ -90,54 +120,49 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     final String role = request.jsonData['role']?.toString() ?? 'USER';
-    final String currentUsername = request.jsonData['username']?.toString() ?? "";
-    
-    final bool isRealCreator = widget.event.owner == currentUsername || widget.event.isOwner;
+    final String currentUsername =
+        request.jsonData['username']?.toString() ?? "";
+
+    final bool isRealCreator =
+        widget.event.owner == currentUsername || widget.event.isOwner;
     final bool isGeneralOwner = role == 'OWNER';
 
     final now = DateTime.now();
-    final bool isExpired = widget.event.date.isBefore(now) && !DateUtils.isSameDay(widget.event.date, now);
+    final bool isExpired =
+        widget.event.date.isBefore(now) &&
+        !DateUtils.isSameDay(widget.event.date, now);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      body: Stack(
+      appBar: const CustomAppBar(title: "Detail Event"),
+      body: Column(
         children: [
-          CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                backgroundColor: const Color(0xFFFAFAFA),
-                surfaceTintColor: Colors.transparent,
-                pinned: true,
-                floating: true,
-                forceElevated: true,
-                shadowColor: Colors.black.withOpacity(0.08),
-                title: const Text('Detail Event',
-                  style: TextStyle(color: Color(0xFF13123A), fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-
-              SliverToBoxAdapter(
+          // 1. AREA KONTEN (Scrollable)
+          Expanded(
+            child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header Image with CORS Proxy Fix
+                    // Header Image
                     SizedBox(
-                      height: 238, 
+                      height: 238,
                       width: double.infinity,
                       child: (_imageUrl.isNotEmpty)
                           ? Image.network(
                               _imageUrl,
                               fit: BoxFit.cover,
                               loadingBuilder: (context, child, progress) =>
-                                  progress == null ? child : const Center(child: CircularProgressIndicator()),
-                              errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+                                  progress == null
+                                  ? child
+                                  : const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  _buildPlaceholderImage(),
                             )
                           : _buildPlaceholderImage(),
                     ),
+
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -147,9 +172,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             children: [
                               InfoLabel(
                                 label: widget.event.startTime,
-                                icon: Icons.access_time_filled, 
+                                icon: Icons.access_time_filled,
                                 color: MyApp.orange,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 fontSize: 12,
                               ),
                               const SizedBox(width: 12),
@@ -157,7 +185,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                 label: _formatEventDate(widget.event.date),
                                 icon: Icons.calendar_month,
                                 color: MyApp.darkSlate,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 fontSize: 12,
                               ),
                               const SizedBox(width: 12),
@@ -165,7 +196,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                 label: widget.event.venueCategory,
                                 icon: Icons.sports_soccer,
                                 color: MyApp.gumetalSlate,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 fontSize: 12,
                               ),
                             ],
@@ -175,7 +209,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             width: 361,
                             child: Text(
                               widget.event.name,
-                              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.w700, height: 1.50),
+                              style: GoogleFonts.nunitoSans(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: MyApp.gumetalSlate,
+                                height: 1.2,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -186,33 +225,29 @@ class _EventDetailPageState extends State<EventDetailPage> {
                           _buildDescription(),
                           const SizedBox(height: 24),
                           _buildLocation(),
-                          const SizedBox(height: 120),
+                          const SizedBox(height: 32),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
-              )
-            ],
-          ),
-          _buildBottomActions(isExpired, isRealCreator, isGeneralOwner),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildPlaceholderImage() {
-    return Container(
-      color: const Color(0xFFEBEBEB),
-      child: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.image_outlined, size: 48, color: Colors.grey),
-            SizedBox(height: 8),
-            Text('No Image Available', style: TextStyle(color: Colors.grey)),
+              ),
+            ),
+            _buildBottomActions(isExpired, isRealCreator, isGeneralOwner),
           ],
         ),
+      );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      color: Colors.grey[200],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.image_not_supported, color: Colors.grey),
+          Text("No Image", style: TextStyle(fontSize: 10, color: Colors.grey)),
+        ],
       ),
     );
   }
@@ -224,15 +259,37 @@ class _EventDetailPageState extends State<EventDetailPage> {
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         shadows: [
-          BoxShadow(color: const Color(0x66315672), blurRadius: 32, offset: const Offset(0, 8), spreadRadius: 0)
+          BoxShadow(
+            color: MyApp.gumetalSlate.withOpacity(0.3),
+            blurRadius: 28,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: _buildStatItem(Icons.people, 'Registrants', '$_currentRegisteredCount')),
-          Expanded(child: _buildStatItem(Icons.meeting_room, 'Type', widget.event.venueType)), 
-          Expanded(child: _buildStatItem(Icons.location_on, 'Venue', widget.event.venueName)),
+          Expanded(
+            child: _buildStatItem(
+              Icons.people,
+              'Registrants',
+              '$_currentRegisteredCount',
+            ),
+          ),
+          Expanded(
+            child: _buildStatItem(
+              Icons.meeting_room,
+              'Type',
+              widget.event.venueType,
+            ),
+          ),
+          Expanded(
+            child: _buildStatItem(
+              Icons.location_on,
+              'Venue',
+              widget.event.venueName,
+            ),
+          ),
         ],
       ),
     );
@@ -244,16 +301,27 @@ class _EventDetailPageState extends State<EventDetailPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 14, color: const Color(0xFF7A7A90)),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(color: Color(0xFF7A7A90), fontSize: 12)),
+            Icon(icon, size: 15, color: MyApp.gumetalSlate),
+
+            const SizedBox(width: 2),
+
+            Text(
+              label,
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
           ],
         ),
-        const SizedBox(height: 4),
+
+        const SizedBox(height: 2),
+
         Text(
           value,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: MyApp.orange, fontSize: 14, fontWeight: FontWeight.w700),
+          style: const TextStyle(
+            color: MyApp.orange,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -262,29 +330,29 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Widget _buildOwnerInfo() {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 26,
-          backgroundColor: MyApp.darkSlate,
-          child: Text(
-            widget.event.owner.isNotEmpty ? widget.event.owner[0].toUpperCase() : '',
-            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-          ),
+        UserAvatar(
+          initial: widget.event.owner.isNotEmpty
+              ? widget.event.owner[0].toUpperCase()
+              : "U",
+          size: 48,
         ),
         const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.event.owner,
-                style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w500, height: 1.50),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.event.owner,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Color(0xFF293241),
               ),
-              const Text('Owner',
-                style: TextStyle(color: Color(0xFF7A7A90), fontSize: 12, fontWeight: FontWeight.w400, height: 1.50),
-              ),
-            ],
-          ),
+            ),
+            const Text(
+              "Owner",
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          ],
         ),
       ],
     );
@@ -293,20 +361,39 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Widget _buildDescription() {
     const textLimit = 150;
     final isLongText = widget.event.description.length > textLimit;
-    final displayText = (_isExpanded || !isLongText) ? widget.event.description : '${widget.event.description.substring(0, textLimit)}...';
+    final displayText = (_isExpanded || !isLongText)
+        ? widget.event.description
+        : '${widget.event.description.substring(0, textLimit)}...';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Description:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        const Text(
+          'Description:',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 4),
-        Text(displayText, style: const TextStyle(color: Color(0xFF7A7A90), fontSize: 14, height: 1.5)),
+        Text(
+          displayText,
+          style: const TextStyle(
+            color: Color(0xFF7A7A90),
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
         if (isLongText)
           TextButton(
             onPressed: () => setState(() => _isExpanded = !_isExpanded),
-            style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0)),
-            child: Text(_isExpanded ? 'Read less' : 'Read more', 
-              style: const TextStyle(color: MyApp.darkSlate, decoration: TextDecoration.underline)
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 0),
+            ),
+            child: Text(
+              _isExpanded ? 'Read less' : 'Read more',
+              style: const TextStyle(
+                color: MyApp.darkSlate,
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
       ],
@@ -317,129 +404,168 @@ class _EventDetailPageState extends State<EventDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Location:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        const Text(
+          'Location:',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(height: 4),
-        Text(widget.event.venueAddress, style: const TextStyle(color: Color(0xFF7A7A90), fontSize: 14, height: 1.5)),
+        Text(
+          widget.event.venueAddress,
+          style: const TextStyle(
+            color: Color(0xFF7A7A90),
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildBottomActions(bool isExpired, bool isRealCreator, bool isGeneralOwner) {
-    if (isRealCreator) {
-      return Positioned(
-        bottom: 0,
-        left: 0,
-        right: 0,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
-          color: Colors.white,
-          child: Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: 'Edit Event',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => EventFormPage(event: widget.event)),
-                    ).then((value) {
-                      if (value == true) Navigator.pop(context, true); 
-                    });
-                  },
-                  isFullWidth: true,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: CustomButton(
-                  text: 'Delete',
-                  color: MyApp.orange,
-                  onPressed: _deleteEvent,
-                  isFullWidth: true,
-                ),
-              ),
-            ],
+  Widget _buildBottomActions(
+    bool isExpired,
+    bool isRealCreator,
+    bool isGeneralOwner,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(24), 
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
-        ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: _buildButtonsContent(isExpired, isRealCreator, isGeneralOwner),
+      ),
+    );
+  }
+
+  Widget _buildButtonsContent(
+    bool isExpired,
+    bool isRealCreator,
+    bool isGeneralOwner,
+  ) {
+    // A. LOGIC OWNER
+    if (isRealCreator) {
+      return Row(
+        children: [
+          Expanded(
+            child: CustomButton(
+              text: 'Edit Event',
+              isFullWidth: true,
+              gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate],
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EventFormPage(event: widget.event),
+                  ),
+                ).then((value) {
+                  if (value == true) Navigator.pop(context, true);
+                });
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: CustomButton(
+              text: 'Delete',
+              color: MyApp.orange,
+              onPressed: _deleteEvent,
+              isFullWidth: true,
+            ),
+          ),
+        ],
       );
     }
 
-    String buttonText = 'Join Event';
-    Color? buttonColor;
-    VoidCallback? onPressed = () async {
-      final request = context.read<CookieRequest>();
-      try {
-        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/join/', {});
-        
-        final bool isSuccess = response['status'] == 'success' || 
-                               (response['message']?.toString().toLowerCase().contains('success') ?? false);
-
-        if (mounted) {
-          if (isSuccess) {
-            CustomToast.show(
-              context, 
-              message: "Joined Successfully!", 
-              subMessage: response['message']?.toString() ?? "You are now registered for this event.", 
-              isError: false 
-            );
-            
-            setState(() {
-              _isRegistered = true;
-              _currentRegisteredCount += 1; 
-            });
-          } else {
-            CustomToast.show(
-              context, 
-              message: "Failed to Join", 
-              subMessage: response['message']?.toString() ?? "Could not complete registration.", 
-              isError: true 
-            );
-          }
-        }
-      } catch (e) {
-        debugPrint("Error joining event: $e");
-      }
-    };
-
-    if (_isLoadingReg) {
-      buttonText = 'Checking...';
-      buttonColor = Colors.grey;
-      onPressed = null;
-    } else if (isExpired) {
-      buttonText = 'Registration Has Closed';
-      buttonColor = Colors.grey;
-      onPressed = null;
-    } else if (isGeneralOwner) {
-      buttonText = "Owners Can't Join An Event";
-      buttonColor = Colors.grey;
-      onPressed = null;
-    } else if (_isRegistered) {
-      buttonText = "Already Registered";
-      buttonColor = Colors.grey;
-      onPressed = null;
+    if (isGeneralOwner) {
+      return const SizedBox(
+        height: 50,
+        child: Center(
+            child: Text("You are viewing as Owner",
+                style: TextStyle(color: Colors.grey))),
+      );
     }
 
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [const Color(0x00FAFAFA), const Color(0xFFFAFAFA).withOpacity(0.8), const Color(0xFFFAFAFA)],
-            stops: const [0, 0.4, 0.8],
-          ),
-        ),
-        child: CustomButton(
-          text: buttonText,
-          color: buttonColor,
-          onPressed: onPressed ?? () {},
-          isFullWidth: true,
-        ),
-      ),
+    // B. LOGIC USER (JOIN)
+    String buttonText = 'Join Event';
+    VoidCallback? onPressed;
+    bool isDisabled = false;
+
+    // Logic penentuan status button
+    if (_isLoadingReg) {
+      buttonText = 'Checking...';
+      isDisabled = true;
+    } else if (isExpired) {
+      buttonText = 'Registration Has Closed';
+      isDisabled = true;
+    } else if (_isRegistered) {
+      buttonText = "Already Registered";
+      isDisabled = true;
+    } else {
+      onPressed = () async {
+        final request = context.read<CookieRequest>();
+        try {
+          final response = await request.post(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/join/',
+            {},
+          );
+
+          final bool isSuccess =
+              response['status'] == 'success' ||
+              (response['message']?.toString().toLowerCase().contains(
+                    'success',
+                  ) ??
+                  false);
+
+          if (mounted) {
+            if (isSuccess) {
+              CustomToast.show(
+                context,
+                message: "Joined Successfully!",
+                subMessage:
+                    response['message']?.toString() ??
+                    "You are now registered for this event.",
+                isError: false,
+              );
+
+              setState(() {
+                _isRegistered = true;
+                _currentRegisteredCount += 1;
+              });
+            } else {
+              CustomToast.show(
+                context,
+                message: "Failed to Join",
+                subMessage:
+                    response['message']?.toString() ??
+                    "Could not complete registration.",
+                isError: true,
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint("Error joining event: $e");
+        }
+      };
+    }
+
+    return CustomButton(
+      text: buttonText,
+      // Jika Disabled -> Warna Grey
+      // Jika Aktif -> Gradasi Gumetal Slate
+      color: isDisabled ? Colors.grey : null,
+      gradientColors: isDisabled
+          ? null
+          : const [MyApp.gumetalSlate, MyApp.darkSlate],
+      onPressed: onPressed ?? () {},
+      isFullWidth: true,
     );
   }
 }

@@ -85,14 +85,13 @@ class _EventListState extends State<EventList> {
   // - Bisa Small atau Large tergantung parameter
   // ==========================================
   Widget _buildVerticalList({required bool isCardSmall}) {
-    return ListView.separated(
+    return ListView.builder(
       physics: widget.scrollable
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
       padding: isCardSmall ? const EdgeInsets.fromLTRB(24, 12, 24, 12) : const EdgeInsets.fromLTRB(24, 12, 24, 100),
       itemCount: widget.events.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final event = widget.events[index];
         return EventCard(

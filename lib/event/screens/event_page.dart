@@ -3,9 +3,12 @@ import 'package:any_venue/event/screens/event_filter.dart';
 import 'package:any_venue/event/screens/event_form.dart';
 import 'package:any_venue/event/screens/event_page_detail.dart';
 import 'package:any_venue/event/widgets/event_card.dart';
-import 'package:any_venue/event/widgets/filter_event.dart';
+import 'package:any_venue/event/widgets/event_filter_modal.dart';
+import 'package:any_venue/event/widgets/event_list.dart';
+import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -144,17 +147,21 @@ class _EventPageState extends State<EventPage> {
     final String role = request.jsonData['role'] ?? 'USER';
     final bool isOwner = role == 'OWNER';
 
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EventFilterPage(
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return EventFilterModal(
           initialCategories: _selectedCategories,
           initialTypes: _selectedTypes,
           initialDate: _selectedDateOrder,
           initialOwnership: _selectedOwnership,
           isOwner: isOwner,
-        ),
-      ),
+        );
+      },
     );
 
     if (result != null && result is Map<String, dynamic>) {
@@ -171,73 +178,96 @@ class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      body: CustomScrollView(
-        slivers: [
-          // App Bar
-          SliverAppBar(
-            backgroundColor: const Color(0xFFFAFAFA),
-            surfaceTintColor: Colors.transparent,
-            floating: true,
-            pinned: false,
-            forceElevated: true,
-            elevation: 8,
-            shadowColor: const Color(0x0C683BFC),
-            title: const Text('Events',
-              style: TextStyle(color: Color(0xFF13123A), fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomSearchBar(
+      backgroundColor: const Color(0xFFFAFAFA), 
+      
+      appBar: const CustomAppBar(title: 'Events'), 
+
+      body: Column(
+        children: [
+          Container(
+            color: const Color(0xFFFAFAFA),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomSearchBar(
                     controller: _searchController,
                     hintText: 'Search Event',
                     onChanged: (_) => _applyAllFilters(),
                   ),
-                  const SizedBox(height: 16),
-                  FilterEventButton(onTap: _navigateToFilter),
-                ],
-              ), 
+                ),
+                const SizedBox(width: 12),
+
+                InkWell(
+                  onTap: _navigateToFilter, 
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey, width: 1.5),
+                    ),
+                    child: const Icon(
+                      Icons.tune_rounded,
+                      color: MyApp.gumetalSlate,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          _isLoading
-          ? const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(top: 50),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            )
-          : _filteredEvents.isEmpty 
-            ? const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 50),
-                  child: Center(child: Text("No events found", style: TextStyle(color: Colors.grey))),
-                ),
-              )
-            : SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final event = _filteredEvents[index];
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: EventCard(
-                        event: event, 
-                        onTap: () => _navigateToDetail(event),
-                        onArrowTap: () => _navigateToDetail(event),
+
+          // List Event (Expanded ListView)
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredEvents.isEmpty
+                    ? _buildEmptyState()
+                    : EventList(
+                        events: _filteredEvents,
+                        listType: EventListType.verticalSmall, 
+                        scrollable: true, 
+                        onRefresh: () {
+                          _fetchEvents();
+                        },
                       ),
-                    );
-                  },
-                  childCount: _filteredEvents.length,
-                ),
-              ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.filter_list_off, size: 48, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          const Text(
+            "No Matching events found :(",
+            style: TextStyle(color: MyApp.orange),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                // 1. Reset Search
+                _searchController.clear();
+                
+                // 2. Reset Semua Variabel Filter
+                _selectedCategories = [];
+                _selectedTypes = [];
+                _selectedDateOrder = null;
+                _selectedOwnership = 'All Event';
+                
+                // 3. Terapkan Ulang (Refresh List)
+                _applyAllFilters();
+              });
+            },
+            child: const Text("Reset Filter"),
+          ),
         ],
       ),
     );

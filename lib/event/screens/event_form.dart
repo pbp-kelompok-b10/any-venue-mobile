@@ -7,6 +7,7 @@ import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
 
 class EventFormPage extends StatefulWidget {
   final EventEntry? event;
@@ -134,142 +135,121 @@ class _EventFormPageState extends State<EventFormPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
+      appBar: CustomAppBar(
+        title: isEdit ? 'Edit Event' : 'Create New Event',
+        showBackButton: true,
+      ),
       body: Stack(
         children: [
-          CustomScrollView(
-            slivers: [
-              // --- Header ---
-              SliverAppBar(
-                backgroundColor: const Color(0xFFFAFAFA),
-                surfaceTintColor: Colors.transparent,
-                pinned: true,
-                forceElevated: true,
-                shadowColor: const Color(0x0C683BFC),
-                elevation: 8,
-                title: Text(
-                  isEdit ? 'Edit Event' : 'Create New Event',
-                  style: const TextStyle(color: Color(0xFF13123A), fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel("Event Name"),
+                  _buildTextField(_nameController, "Enter event name"),
+                  const SizedBox(height: 20),
 
-              // --- Form Content ---
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel("Event Name"),
-                        _buildTextField(_nameController, "Enter event name"),
-                        const SizedBox(height: 20),
+                  _buildLabel("Select Your Venue"),
+                  _isLoadingVenues 
+                    ? const Center(child: CircularProgressIndicator())
+                    : _ownerVenues.isEmpty
+                      ? const Text("You don't have any venues yet. Please create a venue first.", style: TextStyle(color: Colors.red, fontSize: 12))
+                      : Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEBEBEB),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE0E0E6)),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<Venue>(
+                              value: _selectedVenue,
+                              isExpanded: true,
+                              hint: const Text("Select from your venues", style: TextStyle(color: Color(0xFFC7C7D1), fontSize: 14)),
+                              items: _ownerVenues.map((Venue venue) {
+                                return DropdownMenuItem<Venue>(
+                                  value: venue,
+                                  child: Text(venue.name, style: const TextStyle(fontSize: 14)),
+                                );
+                              }).toList(),
+                              onChanged: (Venue? newValue) {
+                                setState(() {
+                                  _selectedVenue = newValue;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                  const SizedBox(height: 20),
 
-                        _buildLabel("Select Your Venue"),
-                        _isLoadingVenues 
-                          ? const Center(child: CircularProgressIndicator())
-                          : _ownerVenues.isEmpty
-                            ? const Text("You don't have any venues yet. Please create a venue first.", style: TextStyle(color: Colors.red, fontSize: 12))
-                            : Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel("Date"),
+                            InkWell(
+                              onTap: _pickDate,
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFEBEBEB),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(color: const Color(0xFFE0E0E6)),
                                 ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<Venue>(
-                                    value: _selectedVenue,
-                                    isExpanded: true,
-                                    hint: const Text("Select from your venues", style: TextStyle(color: Color(0xFFC7C7D1), fontSize: 14)),
-                                    items: _ownerVenues.map((Venue venue) {
-                                      return DropdownMenuItem<Venue>(
-                                        value: venue,
-                                        child: Text(venue.name, style: const TextStyle(fontSize: 14)),
-                                      );
-                                    }).toList(),
-                                    onChanged: (Venue? newValue) {
-                                      setState(() {
-                                        _selectedVenue = newValue;
-                                      });
-                                    },
-                                  ),
+                                child: Text(
+                                  _selectedDate == null ? "Select Date" : "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
+                                  style: TextStyle(color: _selectedDate == null ? const Color(0xFFC7C7D1) : Colors.black, fontSize: 14),
                                 ),
-                              ),
-                        const SizedBox(height: 20),
-
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildLabel("Date"),
-                                  InkWell(
-                                    onTap: _pickDate,
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEBEBEB),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE0E0E6)),
-                                      ),
-                                      child: Text(
-                                        _selectedDate == null ? "Select Date" : "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
-                                        style: TextStyle(color: _selectedDate == null ? const Color(0xFFC7C7D1) : Colors.black, fontSize: 14),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildLabel("Start Time"),
-                                  InkWell(
-                                    onTap: _pickTime,
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFEBEBEB),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: const Color(0xFFE0E0E6)),
-                                      ),
-                                      child: Text(
-                                        _selectedTime == null ? "Select Time" : "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}",
-                                        style: TextStyle(color: _selectedTime == null ? const Color(0xFFC7C7D1) : Colors.black, fontSize: 14),
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
-
-                        _buildLabel("Description"),
-                        _buildTextField(_descriptionController, "Enter event description", maxLines: 3),
-                        const SizedBox(height: 20),
-
-                        _buildLabel("Image URL"),
-                        _buildTextField(_thumbnailController, "Paste image URL here"),
-                        const SizedBox(height: 120),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildLabel("Start Time"),
+                            InkWell(
+                              onTap: _pickTime,
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEBEBEB),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: const Color(0xFFE0E0E6)),
+                                ),
+                                child: Text(
+                                  _selectedTime == null ? "Select Time" : "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}",
+                                  style: TextStyle(color: _selectedTime == null ? const Color(0xFFC7C7D1) : Colors.black, fontSize: 14),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 20),
+
+                  _buildLabel("Description"),
+                  _buildTextField(_descriptionController, "Enter event description", maxLines: 3),
+                  const SizedBox(height: 20),
+
+                  _buildLabel("Image URL"),
+                  _buildTextField(_thumbnailController, "Paste image URL here"),
+                  const SizedBox(height: 120),
+                ],
               ),
-            ],
+            ),
           ),
 
           Positioned(
@@ -277,10 +257,11 @@ class _EventFormPageState extends State<EventFormPage> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 34),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 52),
               color: Colors.white,
               child: CustomButton(
                 text: isEdit ? 'Update Event' : 'Create Event',
+                gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate],
                 onPressed: () async {
                   if (_formKey.currentState!.validate() && _selectedDate != null && _selectedTime != null && _selectedVenue != null) {
                     
@@ -365,7 +346,7 @@ class _EventFormPageState extends State<EventFormPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: MyApp.darkSlate),
+          borderSide: const BorderSide(color: MyApp.darkSlate, width:1.5),
         ),
       ),
     );
