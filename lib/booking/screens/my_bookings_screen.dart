@@ -23,8 +23,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   Future<List<Booking>> _fetchBookings(CookieRequest request) async {
     final endpoint = showPast
-        ? 'http://10.0.2.2:8000/booking/mybookings/past/json/'
-        : 'http://10.0.2.2:8000/booking/mybookings/upcoming/json/';
+      ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/past/json/'
+      : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/upcoming/json/';
 
     final response = await request.get(endpoint);
     final jsonString = jsonEncode(response);
@@ -40,7 +40,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
     try {
       final res = await request.get(
-        'http://10.0.2.2:8000/booking/slot-venue-flutter/${booking.slotId}/',
+        'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/slot-venue-flutter/${booking.slotId}/',
       );
 
       if (!mounted) return;
@@ -57,6 +57,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venueAddress: v['address'],
               venueType: v['type'],
               venueImageUrl: v['image_url'],
+              initialDate: booking.slotDate,
+              focusSlotId: booking.slotId,
             ),
           ),
         );
