@@ -90,7 +90,7 @@ class _EventListState extends State<EventList> {
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
+      padding: isCardSmall ? const EdgeInsets.fromLTRB(24, 12, 24, 12) : const EdgeInsets.fromLTRB(24, 12, 24, 100),
       itemCount: widget.events.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
