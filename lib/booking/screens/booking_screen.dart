@@ -25,6 +25,8 @@ class BookingScreen extends StatefulWidget {
     required this.venueAddress,
     required this.venueType,
     this.venueImageUrl,
+    this.initialDate,
+    this.focusSlotId,
   });
 
   final int venueId;
@@ -33,6 +35,8 @@ class BookingScreen extends StatefulWidget {
   final String venueAddress;
   final String venueType;
   final String? venueImageUrl;
+  final DateTime? initialDate;
+  final int? focusSlotId;
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -44,15 +48,49 @@ class _BookingScreenState extends State<BookingScreen> {
   final Set<int> _selectedSlotIds = {};
   final Set<int> _cancellingSlotIds = {};
   bool _isSubmitting = false;
+  final Map<String, Future<List<BookingSlot>>> _slotsCache = {};
 
-  Future<List<BookingSlot>> _fetchSlots(CookieRequest request) async {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialDate != null) {
+      _selectedDate = DateTime(widget.initialDate!.year, widget.initialDate!.month, widget.initialDate!.day);
+      _visibleMonth = DateTime(_selectedDate.year, _selectedDate.month);
+    }
+  }
+
+  Future<List<BookingSlot>> _fetchSlots(CookieRequest request) {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    final url = 'http://10.0.2.2:8000/booking/slots/${widget.venueId}/?date=$dateStr';
+    if (_slotsCache[dateStr] != null) return _slotsCache[dateStr]!;
 
-    final response = await request.get(url);
+    final url = 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/slots/${widget.venueId}/?date=$dateStr';
+    final future = request.get(url).then((response) {
+      final jsonString = jsonEncode(response);
+      final slots = bookingSlotFromJson(jsonString);
 
-    final jsonString = jsonEncode(response);
-    return bookingSlotFromJson(jsonString);
+      // Auto-select focused slot if this date matches and slot belongs to user
+      if (widget.focusSlotId != null) {
+        final match = slots.firstWhere(
+          (s) => s.id == widget.focusSlotId,
+          orElse: () => BookingSlot(
+            id: -1,
+            startTime: '',
+            endTime: '',
+            isBooked: false,
+            isBookedByUser: false,
+            price: 0,
+          ),
+        );
+        if (match.id == widget.focusSlotId && match.isBookedByUser) {
+          _selectedSlotIds.add(match.id);
+        }
+      }
+
+      return slots;
+    });
+
+    _slotsCache[dateStr] = future;
+    return future;
   }
 
   int get _totalPrice => _selectedSlotIds.length * widget.venuePrice;
@@ -66,6 +104,9 @@ class _BookingScreenState extends State<BookingScreen> {
       _selectedDate = day;
       _visibleMonth = DateTime(day.year, day.month);
       _selectedSlotIds.clear();
+      // clear cache for this date to force refresh
+      final key = DateFormat('yyyy-MM-dd').format(day);
+      _slotsCache.remove(key);
     });
   }
 
@@ -108,7 +149,7 @@ class _BookingScreenState extends State<BookingScreen> {
     });
 
     try {
-      final url = 'http://10.0.2.2:8000/booking/create-flutter/';
+      final url = 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/create-flutter/';
       final response = await request.postJson(
         url,
         jsonEncode({
@@ -173,7 +214,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
         try {
           final res = await request.postJson(
-            'http://10.0.2.2:8000/booking/cancel-flutter/',
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/cancel-flutter/',
             jsonEncode({'slot_id': slot.id}),
           );
 
