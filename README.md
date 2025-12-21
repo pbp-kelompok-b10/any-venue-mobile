@@ -92,3 +92,7 @@ Aplikasi mobile ini terhubung dengan layanan web (Django Framework) yang telah d
 - **Desain Figma:** [AnyVenue Mobile Design](https://www.figma.com/design/tM78JfgdxlbbkeU8Jos2Md/AnyVenue-Mobile?node-id=6004-3118&t=QhQJN9Pm6qrp00ZA-1)
 - **Initial Dataset:** [AnyVenue Dataset](https://docs.google.com/spreadsheets/d/1-ULBMiPrgKrf5jqux1t8zMe6mDMGfZHzvRUlN7DwcL8/edit?usp=sharing)
 - **Sumber Dataset:** [AYO - Super Sport Community App](https://ayo.co.id/venues)
+
+## 🎬 Video Promosi
+
+[Tonton video promosi di sini!](https://youtu.be/IQlNxt-iu-w)
