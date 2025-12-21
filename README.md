@@ -3,7 +3,6 @@
 
 [![Build Status](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/status.svg?token=E1sYVsSUJBJ268ytgQZuEw&branch=main)](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c)
 
-## Download
 Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/installable-artifacts/61c46166f608608c/public-install-page/6467d99d82016b204772785493503150)
 
 ## Nama-nama Anggota Kelompok
@@ -15,12 +14,12 @@ Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/1e7b3
 
 ## 📱 Deskripsi Aplikasi
 
-Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencari dan memesan *venue* olahraga, serta menghubungkan komunitas melalui fitur **Event**. Fokus utama aplikasi ini adalah efisiensi pencarian lokasi, transparansi ketersediaan slot waktu, kemudahan reservasi, dan publikasi kegiatan olahraga. Pengguna dapat memilih *venue* sesuai jenis olahraga, melakukan *booking*, serta melihat dan mendaftar pada berbagai *event* olahraga yang tersedia.
+Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencari dan memesan *venue* olahraga, serta menghubungkan komunitas melalui fitur *event*. Fokus utama aplikasi ini adalah efisiensi pencarian lokasi, transparansi ketersediaan slot waktu, kemudahan reservasi, dan publikasi kegiatan olahraga. Pengguna dapat memilih *venue* sesuai jenis olahraga, melakukan *booking*, serta melihat dan mendaftar pada berbagai *event* olahraga yang tersedia.
 
 ### Kebermanfaatan
 - **Untuk User (Pencari Venue & Penggiat Olahraga)**:
     - Menyediakan pengalaman reservasi yang **praktis, informatif, dan efisien**.
-    - Memberikan akses ke komunitas olahraga melalui fitur **Event**, di mana pengguna dapat menemukan dan mengikuti kegiatan olahraga menarik di sekitar mereka untuk memperluas jaringan sosial.
+    - Memberikan akses ke komunitas olahraga melalui fitur *event*, di mana pengguna dapat menemukan dan mengikuti kegiatan olahraga menarik di sekitar mereka untuk memperluas jaringan sosial.
 
 - **Untuk Venue Partner (Pemilik Venue)**:
     - Menyediakan **platform promosi digital** yang luas untuk *venue* mereka.
@@ -40,7 +39,7 @@ Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencar
       Setiap section dilengkapi dengan tombol navigasi yang akan mengarahkan pengguna langsung ke halaman fitur terkait, sehingga landing page berfungsi sebagai pusat orientasi sekaligus pintu masuk ke seluruh modul utama dalam aplikasi.
 
 3. **Venue** (Keisha Vania Laurent):
-   - *Venue* memiliki hubungan dengan modul *Review* dan *Booking*, di mana satu venue dapat memiliki banyak review dan banyak booking. Modul ini juga menyediakan halaman untuk menampilkan daftar semua venue serta halaman detail setiap venue. Selain itu, tersedia fitur CRUD yang dapat diakses oleh `Owner` untuk pengelolaan data venue.
+   - `Venu` memiliki hubungan dengan modul `Review` dan `Booking`, di mana satu venue dapat memiliki banyak review dan banyak booking. Modul ini juga menyediakan halaman untuk menampilkan daftar semua venue serta halaman detail setiap venue. Selain itu, tersedia fitur CRUD yang dapat diakses oleh `Owner` untuk pengelolaan data venue.
 
 4. **Booking** (Fakhri Husaini Romza):
    - Menampilkan halaman untuk melakukan *booking* kepada venue yang dipilih. Memiliki `User` yang bisa melakukan *booking* sebuah `Venue`, field `created_at` untuk tanggal *booking*.
@@ -93,3 +92,7 @@ Aplikasi mobile ini terhubung dengan layanan web (Django Framework) yang telah d
 - **Desain Figma:** [AnyVenue Mobile Design](https://www.figma.com/design/tM78JfgdxlbbkeU8Jos2Md/AnyVenue-Mobile?node-id=6004-3118&t=QhQJN9Pm6qrp00ZA-1)
 - **Initial Dataset:** [AnyVenue Dataset](https://docs.google.com/spreadsheets/d/1-ULBMiPrgKrf5jqux1t8zMe6mDMGfZHzvRUlN7DwcL8/edit?usp=sharing)
 - **Sumber Dataset:** [AYO - Super Sport Community App](https://ayo.co.id/venues)
+
+## 🎬 Video Promosi
+
+[Tonton video promosi di sini!](https://youtu.be/IQlNxt-iu-w)

@@ -170,7 +170,7 @@ class MyJoinedEventPageState extends State<MyJoinedEventPage> {
           // 3. Event List
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
                 : _displayedEvents.isEmpty
                     ? _buildEmptyState()
                     : EventList(

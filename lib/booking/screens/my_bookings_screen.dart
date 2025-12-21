@@ -1,12 +1,20 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+
+// --- MAIN & THEME ---
+import 'package:any_venue/main.dart';
+
+// --- WIDGETS ---
+import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/components/search_bar.dart';
+import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/booking/widgets/booking_card.dart';
-import 'package:any_venue/booking/widgets/booking_filter_tabs.dart';
 import 'package:any_venue/booking/screens/booking_screen.dart';
 
+// --- MODELS ---
 import '../models/booking.dart';
 
 class MyBookingsScreen extends StatefulWidget {
@@ -17,23 +25,93 @@ class MyBookingsScreen extends StatefulWidget {
 }
 
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
+  // 1. Search & Filter State
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
+  
   // false => upcoming, true => past
-  bool showPast = false;
+  bool _showPast = false;
+
+  // 2. Data State
+  List<Booking> _allBookings = [];
+  List<Booking> _displayedBookings = [];
+  bool _isLoading = true;
+  
+  // Navigation Guard
   final Set<int> _navigatingSlots = {};
 
-  Future<List<Booking>> _fetchBookings(CookieRequest request) async {
-    final endpoint = showPast
-      ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/past/json/'
-      : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/upcoming/json/';
-
-    final response = await request.get(endpoint);
-    final jsonString = jsonEncode(response);
-    return bookingFromJson(jsonString);
+  @override
+  void initState() {
+    super.initState();
+    // Fetch data setelah frame pertama selesai dirender
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchBookings();
+    });
   }
 
-  Future<void> _openBookingVenue(CookieRequest request, Booking booking) async {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // --- API Fetch Logic ---
+  Future<void> _fetchBookings() async {
+    final request = context.read<CookieRequest>();
+    setState(() => _isLoading = true);
+
+    final endpoint = _showPast
+        ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/past/json/'
+        : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/mybookings/upcoming/json/';
+
+    try {
+      final response = await request.get(endpoint);
+      
+      final jsonString = jsonEncode(response);
+      final List<Booking> list = bookingFromJson(jsonString);
+
+      if (mounted) {
+        setState(() {
+          _allBookings = list;
+          _isLoading = false;
+        });
+        _applyFilters();
+      }
+    } catch (e) {
+      debugPrint("Error fetching bookings: $e");
+      if (mounted) {
+        setState(() {
+          _allBookings = [];
+          _displayedBookings = [];
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // --- Logic Filtering (Search) ---
+  void _applyFilters() {
+    setState(() {
+      if (_searchQuery.isEmpty) {
+        _displayedBookings = List.from(_allBookings);
+      } else {
+        _displayedBookings = _allBookings.where((booking) {
+          return booking.venue.name.toLowerCase().contains(_searchQuery.toLowerCase());
+        }).toList();
+      }
+    });
+  }
+
+  void _runSearch(String query) {
+    _searchQuery = query;
+    _applyFilters();
+  }
+
+  // --- Navigation Logic ---
+  Future<void> _openBookingVenue(Booking booking) async {
     if (_navigatingSlots.contains(booking.slotId)) return;
 
+    final request = context.read<CookieRequest>();
     setState(() {
       _navigatingSlots.add(booking.slotId);
     });
@@ -47,7 +125,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
       if (res['status'] == 'success' && res['venue'] != null) {
         final v = res['venue'];
-        Navigator.push(
+        
+        // PERBAIKAN DISINI: Tambahkan 'await' sebelum Navigator.push
+        // Agar kode di bawahnya menunggu sampai user kembali dari halaman sebelah
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => BookingScreen(
@@ -56,13 +137,19 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venuePrice: v['price'],
               venueAddress: v['address'],
               venueType: v['type'],
-              venueCategory: v['category'].toString(),
+              venueCategory: v['category']?.toString() ?? "Sport", 
               venueImageUrl: v['image_url'],
               initialDate: booking.slotDate,
               focusSlotId: booking.slotId,
             ),
           ),
         );
+
+        // Setelah user kembali (pop), refresh data otomatis
+        if (mounted) {
+          _fetchBookings();
+        }
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal membuka venue.')),
@@ -84,61 +171,124 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FA),
-      appBar: AppBar(
-        title: const Text('My Bookings'),
-        centerTitle: true,
+      backgroundColor: Colors.white, 
+      appBar: const CustomAppBar(
+        title: 'My Bookings',
+        showBackButton: false,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              BookingFilterTabs(
-                showPast: showPast,
-                onChange: (val) => setState(() => showPast = val),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: FutureBuilder<List<Booking>>(
-                  future: _fetchBookings(request),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return const Center(child: Text('Failed to load bookings'));
-                    }
-                    final items = snapshot.data ?? [];
-                    if (items.isEmpty) {
-                      return Center(
-                        child: Text(
-                          showPast
-                              ? 'No past bookings yet'
-                              : 'No upcoming bookings yet',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      );
-                    }
-                    return ListView.separated(
-                      itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final b = items[index];
-                        return BookingCard(
-                          booking: b,
-                          onArrowTap: () => _openBookingVenue(request, b),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+      body: Column(
+        children: [
+          // 2. Search Bar Section
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+            color: Colors.white,
+            child: CustomSearchBar(
+              controller: _searchController,
+              hintText: "Search your booking...",
+              readOnly: false,
+              onChanged: _runSearch,
+            ),
           ),
+
+          // 3. Custom Tabs Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: _buildCustomTabs(),
+          ),
+
+          // 4. Booking List Section
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _displayedBookings.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
+                        itemCount: _displayedBookings.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final b = _displayedBookings[index];
+                          return BookingCard(
+                            booking: b,
+                            onArrowTap: () => _openBookingVenue(b),
+                          );
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomTabs() {
+    return Row(
+      children: [
+        // Tab Upcoming
+        Expanded(
+          child: CustomButton(
+            text: 'Upcoming',
+            isOutlined: _showPast, 
+            color: MyApp.gumetalSlate,
+            gradientColors: const [MyApp.darkSlate, MyApp.gumetalSlate],
+            onPressed: () {
+              if (_showPast) {
+                setState(() {
+                  _showPast = false;
+                  _allBookings = []; 
+                  _displayedBookings = [];
+                  _searchController.clear();
+                  _searchQuery = "";
+                });
+                _fetchBookings();
+              }
+            },
+          ),
+        ),
+        const SizedBox(width: 8), 
+        // Tab Past
+        Expanded(
+          child: CustomButton(
+            text: 'History',
+            isOutlined: !_showPast,
+            color: MyApp.gumetalSlate,
+            gradientColors: const [MyApp.darkSlate, MyApp.gumetalSlate],
+            onPressed: () {
+              if (!_showPast) {
+                setState(() {
+                  _showPast = true;
+                  _allBookings = [];
+                  _displayedBookings = [];
+                  _searchController.clear();
+                  _searchQuery = "";
+                });
+                _fetchBookings();
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.calendar_today, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              _searchQuery.isNotEmpty
+                  ? "No bookings found for '$_searchQuery'"
+                  : _showPast
+                      ? "No past bookings yet"
+                      : "No upcoming bookings yet",
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+            const SizedBox(height: 80),
+          ],
         ),
       ),
     );

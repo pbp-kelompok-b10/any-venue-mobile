@@ -285,7 +285,7 @@ class _VenueDetailState extends State<VenueDetail> {
                               height: 120,
                               child: Center(
                                 child: CircularProgressIndicator(
-                                  color: MyApp.orange,
+                                  color: MyApp.darkSlate,
                                 ),
                               ),
                             )

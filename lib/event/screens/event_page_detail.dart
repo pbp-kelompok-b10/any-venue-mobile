@@ -155,7 +155,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                   progress == null
                                   ? child
                                   : const Center(
-                                      child: CircularProgressIndicator(),
+                                      child: CircularProgressIndicator(color: MyApp.darkSlate),
                                     ),
                               errorBuilder: (context, error, stackTrace) =>
                                   _buildPlaceholderImage(),
