@@ -6,8 +6,8 @@ class EventFilterPage extends StatefulWidget {
   final List<String> initialCategories;
   final List<String> initialTypes;
   final String? initialDate;
-  final String initialOwnership; // New initial state for ownership
-  final bool isOwner; // To determine if Ownership filter should be shown
+  final String initialOwnership;
+  final bool isOwner;
 
   const EventFilterPage({
     super.key,

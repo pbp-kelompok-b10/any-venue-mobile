@@ -6,6 +6,7 @@ import 'package:any_venue/main.dart';
 class EventCard extends StatelessWidget {
   final EventEntry event;
   final bool isSmall;
+  final bool showControls;
   final VoidCallback? onTap;
   final VoidCallback? onArrowTap;
   final VoidCallback? onEditTap;
@@ -15,6 +16,7 @@ class EventCard extends StatelessWidget {
     super.key,
     required this.event,
     this.isSmall = false,
+    this.showControls = true,
     this.onTap,
     this.onArrowTap,
     this.onEditTap,
@@ -44,7 +46,7 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if the event is in the past
+    // Check if the events expired
     final now = DateTime.now();
     final bool isExpired = event.date.isBefore(now) && !DateUtils.isSameDay(event.date, now);
 
@@ -213,9 +215,7 @@ class EventCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            
-            // Action Buttons for Large Layout (Owner only)
-            if (event.isOwner) ...[
+            if (showControls && event.isOwner) ...[
               IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 22, color: MyApp.darkSlate),
                 onPressed: onEditTap,
@@ -322,8 +322,7 @@ class EventCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          
-          if (event.isOwner) ...[
+          if (showControls && event.isOwner) ...[
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [

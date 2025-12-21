@@ -5,7 +5,7 @@ import 'package:any_venue/event/screens/event_page_detail.dart';
 import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:any_venue/event/widgets/filter_event.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
-import 'package:any_venue/widgets/confirmation_modal.dart'; // Import ConfirmationModal
+import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -115,7 +115,6 @@ class _EventPageState extends State<EventPage> {
   }
 
   void _deleteEvent(EventEntry event) {
-    // Using ConfirmationModal instead of showDialog
     ConfirmationModal.show(
       context,
       title: 'Delete Event',
@@ -190,7 +189,6 @@ class _EventPageState extends State<EventPage> {
               icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            // 'actions' with Add button removed from here
           ),
           SliverToBoxAdapter(
             child: Padding(

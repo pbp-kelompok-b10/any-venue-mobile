@@ -3,14 +3,13 @@ import 'package:any_venue/event/models/event.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
-import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
-import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
+import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class EventFormPage extends StatefulWidget {
-  final EventEntry? event; // If provided, we are in Edit mode
+  final EventEntry? event;
 
   const EventFormPage({super.key, this.event});
 
@@ -48,7 +47,7 @@ class _EventFormPageState extends State<EventFormPage> {
       }
     }
 
-    // Fetch venues owned by this owner
+    // Fetch venues owned by current owner
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchOwnerVenues();
     });
@@ -288,7 +287,6 @@ class _EventFormPageState extends State<EventFormPage> {
                     String formattedDate = "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
                     String formattedTime = "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
 
-                    // Create the Map for the request body
                     Map<String, dynamic> body = {
                       "name": _nameController.text,
                       "description": _descriptionController.text,
@@ -303,7 +301,6 @@ class _EventFormPageState extends State<EventFormPage> {
                         : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/create-flutter/';
 
                     try {
-                      // Fix: Use postJson with encoded string
                       final response = await request.postJson(url, jsonEncode(body));
 
                       if (context.mounted) {
@@ -330,34 +327,6 @@ class _EventFormPageState extends State<EventFormPage> {
                   } else if (_selectedVenue == null) {
                     CustomToast.show(context, message: "Selection Required", subMessage: "Please select a venue", isError: true);
                   } else {
-                    CustomToast.show(context, message: "Form Incomplete", subMessage: "Please fill all fields", isError: true);
-      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/');
-          try {
-            _selectedVenue = _ownerVenues.firstWhere(
-              (v) => v.name == widget.event!.venueName,
-            );
-          } catch (e) {
-            if (_ownerVenues.isNotEmpty) _selectedVenue = _ownerVenues.first;
-          }
-              // --- Header ---
-              // --- Form Content ---
-                    // Create the Map for the request body
-                        ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/update-flutter/${widget.event!.id}/'
-                        : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/create-flutter/';
-                      // Fix: Use postJson with encoded string
-                          CustomToast.show(
-                            context,
-                            message: isEdit ? "Event Updated!" : "Event Created!",
-                            subMessage: response['message'],
-                            isError: false,
-                          );
-                          CustomToast.show(
-                            context,
-                            message: "Action Failed",
-                            subMessage: response['message'],
-                            isError: true,
-                          );
-                    CustomToast.show(context, message: "Selection Required", subMessage: "Please select a venue", isError: true);
                     CustomToast.show(context, message: "Form Incomplete", subMessage: "Please fill all fields", isError: true);
                   }
                 },

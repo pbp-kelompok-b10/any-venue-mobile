@@ -37,7 +37,6 @@ class FilterEventButton extends StatelessWidget {
               style: TextStyle(
                 color: Color(0xFF293241),
                 fontSize: 14,
-                // fontFamily removed to use global theme
                 fontWeight: FontWeight.w600,
               ),
             ),
