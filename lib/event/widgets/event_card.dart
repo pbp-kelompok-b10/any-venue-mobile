@@ -89,6 +89,9 @@ class EventCard extends StatelessWidget {
     }
   }
 
+  // ==========================================
+  // LAYOUT 1: LARGE
+  // ==========================================
   Widget _buildLargeLayout(BuildContext context, bool isExpired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
