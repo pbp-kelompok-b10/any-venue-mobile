@@ -68,8 +68,6 @@ class BookingCalendar extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           
-          // --- PERBAIKAN DI SINI ---
-          // Menggunakan Row dengan Expanded agar lebar tiap hari = 1/7 layar
           Row(
             children: const [
               Expanded(child: Center(child: _DayHeader(text: 'Mo'))),

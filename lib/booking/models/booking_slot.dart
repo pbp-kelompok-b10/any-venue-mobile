@@ -1,16 +1,5 @@
 import 'dart:convert';
 
-// Model untuk response GET /booking/slots/<venue_id>/?date=YYYY-MM-DD
-// Contoh item JSON:
-// {
-//   "id": 1,
-//   "start_time": "08:00",
-//   "end_time": "09:00",
-//   "is_booked": false,
-//   "is_booked_by_user": false,
-//   "price": 150000
-// }
-
 List<BookingSlot> bookingSlotFromJson(String str) =>
     List<BookingSlot>.from(json.decode(str).map((x) => BookingSlot.fromJson(x)));
 

@@ -320,9 +320,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   child: CustomButton(
                     text: 'Book Now',
                     isFullWidth: true,
-                    
-                    // --- UBAH WARNA DI SINI ---
-                    // Jika enabled pakai warna asli, jika disabled pakai abu-abu
+
                     gradientColors: isButtonEnabled 
                         ? [MyApp.gumetalSlate, MyApp.darkSlate] 
                         : [Colors.grey.shade400, Colors.grey.shade400], 

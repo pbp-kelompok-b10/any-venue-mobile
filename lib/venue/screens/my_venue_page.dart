@@ -98,7 +98,7 @@ class MyVenuePageState extends State<MyVenuePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       
-      // 1. Custom App Bar (Tanpa Back Button karena ini menu utama di Navbar)
+      // 1. Custom App Bar 
       appBar: const CustomAppBar(
         title: "My Venues", 
         showBackButton: false
