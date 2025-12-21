@@ -32,15 +32,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   }
 
   Future<void> _openBookingVenue(CookieRequest request, Booking booking) async {
-    if (_navigatingSlots.contains(booking.slot)) return;
+    if (_navigatingSlots.contains(booking.slotId)) return;
 
     setState(() {
-      _navigatingSlots.add(booking.slot);
+      _navigatingSlots.add(booking.slotId);
     });
 
     try {
       final res = await request.get(
-        'http://10.0.2.2:8000/booking/slot-venue-flutter/${booking.slot}/',
+        'http://10.0.2.2:8000/booking/slot-venue-flutter/${booking.slotId}/',
       );
 
       if (!mounted) return;
@@ -73,7 +73,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _navigatingSlots.remove(booking.slot);
+          _navigatingSlots.remove(booking.slotId);
         });
       }
     }
