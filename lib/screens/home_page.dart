@@ -16,6 +16,8 @@ import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 import 'package:any_venue/event/screens/event_form.dart';
 
+import 'package:any_venue/event/widgets/event_list.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -36,7 +38,7 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  // Fetch API Events with Sorting Logic - Updated to production URL
+  // Fetch API Events with Sorting Logic
   Future<List<EventEntry>> _fetchEvents(CookieRequest request) async {
     final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
     final List<EventEntry> allEvents = [];
@@ -45,48 +47,16 @@ class _HomePageState extends State<HomePage> {
     }
 
     final now = DateTime.now();
+    
+    // Separate Active and Past events
     List<EventEntry> activeEvents = allEvents.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
     List<EventEntry> pastEvents = allEvents.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
 
+    // Sort Active Events by closest date
     activeEvents.sort((a, b) => a.date.compareTo(b.date));
+    
+    // Combine: Active first (sorted), then Past
     return [...activeEvents, ...pastEvents];
-  }
-
-  void _deleteEvent(EventEntry event) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Event'),
-        content: Text('Are you sure you want to delete "${event.name}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              final request = context.read<CookieRequest>();
-              Navigator.pop(context);
-              
-              // Updated to production URL
-              final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
-              
-              if (response['status'] == 'success') {
-                setState(() {}); 
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-                }
-              } else {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(response['message'] ?? "Error occurred"),
-                    backgroundColor: Colors.red,
-                  ));
-                }
-              }
-            }, 
-            child: const Text('Delete', style: TextStyle(color: Colors.red))
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -198,6 +168,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // VENUES
             _buildSectionHeader("Venues", () {
               Navigator.push(
                 context,
@@ -231,9 +202,8 @@ class _HomePageState extends State<HomePage> {
               },
             ),
 
-            const SizedBox(height: 180),
-
-            _buildSectionHeader("Upcoming Events", () {
+            // EVENTS
+            _buildSectionHeader("Events", () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const EventPage()),
@@ -246,44 +216,24 @@ class _HomePageState extends State<HomePage> {
               builder: (context, AsyncSnapshot<List<EventEntry>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
-                    height: 150,
+                    height: 290, // Sesuaikan tinggi loading space
                     child: Center(child: CircularProgressIndicator())
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                    child: Text("Belum ada event."),
+                    child: Text("There is no event yet."),
                   );
                 } else {
                   final events = snapshot.data!;
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: events.length > 3 ? 3 : events.length,
-                    itemBuilder: (context, index) {
-                      final event = events[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: EventCard(
-                          event: event,
-                          onArrowTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
-                            );
-                          },
-                          onEditTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
-                            ).then((value) {
-                              if (value == true) setState(() {}); 
-                            });
-                          },
-                          onDeleteTap: () => _deleteEvent(event),
-                        ),
-                      );
+
+                  return EventList(
+                    events: events,
+                    listType: EventListType.horizontalFeat, // Tipe Horizontal Besar
+                    onRefresh: () {
+                      setState(() {
+                        // Refresh halaman home jika kembali dari detail
+                      });
                     },
                   );
                 }
@@ -295,6 +245,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // Helper untuk section header
   Widget _buildSectionHeader(String title, VoidCallback onTapSeeAll) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),

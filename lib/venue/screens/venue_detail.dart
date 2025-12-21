@@ -17,6 +17,8 @@ import 'package:any_venue/review/screens/review_form.dart';
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
 
+import 'package:any_venue/booking/screens/booking_screen.dart';
+
 class VenueDetail extends StatefulWidget {
   final Venue venue;
   const VenueDetail({super.key, required this.venue});
@@ -81,15 +83,15 @@ class _VenueDetailState extends State<VenueDetail> {
         if (context.mounted) {
           if (response['status'] == 'success') {
             CustomToast.show(
-              context, 
-              message: response['message'], 
-              isError: false
+              context,
+              message: response['message'],
+              isError: false,
             );
             // Refresh list review agar item hilang
             _fetchReviews(request);
           } else {
             CustomToast.show(
-              context, 
+              context,
               message: "Failed to delete review.",
               subMessage: response['message'] ?? "Error occurred.",
               isError: true,
@@ -336,8 +338,20 @@ class _VenueDetailState extends State<VenueDetail> {
                   isUserRole: isUserRole,
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
-                  onBook: () {
-                    /* Todo: Booking Logic */
+                  onBook: () { // TODO: sambungin ke booking screen
+                    Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (context) => BookingScreen(
+                          venueId: _venue.id,
+                          venueName: _venue.name,
+                          venuePrice: _venue.price,
+                          venueAddress: _venue.address,
+                          venueType: _venue.type,
+                          venueImageUrl: _venue.imageUrl
+                         ),
+                       ),
+                     );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(

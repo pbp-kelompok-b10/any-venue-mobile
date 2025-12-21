@@ -3,6 +3,8 @@ import 'package:any_venue/event/models/event.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
+import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
+import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +57,6 @@ class _EventFormPageState extends State<EventFormPage> {
   Future<void> _fetchOwnerVenues() async {
     final request = context.read<CookieRequest>();
     try {
-      // Updated to production URL
       final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/'); 
       
       final List<Venue> list = [];
@@ -75,10 +76,13 @@ class _EventFormPageState extends State<EventFormPage> {
         _isLoadingVenues = false;
         
         if (widget.event != null) {
-          _selectedVenue = _ownerVenues.firstWhere(
-            (v) => v.name == widget.event!.venueName,
-            orElse: () => _ownerVenues.isNotEmpty ? _ownerVenues.first : throw Exception("No venues found"),
-          );
+          try {
+            _selectedVenue = _ownerVenues.firstWhere(
+              (v) => v.name == widget.event!.venueName,
+            );
+          } catch (e) {
+            if (_ownerVenues.isNotEmpty) _selectedVenue = _ownerVenues.first;
+          }
         }
       });
     } catch (e) {
@@ -284,6 +288,7 @@ class _EventFormPageState extends State<EventFormPage> {
                     String formattedDate = "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
                     String formattedTime = "${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}";
 
+                    // Create the Map for the request body
                     Map<String, dynamic> body = {
                       "name": _nameController.text,
                       "description": _descriptionController.text,
@@ -298,26 +303,62 @@ class _EventFormPageState extends State<EventFormPage> {
                         : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/create-flutter/';
 
                     try {
+                      // Fix: Use postJson with encoded string
                       final response = await request.postJson(url, jsonEncode(body));
 
                       if (context.mounted) {
                         if (response['status'] == 'success') {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
+                          CustomToast.show(
+                            context,
+                            message: isEdit ? "Event Updated!" : "Event Created!",
+                            subMessage: response['message'],
+                            isError: false,
+                          );
                           Navigator.pop(context, true); 
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(response['message'] ?? "Error occurred"),
-                            backgroundColor: Colors.red,
-                          ));
+                          CustomToast.show(
+                            context,
+                            message: "Action Failed",
+                            subMessage: response['message'],
+                            isError: true,
+                          );
                         }
                       }
                     } catch (e) {
                       debugPrint("Error submitting form: $e");
                     }
                   } else if (_selectedVenue == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please select a venue")));
+                    CustomToast.show(context, message: "Selection Required", subMessage: "Please select a venue", isError: true);
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+                    CustomToast.show(context, message: "Form Incomplete", subMessage: "Please fill all fields", isError: true);
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/venues-flutter/');
+          try {
+            _selectedVenue = _ownerVenues.firstWhere(
+              (v) => v.name == widget.event!.venueName,
+            );
+          } catch (e) {
+            if (_ownerVenues.isNotEmpty) _selectedVenue = _ownerVenues.first;
+          }
+              // --- Header ---
+              // --- Form Content ---
+                    // Create the Map for the request body
+                        ? 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/update-flutter/${widget.event!.id}/'
+                        : 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/create-flutter/';
+                      // Fix: Use postJson with encoded string
+                          CustomToast.show(
+                            context,
+                            message: isEdit ? "Event Updated!" : "Event Created!",
+                            subMessage: response['message'],
+                            isError: false,
+                          );
+                          CustomToast.show(
+                            context,
+                            message: "Action Failed",
+                            subMessage: response['message'],
+                            isError: true,
+                          );
+                    CustomToast.show(context, message: "Selection Required", subMessage: "Please select a venue", isError: true);
+                    CustomToast.show(context, message: "Form Incomplete", subMessage: "Please fill all fields", isError: true);
                   }
                 },
                 isFullWidth: true,
