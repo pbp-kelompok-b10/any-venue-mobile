@@ -17,6 +17,8 @@ import 'package:any_venue/review/screens/review_form.dart';
 import 'package:any_venue/review/models/review.dart';
 import 'package:any_venue/review/widgets/review_list.dart';
 
+import 'package:any_venue/booking/screens/booking_screen.dart';
+
 class VenueDetail extends StatefulWidget {
   final Venue venue;
   const VenueDetail({super.key, required this.venue});
@@ -64,33 +66,47 @@ class _VenueDetailState extends State<VenueDetail> {
 
   // Fungsi Delete Review
   Future<void> _handleDeleteReview(Review review, CookieRequest request) async {
-    // 1. Tampilkan Modal Konfirmasi
     ConfirmationModal.show(
       context,
-      title: "Delete Review?",
+      title: "Delete Review",
       message: "Are you sure you want to delete your review?",
       isDanger: true,
       confirmText: "Delete",
-      icon: Icons.delete_outline_rounded,
+      icon: Icons.delete_outline,
       onConfirm: () async {
-        // 2. Request ke Django
-        final response = await request.post(
-          'http://localhost:8000/review/delete-flutter/${review.id}/',
-          {},
-        );
+        // Request ke Django
+        try {
+          final response = await request.post(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
+            {},
+          );
 
-        if (context.mounted) {
-          if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Review deleted successfully")),
-            );
-            // 3. Refresh list review agar item hilang
-            _fetchReviews(request);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(response['message'] ?? "Failed to delete"),
-              ),
+          if (context.mounted) {
+            if (response['status'] == 'success') {
+              CustomToast.show(
+                context,
+                message: response['message'],
+                isError: false,
+              );
+              // Refresh list review agar item hilang
+              _fetchReviews(request);
+            } else {
+              CustomToast.show(
+                context,
+                message: "Failed to delete review.",
+                subMessage: response['message'] ?? "Error occurred.",
+                isError: true,
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint("Error deleting review: $e");
+          if (context.mounted) {
+            CustomToast.show(
+              context,
+              message: "System Error",
+              subMessage: "Could not reach server: $e",
+              isError: true,
             );
           }
         }
@@ -117,37 +133,50 @@ class _VenueDetailState extends State<VenueDetail> {
 
     await ConfirmationModal.show(
       context,
-      title: "Delete Venue?",
+      title: "Delete Venue",
       message:
           "Are you sure you want to delete this venue? This action cannot be undone.",
       isDanger: true,
       confirmText: "Delete",
-      icon: Icons.delete_outline_rounded,
+      icon: Icons.delete_outline,
       onConfirm: () async {
-        final response = await request.post(
-          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
-          {},
-        );
-
-        if (!mounted) return;
-
-        if (response['status'] == 'success') {
-          CustomToast.show(context, message: "Venue deleted!", isError: false);
-
-          setState(() => _isDeleting = true);
-          await Future.delayed(const Duration(milliseconds: 350));
+        try {
+          final response = await request.post(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
+            {},
+          );
 
           if (!mounted) return;
-          Navigator.pop(
-            context,
-            true,
-          ); // <-- ini yang dibaca VenueList untuk refresh
-        } else {
-          CustomToast.show(
-            context,
-            message: "Failed to delete.",
-            isError: true,
-          );
+
+          if (response['status'] == 'success') {
+            CustomToast.show(
+              context,
+              message: "Venue deleted!",
+              isError: false,
+            );
+
+            setState(() => _isDeleting = true);
+            await Future.delayed(const Duration(milliseconds: 350));
+
+            if (!mounted) return;
+            Navigator.pop(context, true);
+          } else {
+            CustomToast.show(
+              context,
+              message: "Failed to delete.",
+              isError: true,
+            );
+          }
+        } catch (e) {
+          debugPrint("Error deleting venue: $e");
+          if (context.mounted) {
+            CustomToast.show(
+              context,
+              message: "System Error",
+              subMessage: "Could not reach server: $e",
+              isError: true,
+            );
+          }
         }
       },
     );
@@ -211,7 +240,7 @@ class _VenueDetailState extends State<VenueDetail> {
                             style: GoogleFonts.nunitoSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF293241),
+                              color: MyApp.gumetalSlate,
                               height: 1.2,
                             ),
                           ),
@@ -253,7 +282,7 @@ class _VenueDetailState extends State<VenueDetail> {
                           // 7. Review List
                           if (_isLoadingReviews)
                             const SizedBox(
-                              height: 150,
+                              height: 120,
                               child: Center(
                                 child: CircularProgressIndicator(
                                   color: MyApp.orange,
@@ -262,7 +291,7 @@ class _VenueDetailState extends State<VenueDetail> {
                             )
                           else if (_reviews.isEmpty)
                             Container(
-                              height: 150,
+                              height: 120,
                               width: double.infinity,
                               alignment: Alignment.center,
                               child: Column(
@@ -289,8 +318,7 @@ class _VenueDetailState extends State<VenueDetail> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ReviewFormPage(
-                                      existingReview:
-                                          review, // Kirim objek review untuk diedit
+                                      existingReview: review, // Kirim objek review untuk diedit
                                     ),
                                   ),
                                 );
@@ -335,7 +363,21 @@ class _VenueDetailState extends State<VenueDetail> {
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
                   onBook: () {
-                    /* Todo: Booking Logic */
+                    // TODO: sambungin ke booking screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingScreen(
+                          venueId: _venue.id,
+                          venueName: _venue.name,
+                          venuePrice: _venue.price,
+                          venueAddress: _venue.address,
+                          venueType: _venue.type,
+                          venueCategory: _venue.category.name,
+                          venueImageUrl: _venue.imageUrl
+                         ),
+                       ),
+                     );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(
@@ -356,8 +398,9 @@ class _VenueDetailState extends State<VenueDetail> {
                       MaterialPageRoute(
                         builder: (context) => ReviewFormPage(
                           // Jika Edit -> kirim existingReview
-                          // Jika Add  -> kirim venueId
+                          // Jika Add  -> kirim venueId & venue
                           venueId: hasReviewed ? null : _venue.id,
+                          venue: hasReviewed ? null : _venue,
                           existingReview: userReview,
                         ),
                       ),
@@ -392,12 +435,19 @@ class _VenueDetailState extends State<VenueDetail> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReviewPage(venueId: _venue.id),
-            ),
-          ),
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReviewPage(venueId: _venue.id),
+              ),
+            );
+
+            if (context.mounted) {
+              final request = context.read<CookieRequest>();
+              _fetchReviews(request);
+            }
+          },
           child: const Text(
             "See all",
             style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/review/models/review.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 
 class ReviewCard extends StatelessWidget {
   final Review review;
@@ -45,18 +46,9 @@ class ReviewCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Avatar Circle
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  color: MyApp.darkSlate, // Menggunakan warna tema
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_outline_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
+              UserAvatar(
+                initial: review.user.isNotEmpty ? review.user[0].toUpperCase() : 'U',
+                size: 48,
               ),
               const SizedBox(width: 12),
               
@@ -90,8 +82,6 @@ class ReviewCard extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                               height: 1.5,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
@@ -174,7 +164,6 @@ class ReviewCard extends StatelessWidget {
                       child: Icon(
                         Icons.star_rounded,
                         size: 23,
-                        // Logic: Jika index < rating, warna Orange. Jika tidak, abu-abu muda.
                         color: index < review.rating
                             ? MyApp.orange
                             : const Color(0xFFD3D5DD),
@@ -192,8 +181,6 @@ class ReviewCard extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       height: 1.5,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -210,10 +197,7 @@ class ReviewCard extends StatelessWidget {
                   height: 1.5,
                 ),
                 textAlign: TextAlign.left,
-                // LOGIC TRUNCATED:
-                // Jika isCompact = true, batasi 3 baris. Jika tidak, null (bebas)
-                maxLines: isCompact ? 3 : null, 
-                // Jika isCompact = true, kasih "..." di ujung text
+                maxLines: isCompact ? 2 : null, 
                 overflow: isCompact ? TextOverflow.ellipsis : null,
               ),
             ],

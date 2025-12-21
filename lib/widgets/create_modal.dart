@@ -1,3 +1,4 @@
+import 'package:any_venue/event/screens/event_form.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:any_venue/main.dart';
@@ -63,9 +64,15 @@ class CreateActionModal extends StatelessWidget {
             iconColor: Colors.white,
             label: "New Event",
             subLabel: "Host a tournament or match",
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Navigasi ke Event Form
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EventFormPage()),
+              );
+
+              if (!context.mounted) return;
+
+              Navigator.pop(context, result == true);
             },
           ),
         ],

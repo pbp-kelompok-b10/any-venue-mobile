@@ -1,10 +1,18 @@
 import 'package:any_venue/event/models/event.dart';
 import 'package:any_venue/event/screens/event_filter.dart';
+import 'package:any_venue/event/screens/event_form.dart';
 import 'package:any_venue/event/screens/event_page_detail.dart';
 import 'package:any_venue/event/widgets/event_card.dart';
-import 'package:any_venue/event/widgets/filter_event.dart';
+import 'package:any_venue/event/widgets/event_filter_modal.dart';
+import 'package:any_venue/event/widgets/event_list.dart';
+import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/components/app_bar.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class EventPage extends StatefulWidget {
   const EventPage({super.key});
@@ -14,58 +22,49 @@ class EventPage extends StatefulWidget {
 }
 
 class _EventPageState extends State<EventPage> {
-  // Master list of all events with updated data to match filter options
-  final List<EventEntry> _allEvents = [
-    EventEntry(
-        id: 1, name: 'Slam Dunk Festival', description: 'A massive basketball event for all ages. Experience an electrifying performance featuring their greatest hits, mind-blowing visuals, and an atmosphere like no other.',
-        date: DateTime(2025, 5, 10), startTime: '09:00', registeredCount: 150,
-        venueName: 'Gor Grogol', venueAddress: 'Jakarta Barat', 
-        venueCategory: 'Basket', venueType: 'Indoor', 
-        owner: 'Budi Santoso', ownerId: 1, thumbnail: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', isOwner: false
-    ),
-    EventEntry(
-        id: 2, name: 'Sudirman Cup Amateur', description: 'Badminton tournament for amateur players. Show your skills and win the cup!',
-        date: DateTime(2025, 3, 15), startTime: '08:00', registeredCount: 80,
-        venueName: 'Gor Bulutangkis', venueAddress: 'Depok', 
-        venueCategory: 'Badminton', venueType: 'Indoor', 
-        owner: 'Susi Susanti', ownerId: 2, thumbnail: 'https://images.pexels.com/photos/3660204/pexels-photo-3660204.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', isOwner: false
-    ),
-    EventEntry(
-        id: 3, name: 'Mini Soccer Night', description: 'Friendly mini soccer match under the stars.',
-        date: DateTime(2025, 6, 20), startTime: '19:00', registeredCount: 22,
-        venueName: 'Lapangan Hijau', venueAddress: 'Tangerang Selatan', 
-        venueCategory: 'Mini Soccer', venueType: 'Outdoor', 
-        owner: 'Andi Wijaya', ownerId: 3, thumbnail: 'https://images.pexels.com/photos/114288/pexels-photo-114288.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', isOwner: false
-    ),
-    EventEntry(
-        id: 4, name: 'Futsal Corporate League', description: 'Corporate league for companies in Jakarta.',
-        date: DateTime(2025, 4, 1), startTime: '10:00', registeredCount: 200,
-        venueName: 'Futsal City', venueAddress: 'Jakarta Pusat', 
-        venueCategory: 'Futsal', venueType: 'Indoor', 
-        owner: 'Rian Firman', ownerId: 4, thumbnail: 'https://images.pexels.com/photos/159491/football-kickoff-soccer-starting-line-159491.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', isOwner: false
-    ),
-    EventEntry(
-        id: 5, name: 'Tenis Weekend Club', description: 'Join our weekend tennis club for a fun session.',
-        date: DateTime(2025, 2, 28), startTime: '07:00', registeredCount: 12,
-        venueName: 'Tennis Court Kemang', venueAddress: 'Jakarta Selatan', 
-        venueCategory: 'Tenis', venueType: 'Outdoor', 
-        owner: 'Maria Sharapova', ownerId: 5, thumbnail: 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', isOwner: false
-    ),
-  ];
-
+  // Master list of events from server
+  List<EventEntry> _allEvents = [];
   late List<EventEntry> _filteredEvents;
+  bool _isLoading = true;
+
   final _searchController = TextEditingController();
 
-  // Current filter states
-  List<String> _selectedCities = [];
   List<String> _selectedCategories = [];
   List<String> _selectedTypes = [];
   String? _selectedDateOrder;
+  String _selectedOwnership = 'All Event';
 
   @override
   void initState() {
     super.initState();
-    _filteredEvents = List.from(_allEvents);
+    _filteredEvents = [];
+    // Fetch data immediately
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchEvents();
+    });
+  }
+
+  Future<void> _fetchEvents() async {
+    final request = context.read<CookieRequest>();
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
+      
+      final List<EventEntry> list = [];
+      for (var d in response) {
+        if (d != null) list.add(EventEntry.fromJson(d));
+      }
+
+      setState(() {
+        _allEvents = list;
+        _isLoading = false;
+        _applyAllFilters();
+      });
+    } catch (e) {
+      debugPrint("Error fetching events: $e");
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -75,29 +74,30 @@ class _EventPageState extends State<EventPage> {
   }
 
   void _applyAllFilters() {
+    final now = DateTime.now();
     setState(() {
-      _filteredEvents = _allEvents.where((event) {
-        // 1. Search Bar Filter
+      List<EventEntry> results = _allEvents.where((event) {
         bool matchesSearch = event.name.toLowerCase().contains(_searchController.text.toLowerCase());
-        
-        // 2. City Filter
-        bool matchesCity = _selectedCities.isEmpty || _selectedCities.contains(event.venueAddress);
-        
-        // 3. Category Filter
         bool matchesCategory = _selectedCategories.isEmpty || _selectedCategories.contains(event.venueCategory);
-        
-        // 4. Type Filter
         bool matchesType = _selectedTypes.isEmpty || _selectedTypes.contains(event.venueType);
 
-        return matchesSearch && matchesCity && matchesCategory && matchesType;
+        bool matchesOwnership = true;
+        if (_selectedOwnership == 'My Event') {
+          matchesOwnership = event.isOwner;
+        }
+
+        return matchesSearch && matchesCategory && matchesType && matchesOwnership;
       }).toList();
 
-      // 5. Date Sorting
+      List<EventEntry> activeEvents = results.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
+      List<EventEntry> pastEvents = results.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
+
       if (_selectedDateOrder == 'Closest') {
-        _filteredEvents.sort((a, b) => a.date.compareTo(b.date));
-      } else if (_selectedDateOrder == 'Fartest') {
-        _filteredEvents.sort((a, b) => b.date.compareTo(a.date));
+        activeEvents.sort((a, b) => a.date.compareTo(b.date));
+      } else if (_selectedDateOrder == 'Farthest') {
+        activeEvents.sort((a, b) => b.date.compareTo(a.date));
       }
+      _filteredEvents = [...activeEvents, ...pastEvents];
     });
   }
 
@@ -105,21 +105,71 @@ class _EventPageState extends State<EventPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EventDetailPage(event: event)),
+    ).then((value) {
+      if (value == true) _fetchEvents(); // Refresh if event was edited or deleted in detail page
+    });
+  }
+
+  void _navigateToForm({EventEntry? event}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
+    ).then((value) {
+      if (value == true) _fetchEvents(); 
+    });
+  }
+
+  void _deleteEvent(EventEntry event) {
+    ConfirmationModal.show(
+      context,
+      title: 'Delete Event',
+      message: 'Are you sure you want to delete "${event.name}"? This action cannot be undone.',
+      confirmText: 'Delete',
+      isDanger: true,
+      onConfirm: () async {
+        final request = context.read<CookieRequest>();
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
+        
+        if (mounted) {
+          if (response['status'] == 'success') {
+            _fetchEvents(); 
+            CustomToast.show(context, message: "Event Deleted", subMessage: response['message'], isError: false);
+          } else {
+            CustomToast.show(context, message: "Delete Failed", subMessage: response['message'], isError: true);
+          }
+        }
+      },
     );
   }
 
   Future<void> _navigateToFilter() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const EventFilterPage()),
+    final request = context.read<CookieRequest>();
+    final String role = request.jsonData['role'] ?? 'USER';
+    final bool isOwner = role == 'OWNER';
+
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return EventFilterModal(
+          initialCategories: _selectedCategories,
+          initialTypes: _selectedTypes,
+          initialDate: _selectedDateOrder,
+          initialOwnership: _selectedOwnership,
+          isOwner: isOwner,
+        );
+      },
     );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
-        _selectedCities = List<String>.from(result['cities'] ?? []);
         _selectedCategories = List<String>.from(result['categories'] ?? []);
         _selectedTypes = List<String>.from(result['types'] ?? []);
         _selectedDateOrder = result['date'];
+        _selectedOwnership = result['ownership'] ?? 'All Event';
       });
       _applyAllFilters();
     }
@@ -128,73 +178,96 @@ class _EventPageState extends State<EventPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: const Color(0xFFFAFAFA),
-            surfaceTintColor: Colors.transparent,
-            floating: true,
-            pinned: false,
-            forceElevated: true,
-            elevation: 8,
-            shadowColor: const Color(0x0C683BFC),
-            title: const Text('Venues',
-              style: TextStyle(
-                color: Color(0xFF13123A), 
-                fontSize: 16, 
-                fontWeight: FontWeight.w700
-              ),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomSearchBar(
+      backgroundColor: const Color(0xFFFAFAFA), 
+      
+      appBar: const CustomAppBar(title: 'Events'), 
+
+      body: Column(
+        children: [
+          Container(
+            color: const Color(0xFFFAFAFA),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomSearchBar(
                     controller: _searchController,
                     hintText: 'Search Event',
                     onChanged: (_) => _applyAllFilters(),
                   ),
-                  const SizedBox(height: 16),
-                  FilterEventButton(
-                    onTap: _navigateToFilter,
+                ),
+                const SizedBox(width: 12),
+
+                InkWell(
+                  onTap: _navigateToFilter, 
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                    ),
+                    child: const Icon(
+                      Icons.tune_rounded,
+                      color: MyApp.gumetalSlate,
+                      size: 24,
+                    ),
                   ),
-                ],
-              ), 
+                ),
+              ],
             ),
           ),
-          
-          _filteredEvents.isEmpty 
-          ? const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(top: 50),
-                child: Center(child: Text("No events found", style: TextStyle(color: Colors.grey))),
-              ),
-            )
-          : SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final event = _filteredEvents[index];
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: EventCard(
-                      event: event, 
-                      onTap: () {},
-                      onArrowTap: () => _navigateToDetail(event),
-                    ),
-                  );
-                },
-                childCount: _filteredEvents.length,
-              ),
-            ),
+
+          // List Event (Expanded ListView)
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredEvents.isEmpty
+                    ? _buildEmptyState()
+                    : EventList(
+                        events: _filteredEvents,
+                        listType: EventListType.verticalSmall, 
+                        scrollable: true, 
+                        onRefresh: () {
+                          _fetchEvents();
+                        },
+                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.filter_list_off, size: 48, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          const Text(
+            "No Matching events found :(",
+            style: TextStyle(color: MyApp.orange),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                // 1. Reset Search
+                _searchController.clear();
+                
+                // 2. Reset Semua Variabel Filter
+                _selectedCategories = [];
+                _selectedTypes = [];
+                _selectedDateOrder = null;
+                _selectedOwnership = 'All Event';
+                
+                // 3. Terapkan Ulang (Refresh List)
+                _applyAllFilters();
+              });
+            },
+            child: const Text("Reset Filter"),
+          ),
         ],
       ),
     );

@@ -2,44 +2,70 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:flutter/material.dart';
 
+// ini gw ubah ke widgets/event_filter_modal.dart
 class EventFilterPage extends StatefulWidget {
-  const EventFilterPage({super.key});
+  final List<String> initialCategories;
+  final List<String> initialTypes;
+  final String? initialDate;
+  final String initialOwnership;
+  final bool isOwner;
+
+  const EventFilterPage({
+    super.key,
+    this.initialCategories = const [],
+    this.initialTypes = const [],
+    this.initialDate,
+    this.initialOwnership = 'All Event',
+    required this.isOwner,
+  });
 
   @override
   State<EventFilterPage> createState() => _EventFilterPageState();
 }
 
 class _EventFilterPageState extends State<EventFilterPage> {
-  // Expansion state - All set to false initially
+  // Expansion state
   final Map<String, bool> _isExpanded = {
-    'Cities': false,
+    'Ownership': false,
     'Category': false,
     'Type': false,
     'Date': false,
   };
 
   // Selection state
-  final Set<String> _selectedCities = {};
-  final Set<String> _selectedCategories = {};
-  final Set<String> _selectedTypes = {};
+  late Set<String> _selectedCategories;
+  late Set<String> _selectedTypes;
+  late String _selectedOwnership;
   String? _selectedDate;
 
   // Filter Options
-  final List<String> _cities = [
-    "Depok", "Jakarta Pusat", "Jakarta Selatan", "Jakarta Timur", "Tangerang", "Tangerang Selatan"
-  ];
+  final List<String> _ownerships = ["My Event", "All Event"];
   final List<String> _categories = [
     "Badminton", "Basket", "Futsal", "Golf", "Mini Soccer", "Padel", "Pickleball", "Sepak Bola", "Squash", "Tenis", "Tenis Meja"
   ];
   final List<String> _types = ["Indoor", "Outdoor"];
-  final List<String> _dates = ["Closest", "Fartest"];
+  final List<String> _dates = ["Closest", "Farthest"];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategories = Set.from(widget.initialCategories);
+    _selectedTypes = Set.from(widget.initialTypes);
+    _selectedOwnership = widget.initialOwnership;
+    _selectedDate = widget.initialDate;
+
+    if (_selectedCategories.isNotEmpty) _isExpanded['Category'] = true;
+    if (_selectedTypes.isNotEmpty) _isExpanded['Type'] = true;
+    if (_selectedDate != null) _isExpanded['Date'] = true;
+    if (_selectedOwnership != 'All Event') _isExpanded['Ownership'] = true;
+  }
 
   void _clearAll() {
     setState(() {
-      _selectedCities.clear();
       _selectedCategories.clear();
       _selectedTypes.clear();
       _selectedDate = null;
+      _selectedOwnership = 'All Event';
     });
   }
 
@@ -51,7 +77,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
         children: [
           CustomScrollView(
             slivers: [
-              // --- Header ---
               SliverAppBar(
                 backgroundColor: const Color(0xFFFAFAFA),
                 surfaceTintColor: Colors.transparent,
@@ -61,11 +86,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                 elevation: 8,
                 title: const Text(
                   'Filter',
-                  style: TextStyle(
-                    color: Color(0xFF13123A),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(color: Color(0xFF13123A), fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
@@ -85,14 +106,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: const Color(0xFFFFD5BE)),
                           ),
-                          child: const Text(
-                            'Clear All',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                          child: const Text('Clear All', style: TextStyle(color: Colors.white, fontSize: 12)),
                         ),
                       ),
                     ),
@@ -100,21 +114,22 @@ class _EventFilterPageState extends State<EventFilterPage> {
                 ],
               ),
 
-              // --- Filter Content ---
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildFilterSection('Cities', _cities, _selectedCities),
-                      const Divider(height: 1),
+                      if (widget.isOwner) ...[
+                        _buildOwnershipSection(),
+                        const Divider(height: 1),
+                      ],
                       _buildFilterSection('Category', _categories, _selectedCategories),
                       const Divider(height: 1),
                       _buildFilterSection('Type', _types, _selectedTypes),
                       const Divider(height: 1),
                       _buildDateSection(),
-                      const SizedBox(height: 120), // Space for bottom button
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -122,7 +137,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
             ],
           ),
 
-          // --- Bottom Apply Button ---
           Positioned(
             bottom: 0,
             left: 0,
@@ -133,12 +147,11 @@ class _EventFilterPageState extends State<EventFilterPage> {
               child: CustomButton(
                 text: 'Apply Filter',
                 onPressed: () {
-                  // Pass back the selected filters
                   Navigator.pop(context, {
-                    'cities': _selectedCities.toList(),
                     'categories': _selectedCategories.toList(),
                     'types': _selectedTypes.toList(),
                     'date': _selectedDate,
+                    'ownership': _selectedOwnership,
                   });
                 },
                 isFullWidth: true,
@@ -147,6 +160,50 @@ class _EventFilterPageState extends State<EventFilterPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildOwnershipSection() {
+    String title = 'Ownership';
+    bool isExpanded = _isExpanded[title] ?? false;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _isExpanded[title] = !isExpanded),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Ownership',
+                    style: TextStyle(color: Color(0xFF1F2024), fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: const Color(0xFF8F9098), size: 24),
+              ],
+            ),
+          ),
+        ),
+        if (isExpanded)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _ownerships.map((option) {
+                bool isSelected = _selectedOwnership == option;
+                return _buildChip(
+                  label: option,
+                  isSelected: isSelected,
+                  onTap: () => setState(() => _selectedOwnership = option),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
     );
   }
 
@@ -164,37 +221,16 @@ class _EventFilterPageState extends State<EventFilterPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: Color(0xFF1F2024),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600, // Balanced weight
-                    ),
-                  ),
+                  child: Text(title, style: const TextStyle(color: Color(0xFF1F2024), fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
                 if (selectedCount > 0)
                   Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: MyApp.darkSlate,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$selectedCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    decoration: const BoxDecoration(color: MyApp.darkSlate, shape: BoxShape.circle),
+                    child: Text('$selectedCount', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
                   ),
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: const Color(0xFF8F9098),
-                  size: 24,
-                ),
+                Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: const Color(0xFF8F9098), size: 24),
               ],
             ),
           ),
@@ -240,38 +276,17 @@ class _EventFilterPageState extends State<EventFilterPage> {
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      color: Color(0xFF1F2024),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600, // Balanced weight
-                    ),
-                  ),
+                const Expanded(
+                  child: Text('Date', style: TextStyle(color: Color(0xFF1F2024), fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
                 if (_selectedDate != null)
                   Container(
                     margin: const EdgeInsets.only(right: 8),
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: MyApp.darkSlate,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text(
-                      '1',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    decoration: const BoxDecoration(color: MyApp.darkSlate, shape: BoxShape.circle),
+                    child: const Text('1', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
                   ),
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: const Color(0xFF8F9098),
-                  size: 24,
-                ),
+                Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: const Color(0xFF8F9098), size: 24),
               ],
             ),
           ),
@@ -287,11 +302,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                 return _buildChip(
                   label: option,
                   isSelected: isSelected,
-                  onTap: () {
-                    setState(() {
-                      _selectedDate = isSelected ? null : option;
-                    });
-                  },
+                  onTap: () => setState(() => _selectedDate = isSelected ? null : option),
                 );
               }).toList(),
             ),
@@ -312,11 +323,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : MyApp.darkSlate,
-            fontSize: 14, // Increased from 12 to 14 for better balance
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: isSelected ? Colors.white : MyApp.darkSlate, fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
     );

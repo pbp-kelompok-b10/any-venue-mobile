@@ -14,7 +14,7 @@ class VenueHeaderImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 360,
+      height: 238,
       width: double.infinity,
       child: Image.network(
         imageUrl,
@@ -53,13 +53,13 @@ class VenueInfoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: MyApp.gumetalSlate.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: MyApp.gumetalSlate.withOpacity(0.3),
+            blurRadius: 28,
+            offset: const Offset(0, 8),
           ),
         ],
       ),

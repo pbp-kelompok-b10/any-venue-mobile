@@ -9,12 +9,20 @@ import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/toast.dart';
 
 import 'package:any_venue/review/models/review.dart';
+import 'package:any_venue/venue/models/venue.dart';
+import 'package:any_venue/venue/widgets/venue_card.dart';
 
 class ReviewFormPage extends StatefulWidget {
-  final int? venueId;
+  final int? venueId; // Null = Edit, Not Null = Create
+  final Venue? venue;
   final Review? existingReview; // Null = Create, Not Null = Edit
 
-  const ReviewFormPage({super.key, this.venueId, this.existingReview});
+  const ReviewFormPage({
+    super.key, 
+    this.venueId, 
+    this.venue,
+    this.existingReview
+  });
 
   @override
   State<ReviewFormPage> createState() => _ReviewFormPageState();
@@ -26,6 +34,8 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
   // State Input
   int _rating = 0;
   String _comment = "";
+
+  bool _validateRating = false;
 
   // Controller untuk Text Field agar bisa di-set initial value-nya
   late TextEditingController _commentController;
@@ -64,7 +74,16 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // RATING SECTION (Bintang Interaktif)
+              if (widget.venue != null) ...[
+                VenueCard(
+                  venue: widget.venue!,
+                  isSmall: true,
+                  // onTap: null,
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // STAR RATING SECTION
               Center(
                 child: Column(
                   children: [
@@ -101,13 +120,13 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                       }),
                     ),
                     // Validasi Visual untuk Rating
-                    if (_rating == 0)
+                    if (_validateRating && _rating == 0)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          "Please select a rating star",
+                          "Please select a star rating",
                           style: TextStyle(
-                            color: Colors.red.shade700,
+                            color: MyApp.orange,
                             fontSize: 12,
                           ),
                         ),
@@ -119,13 +138,13 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
               const SizedBox(height: 30),
 
               // COMMENT SECTION
-              _buildSectionLabel("Your Comment"),
+              _buildSectionLabel("Comment"),
               TextFormField(
                 controller: _commentController,
                 maxLength: 500,
                 maxLines: 5,
                 decoration: _inputDecoration(
-                  "Share your experience with this venue...",
+                  "Share your experience here...",
                 ),
                 onChanged: (val) => _comment = val,
                 validator: (val) {
@@ -144,14 +163,15 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                 gradientColors: const [MyApp.gumetalSlate, MyApp.darkSlate],
                 isFullWidth: true,
                 onPressed: () async {
+                  setState(() {
+                    _validateRating = true;
+                  });
+
                   // Validasi Form & Rating
                   if (_formKey.currentState!.validate() && _rating > 0) {
                     const String baseUrl =
                         "https://keisha-vania-anyvenue.pbp.cs.ui.ac.id";
 
-                    // Tentukan URL berdasarkan mode
-                    // Add: /review/add-flutter/<venue_id>/
-                    // Edit: /review/edit-flutter/<review_id>/
                     String url = isEdit
                         ? '$baseUrl/review/edit-flutter/${widget.existingReview!.id}/'
                         : '$baseUrl/review/add-flutter/${widget.venueId}/';
@@ -168,7 +188,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                           context,
                           message: response['message'],
                           subMessage: isEdit
-                              ? "Review updated."
+                              ? null
                               : "Thank you for your feedback!",
                           isError: false,
                         );
@@ -179,21 +199,12 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
                       } else {
                         CustomToast.show(
                           context,
-                          message: "Failed to submit review",
+                          message: "Failed to submit review.",
                           subMessage: response['message'] ?? "Error occurred",
                           isError: true,
                         );
                       }
                     }
-                  } else if (_rating == 0) {
-                    // Feedback jika user lupa klik bintang
-                    CustomToast.show(
-                      context,
-                      message: "Rating Required",
-                      subMessage:
-                          "Please give a star rating before submitting.",
-                      isError: true,
-                    );
                   }
                 },
               ),
@@ -210,7 +221,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 14,
+          fontSize: 15,
           fontWeight: FontWeight.bold,
           color: MyApp.gumetalSlate,
         ),
@@ -234,7 +245,7 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: MyApp.orange, width: 2),
+        borderSide: const BorderSide(color: MyApp.darkSlate, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );

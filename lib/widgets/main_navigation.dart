@@ -1,24 +1,46 @@
+import 'package:any_venue/event/screens/event_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:any_venue/main.dart';
 
 import 'package:any_venue/screens/home_page.dart';
+import 'package:any_venue/venue/screens/venue_form.dart';
+import 'package:any_venue/booking/screens/my_bookings_screen.dart';
+
+import 'package:any_venue/account/models/profile.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
 import 'package:any_venue/venue/screens/my_venue_page.dart';
+import 'package:any_venue/review/screens/my_review_page.dart';
+import 'package:any_venue/event/screens/my_event_page.dart';
+import 'package:any_venue/event/screens/my_joined_event_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+
+  final int initialIndex;
+
+  const MainNavigation({
+    super.key, 
+    this.initialIndex = 0, 
+  });
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
 }
 
 class _MainNavigationState extends State<MainNavigation> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
   final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
+  final GlobalKey<MyEventPageState> _myEventKey = GlobalKey<MyEventPageState>();
+  final GlobalKey<MyJoinedEventPageState> _myJoinedKey = GlobalKey<MyJoinedEventPageState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,24 +64,25 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
+
   // --- LOGIC MAP SCREEN ---
   Widget _getScreenForIndex(int index, bool isOwner) {
     // List Screen Asli
     final List<Widget> ownerScreens = [
       const HomePage(),
       MyVenuePage(key: _myVenueKey),
-      const Center(child: Text("My Events")),
+      MyEventPage(key: _myEventKey),
       const ProfilePage(),
     ];
 
     final List<Widget> userScreens = [
       const HomePage(),
-      const Center(child: Text("My Bookings")),
-      const Center(child: Text("My Events")),
-      const Center(child: Text("My Reviews")),
+      const MyBookingsScreen(),
+      MyJoinedEventPage(key: _myJoinedKey),
+      const MyReviewPage(),
       const ProfilePage(),
     ];
-
+    
     if (isOwner) {
       // Mapping Index Navbar -> Index Screen
       // Nav: [0:Home, 1:Venue, 2:DUMMY, 3:Event, 4:Profile]
@@ -102,6 +125,9 @@ class _MainNavigationState extends State<MainNavigation> {
             final created = await CreateActionModal.show(context);
             if (created == true) {
               _myVenueKey.currentState?.refresh();
+              if (_myEventKey.currentContext != null) {
+                _myEventKey.currentState?.refresh();
+              }
             }
           },
           customBorder: const CircleBorder(),

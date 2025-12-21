@@ -4,7 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+// Import Main dan Komponen Custom
+import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/button.dart'; 
+import 'package:any_venue/widgets/components/app_bar.dart'; // Pastikan path ini sesuai dengan lokasi file CustomAppBar Anda
+
+import 'package:any_venue/booking/widgets/booking_calendar.dart';
+import 'package:any_venue/booking/widgets/slots_section.dart';
+import 'package:any_venue/booking/widgets/summary_box.dart';
+import 'package:any_venue/booking/widgets/venue_header_card.dart';
+import 'package:any_venue/venue/screens/venue_page.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/toast.dart';
 import '../models/booking_slot.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -15,7 +28,10 @@ class BookingScreen extends StatefulWidget {
     required this.venuePrice,
     required this.venueAddress,
     required this.venueType,
+    required this.venueCategory,
     this.venueImageUrl,
+    this.initialDate,
+    this.focusSlotId,
   });
 
   final int venueId;
@@ -23,7 +39,10 @@ class BookingScreen extends StatefulWidget {
   final int venuePrice;
   final String venueAddress;
   final String venueType;
+  final String venueCategory;
   final String? venueImageUrl;
+  final DateTime? initialDate;
+  final int? focusSlotId;
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -31,50 +50,73 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   DateTime _selectedDate = DateTime.now();
+  DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
   final Set<int> _selectedSlotIds = {};
+  final Set<int> _cancellingSlotIds = {};
   bool _isSubmitting = false;
+  final Map<String, Future<List<BookingSlot>>> _slotsCache = {};
 
-  String get _formattedDateLabel {
-    final formatter = DateFormat('d MMM yyyy');
-    return formatter.format(_selectedDate);
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialDate != null) {
+      _selectedDate = DateTime(widget.initialDate!.year, widget.initialDate!.month, widget.initialDate!.day);
+      _visibleMonth = DateTime(_selectedDate.year, _selectedDate.month);
+    }
   }
 
-  String get _formattedMonthLabel {
-    final formatter = DateFormat('MMM yyyy');
-    return formatter.format(_selectedDate);
-  }
-
-  Future<List<BookingSlot>> _fetchSlots(CookieRequest request) async {
+  Future<List<BookingSlot>> _fetchSlots(CookieRequest request) {
     final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    final url = 'http://http://10.0.2.2:8000/booking/slots/${widget.venueId}/?date=$dateStr';
+    if (_slotsCache[dateStr] != null) return _slotsCache[dateStr]!;
 
-    final response = await request.get(url);
+    final url = 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/slots/${widget.venueId}/?date=$dateStr';
+    final future = request.get(url).then((response) {
+      final jsonString = jsonEncode(response);
+      final slots = bookingSlotFromJson(jsonString);
 
-    final jsonString = jsonEncode(response);
-    return bookingSlotFromJson(jsonString);
+      // Auto-select focused slot if this date matches and slot belongs to user
+      if (widget.focusSlotId != null) {
+        final match = slots.firstWhere(
+          (s) => s.id == widget.focusSlotId,
+          orElse: () => BookingSlot(
+            id: -1,
+            startTime: '',
+            endTime: '',
+            isBooked: false,
+            isBookedByUser: false,
+            price: 0,
+          ),
+        );
+        if (match.id == widget.focusSlotId && match.isBookedByUser) {
+          _selectedSlotIds.add(match.id);
+        }
+      }
+
+      return slots;
+    });
+
+    _slotsCache[dateStr] = future;
+    return future;
   }
 
   int get _totalPrice => _selectedSlotIds.length * widget.venuePrice;
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate.isBefore(now) ? now : _selectedDate,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 30)),
-    );
+  void _selectDate(DateTime day) {
+    final today = DateTime.now();
+    if (day.isBefore(DateTime(today.year, today.month, today.day))) return;
 
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _selectedSlotIds.clear();
-      });
-    }
+    setState(() {
+      _selectedDate = day;
+      _visibleMonth = DateTime(day.year, day.month);
+      _selectedSlotIds.clear();
+      final key = DateFormat('yyyy-MM-dd').format(day);
+      _slotsCache.remove(key);
+    });
   }
 
   void _toggleSlot(BookingSlot slot) {
     if (slot.isBooked || slot.isBookedByUser) return;
+    if (_isSlotPast(slot)) return;
 
     setState(() {
       if (_selectedSlotIds.contains(slot.id)) {
@@ -85,6 +127,22 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  bool _isSlotPast(BookingSlot slot) {
+    final today = DateTime.now();
+    if (!DateUtils.isSameDay(_selectedDate, today)) return false;
+
+    final now = TimeOfDay.fromDateTime(today);
+    final slotStart = _parseTime(slot.startTime);
+    return slotStart.hour < now.hour || (slotStart.hour == now.hour && slotStart.minute <= now.minute);
+  }
+
+  TimeOfDay _parseTime(String hhmm) {
+    final parts = hhmm.split(":");
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    return TimeOfDay(hour: h, minute: m);
+  }
+
   Future<void> _submitBooking(CookieRequest request) async {
     if (_selectedSlotIds.isEmpty || _isSubmitting) return;
 
@@ -93,7 +151,7 @@ class _BookingScreenState extends State<BookingScreen> {
     });
 
     try {
-      final url = 'http://http://10.0.2.2:8000/booking/create-flutter/';
+      final url = 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/create-flutter/';
       final response = await request.postJson(
         url,
         jsonEncode({
@@ -104,25 +162,33 @@ class _BookingScreenState extends State<BookingScreen> {
       if (!mounted) return;
 
       if (response['status'] == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Booking berhasil! Total: IDR ${_totalPrice.toStringAsFixed(0)}',
-            ),
-          ),
+        final serverTotal = response['total'] ?? _totalPrice;
+        CustomToast.show(
+          context,
+          message: 'Booking successful!', // English
+          subMessage: 'Total paid: IDR ${serverTotal.toString()}', // English
         );
         setState(() {
           _selectedSlotIds.clear();
         });
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const VenuePage()),
+          (route) => false,
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal melakukan booking.')),
+        CustomToast.show(
+          context,
+          message: 'Booking failed.', // English
+          isError: true,
         );
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Terjadi kesalahan server.')),
+      CustomToast.show(
+        context,
+        message: 'Server error occurred.', // English
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -133,15 +199,75 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
+  Future<void> _cancelBookedSlot(CookieRequest request, BookingSlot slot) async {
+    if (_cancellingSlotIds.contains(slot.id)) return;
+
+    ConfirmationModal.show(
+      context,
+      title: 'Cancel booking?', // English
+      message: 'Slot ${slot.startTime} - ${slot.endTime} will be cancelled.', // English
+      confirmText: 'Cancel', // English
+      cancelText: 'Back', // English
+      isDanger: true,
+      onConfirm: () async {
+        setState(() {
+          _cancellingSlotIds.add(slot.id);
+        });
+
+        try {
+          final res = await request.postJson(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/booking/cancel-flutter/',
+            jsonEncode({'slot_id': slot.id}),
+          );
+
+          if (!mounted) return;
+
+          if (res['status'] == 'success') {
+            _selectedSlotIds.remove(slot.id);
+            setState(() {});
+            CustomToast.show(
+              context,
+              message: 'Booking cancelled.', // English
+            );
+          } else {
+            CustomToast.show(
+              context,
+              message: res['message'] ?? 'Failed to cancel booking.', // English
+              isError: true,
+            );
+          }
+        } catch (_) {
+          if (!mounted) return;
+          CustomToast.show(
+            context,
+            message: 'Server error occurred.', // English
+            isError: true,
+          );
+        } finally {
+          if (mounted) {
+            setState(() {
+              _cancellingSlotIds.remove(slot.id);
+            });
+          }
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booking Ticket'),
-        centerTitle: true,
+      // KITA PERTAHANKAN WARNA INI SESUAI PERMINTAAN (KARENA TIDAK ADA DI MAIN.DART)
+      backgroundColor: const Color(0xFFF6F7FA), 
+      
+      // Menggunakan CustomAppBar
+      appBar: const CustomAppBar(
+        title: 'Booking Ticket',
+        showBackButton: true,
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -150,350 +276,82 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _VenueHeaderCard(widget: widget),
+                  VenueHeaderCard(
+                    venueName: widget.venueName,
+                    venuePrice: widget.venuePrice,
+                    venueAddress: widget.venueAddress,
+                    venueType: widget.venueType,
+                    venueCategory: widget.venueCategory,
+                    venueImageUrl: widget.venueImageUrl,
+                  ),
                   const SizedBox(height: 24),
-                  const Text(
+                  
+                  Text(
                     'Choose Your Time',
-                    style: TextStyle(
+                    style: GoogleFonts.nunitoSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w800,
+                      // Warna ini (0xFF293241) sama dengan gumetalSlate di MyApp, jadi kita pakai variabelnya
+                      color: MyApp.gumetalSlate, 
                     ),
                   ),
+                  
                   const SizedBox(height: 12),
-                  _buildDatePickerRow(),
+                  BookingCalendar(
+                    visibleMonth: _visibleMonth,
+                    selectedDate: _selectedDate,
+                    onSelectDate: _selectDate,
+                    onMonthChanged: (month) => setState(() {
+                      _visibleMonth = month;
+                    }),
+                  ),
                   const SizedBox(height: 16),
-                  _buildSlotsSection(request),
+                  SlotsSection(
+                    futureSlots: _fetchSlots(request),
+                    selectedSlotIds: _selectedSlotIds,
+                    onToggle: _toggleSlot,
+                    isSlotPast: _isSlotPast,
+                    onCancelBookedSlot: (slot) => _cancelBookedSlot(request, slot),
+                    cancellingSlotIds: _cancellingSlotIds,
+                  ),
                   const SizedBox(height: 24),
-                  _buildSummaryBox(),
+                  SummaryBox(
+                    pricePerSlot: widget.venuePrice,
+                    bookingCount: _selectedSlotIds.length,
+                    totalPrice: _totalPrice,
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
+          
+          // Bagian Tombol Bawah
           SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
-                      ? () => _submitBooking(request)
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+            child: Container(
+              // Kita beri background putih di container tombol agar terlihat seperti "sticky footer" yang rapi
+              // karena background scaffold berwarna abu-abu (0xFFF6F7FA)
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, -4),
+                    blurRadius: 10,
                   ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Book Now',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                ),
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDatePickerRow() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formattedMonthLabel,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+              child: CustomButton(
+                text: 'Book Now',
+                isFullWidth: true,
+                color: MyApp.orange, // Menggunakan warna dari MyApp
+                isLoading: _isSubmitting, // Loading indicator otomatis dari CustomButton
+                onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
+                    ? () => _submitBooking(request)
+                    : null,
               ),
-              const SizedBox(height: 4),
-              Text(
-                _formattedDateLabel,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today_outlined),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSlotsSection(CookieRequest request) {
-    return FutureBuilder<List<BookingSlot>>(
-      future: _fetchSlots(request),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return const Center(
-            child: Text('Gagal memuat jadwal.'),
-          );
-        }
-
-        final slots = snapshot.data ?? [];
-        if (slots.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                'Tidak ada jadwal tersedia untuk tanggal ini.',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          );
-        }
-
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: slots.map((slot) {
-            final isSelected = _selectedSlotIds.contains(slot.id);
-
-            Color bg;
-            Color border;
-            Color text;
-
-            if (slot.isBooked) {
-              bg = Colors.grey.shade200;
-              border = Colors.grey.shade300;
-              text = Colors.grey;
-            } else if (slot.isBookedByUser) {
-              bg = Colors.blue.shade50;
-              border = Colors.blue;
-              text = Colors.blue.shade900;
-            } else if (isSelected) {
-              bg = Colors.orange.shade50;
-              border = Colors.orange;
-              text = Colors.orange.shade800;
-            } else {
-              bg = Colors.white;
-              border = Colors.grey.shade300;
-              text = Colors.black87;
-            }
-
-            return GestureDetector(
-              onTap: () => _toggleSlot(slot),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: border),
-                  boxShadow: bg == Colors.white
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  '${slot.startTime} - ${slot.endTime}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: text,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  Widget _buildSummaryBox() {
-    final priceFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'IDR ',
-      decimalDigits: 0,
-    );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSummaryRow('Price', priceFormatter.format(widget.venuePrice)),
-          const SizedBox(height: 8),
-          _buildSummaryRow('Number of bookings', _selectedSlotIds.length.toString()),
-          const Divider(height: 24),
-          _buildSummaryRow('Total', priceFormatter.format(_totalPrice), isBold: true),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _VenueHeaderCard extends StatelessWidget {
-  const _VenueHeaderCard({required this.widget});
-
-  final BookingScreen widget;
-
-  @override
-  Widget build(BuildContext context) {
-    final priceFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'IDR ',
-      decimalDigits: 0,
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey.shade200,
-              image: widget.venueImageUrl != null
-                  ? DecorationImage(
-                      image: NetworkImage(widget.venueImageUrl!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: widget.venueImageUrl == null
-                ? const Icon(Icons.image_not_supported, color: Colors.grey)
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.venueName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.sports_tennis, size: 14, color: Colors.orange),
-                    const SizedBox(width: 4),
-                    Text(
-                      widget.venueType,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        widget.venueAddress,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${priceFormatter.format(widget.venuePrice)}/sesi',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.orange,
-                  ),
-                ),
-              ],
             ),
           ),
         ],
