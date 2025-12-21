@@ -1,20 +1,5 @@
 import 'dart:convert';
 
-// Model untuk response GET /booking/mybookings/json/
-// Format default Django serialize:
-// [
-//   {
-//     "model": "booking.booking",
-//     "pk": 10,
-//     "fields": {
-//       "user": 3,
-//       "slot": 1,
-//       "total_price": 150000,
-//       "created_at": "2025-12-07T10:00:00Z"
-//     }
-//   }
-// ]
-
 List<Booking> bookingFromJson(String str) =>
     List<Booking>.from(json.decode(str).map((x) => Booking.fromJson(x)));
 
@@ -24,33 +9,79 @@ String bookingToJson(List<Booking> data) =>
 class Booking {
   Booking({
     required this.id,
-    required this.user,
-    required this.slot,
+    required this.slotId,
+    required this.slotDate,
+    required this.startTime,
+    required this.endTime,
+    required this.venue,
     required this.totalPrice,
     required this.createdAt,
   });
 
-  int id;
-  int user;
-  int slot;
-  int totalPrice;
-  DateTime createdAt;
+  final int id;
+  final int slotId;
+  final DateTime slotDate;
+  final String startTime;
+  final String endTime;
+  final BookingVenue venue;
+  final int totalPrice;
+  final DateTime createdAt;
 
   factory Booking.fromJson(Map<String, dynamic> json) => Booking(
-        id: json["pk"],
-        user: json["fields"]["user"],
-        slot: json["fields"]["slot"],
-        totalPrice: json["fields"]["total_price"],
-        createdAt: DateTime.parse(json["fields"]["created_at"]),
+        id: json["id"],
+        slotId: json["slot_id"],
+        slotDate: DateTime.parse(json["slot_date"]),
+        startTime: json["start_time"],
+        endTime: json["end_time"],
+        venue: BookingVenue.fromJson(json["venue"]),
+        totalPrice: json["total_price"],
+        createdAt: DateTime.parse(json["created_at"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "pk": id,
-        "fields": {
-          "user": user,
-          "slot": slot,
-          "total_price": totalPrice,
-          "created_at": createdAt.toIso8601String(),
-        },
+        "id": id,
+        "slot_id": slotId,
+        "slot_date": slotDate.toIso8601String(),
+        "start_time": startTime,
+        "end_time": endTime,
+        "venue": venue.toJson(),
+        "total_price": totalPrice,
+        "created_at": createdAt.toIso8601String(),
+      };
+}
+
+class BookingVenue {
+  BookingVenue({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.type,
+    required this.price,
+    this.imageUrl,
+  });
+
+  final int id;
+  final String name;
+  final String address;
+  final String type;
+  final int price;
+  final String? imageUrl;
+
+  factory BookingVenue.fromJson(Map<String, dynamic> json) => BookingVenue(
+        id: json["id"],
+        name: json["name"],
+        address: json["address"],
+        type: json["type"],
+        price: json["price"],
+        imageUrl: json["image_url"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "address": address,
+        "type": type,
+        "price": price,
+        "image_url": imageUrl,
       };
 }

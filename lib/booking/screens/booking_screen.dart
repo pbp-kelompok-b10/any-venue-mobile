@@ -11,6 +11,8 @@ import 'package:any_venue/booking/widgets/summary_box.dart';
 import 'package:any_venue/booking/widgets/venue_header_card.dart';
 import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/toast.dart';
+import 'package:any_venue/widgets/main_navigation.dart';
 
 import '../models/booking_slot.dart';
 
@@ -117,29 +119,33 @@ class _BookingScreenState extends State<BookingScreen> {
       if (!mounted) return;
 
       if (response['status'] == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Booking berhasil! Total: IDR ${_totalPrice.toStringAsFixed(0)}',
-            ),
-          ),
+        final serverTotal = response['total'] ?? _totalPrice;
+        CustomToast.show(
+          context,
+          message: 'Booking berhasil!',
+          subMessage: 'Total dibayar: IDR ${serverTotal.toString()}',
         );
         setState(() {
           _selectedSlotIds.clear();
         });
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const VenuePage()),
+          (route) => false,
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal melakukan booking.')),
+        CustomToast.show(
+          context,
+          message: 'Gagal melakukan booking.',
+          isError: true,
         );
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Terjadi kesalahan server.')),
+      CustomToast.show(
+        context,
+        message: 'Terjadi kesalahan server.',
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -175,19 +181,24 @@ class _BookingScreenState extends State<BookingScreen> {
 
           if (res['status'] == 'success') {
             _selectedSlotIds.remove(slot.id);
-            setState(() {}); // rebuild to refetch slots
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Booking dibatalkan.')),
+            setState(() {});
+            CustomToast.show(
+              context,
+              message: 'Booking dibatalkan.',
             );
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(res['message'] ?? 'Gagal membatalkan booking.')),
+            CustomToast.show(
+              context,
+              message: res['message'] ?? 'Gagal membatalkan booking.',
+              isError: true,
             );
           }
         } catch (_) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Terjadi kesalahan server.')),
+          CustomToast.show(
+            context,
+            message: 'Terjadi kesalahan server.',
+            isError: true,
           );
         } finally {
           if (mounted) {
