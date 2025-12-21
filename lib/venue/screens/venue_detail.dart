@@ -75,25 +75,37 @@ class _VenueDetailState extends State<VenueDetail> {
       icon: Icons.delete_outline,
       onConfirm: () async {
         // Request ke Django
-        final response = await request.post(
-          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
-          {},
-        );
+        try {
+          final response = await request.post(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/review/delete-flutter/${review.id}/',
+            {},
+          );
 
-        if (context.mounted) {
-          if (response['status'] == 'success') {
+          if (context.mounted) {
+            if (response['status'] == 'success') {
+              CustomToast.show(
+                context,
+                message: response['message'],
+                isError: false,
+              );
+              // Refresh list review agar item hilang
+              _fetchReviews(request);
+            } else {
+              CustomToast.show(
+                context,
+                message: "Failed to delete review.",
+                subMessage: response['message'] ?? "Error occurred.",
+                isError: true,
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint("Error deleting review: $e");
+          if (context.mounted) {
             CustomToast.show(
               context,
-              message: response['message'],
-              isError: false,
-            );
-            // Refresh list review agar item hilang
-            _fetchReviews(request);
-          } else {
-            CustomToast.show(
-              context,
-              message: "Failed to delete review.",
-              subMessage: response['message'] ?? "Error occurred.",
+              message: "System Error",
+              subMessage: "Could not reach server: $e",
               isError: true,
             );
           }
@@ -128,30 +140,43 @@ class _VenueDetailState extends State<VenueDetail> {
       confirmText: "Delete",
       icon: Icons.delete_outline,
       onConfirm: () async {
-        final response = await request.post(
-          'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
-          {},
-        );
-
-        if (!mounted) return;
-
-        if (response['status'] == 'success') {
-          CustomToast.show(context, message: "Venue deleted!", isError: false);
-
-          setState(() => _isDeleting = true);
-          await Future.delayed(const Duration(milliseconds: 350));
+        try {
+          final response = await request.post(
+            'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/api/delete-flutter/${_venue.id}/',
+            {},
+          );
 
           if (!mounted) return;
-          Navigator.pop(
-            context,
-            true,
-          );
-        } else {
-          CustomToast.show(
-            context,
-            message: "Failed to delete.",
-            isError: true,
-          );
+
+          if (response['status'] == 'success') {
+            CustomToast.show(
+              context,
+              message: "Venue deleted!",
+              isError: false,
+            );
+
+            setState(() => _isDeleting = true);
+            await Future.delayed(const Duration(milliseconds: 350));
+
+            if (!mounted) return;
+            Navigator.pop(context, true);
+          } else {
+            CustomToast.show(
+              context,
+              message: "Failed to delete.",
+              isError: true,
+            );
+          }
+        } catch (e) {
+          debugPrint("Error deleting venue: $e");
+          if (context.mounted) {
+            CustomToast.show(
+              context,
+              message: "System Error",
+              subMessage: "Could not reach server: $e",
+              isError: true,
+            );
+          }
         }
       },
     );
@@ -338,20 +363,21 @@ class _VenueDetailState extends State<VenueDetail> {
                   isUserRole: isUserRole,
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
-                  onBook: () { // TODO: sambungin ke booking screen
+                  onBook: () {
+                    // TODO: sambungin ke booking screen
                     Navigator.push(
-                       context,
-                       MaterialPageRoute(
-                         builder: (context) => BookingScreen(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingScreen(
                           venueId: _venue.id,
                           venueName: _venue.name,
                           venuePrice: _venue.price,
                           venueAddress: _venue.address,
                           venueType: _venue.type,
-                          venueImageUrl: _venue.imageUrl
-                         ),
-                       ),
-                     );
+                          venueImageUrl: _venue.imageUrl,
+                        ),
+                      ),
+                    );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(
