@@ -335,13 +335,18 @@ class EventCard extends StatelessWidget {
 
   Widget _buildPlaceholderImage(double width, double height) {
     return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: const Color(0xFFEBEBEB),
-        borderRadius: BorderRadius.circular(10),
+      color: Colors.grey[200],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(Icons.image_not_supported, color: Colors.grey),
+          SizedBox(height: 4),
+          Text(
+            "No Image",
+            style: TextStyle(fontSize: 10, color: Colors.grey),
+          ),
+        ],
       ),
-      child: const Icon(Icons.image_outlined, size: 32, color: Colors.grey),
     );
   }
 }

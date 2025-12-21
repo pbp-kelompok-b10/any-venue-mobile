@@ -145,7 +145,7 @@ class _VenueDetailState extends State<VenueDetail> {
           Navigator.pop(
             context,
             true,
-          ); // <-- ini yang dibaca VenueList untuk refresh
+          );
         } else {
           CustomToast.show(
             context,
@@ -215,7 +215,7 @@ class _VenueDetailState extends State<VenueDetail> {
                             style: GoogleFonts.nunitoSans(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF293241),
+                              color: MyApp.gumetalSlate,
                               height: 1.2,
                             ),
                           ),
