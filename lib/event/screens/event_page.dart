@@ -5,6 +5,8 @@ import 'package:any_venue/event/screens/event_page_detail.dart';
 import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:any_venue/event/widgets/filter_event.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +29,7 @@ class _EventPageState extends State<EventPage> {
   List<String> _selectedCategories = [];
   List<String> _selectedTypes = [];
   String? _selectedDateOrder;
+  String _selectedOwnership = 'All Event';
 
   @override
   void initState() {
@@ -43,8 +46,7 @@ class _EventPageState extends State<EventPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Fetching from localhost:8000
-      final response = await request.get('http://localhost:8000/event/json/');
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
       
       final List<EventEntry> list = [];
       for (var d in response) {
@@ -75,7 +77,13 @@ class _EventPageState extends State<EventPage> {
         bool matchesSearch = event.name.toLowerCase().contains(_searchController.text.toLowerCase());
         bool matchesCategory = _selectedCategories.isEmpty || _selectedCategories.contains(event.venueCategory);
         bool matchesType = _selectedTypes.isEmpty || _selectedTypes.contains(event.venueType);
-        return matchesSearch && matchesCategory && matchesType;
+
+        bool matchesOwnership = true;
+        if (_selectedOwnership == 'My Event') {
+          matchesOwnership = event.isOwner;
+        }
+
+        return matchesSearch && matchesCategory && matchesType && matchesOwnership;
       }).toList();
 
       List<EventEntry> activeEvents = results.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
@@ -83,7 +91,7 @@ class _EventPageState extends State<EventPage> {
 
       if (_selectedDateOrder == 'Closest') {
         activeEvents.sort((a, b) => a.date.compareTo(b.date));
-      } else if (_selectedDateOrder == 'Fartest') {
+      } else if (_selectedDateOrder == 'Farthest') {
         activeEvents.sort((a, b) => b.date.compareTo(a.date));
       }
       _filteredEvents = [...activeEvents, ...pastEvents];
@@ -102,44 +110,39 @@ class _EventPageState extends State<EventPage> {
       context,
       MaterialPageRoute(builder: (context) => EventFormPage(event: event)),
     ).then((value) {
-      if (value == true) _fetchEvents(); // Refresh on success
+      if (value == true) _fetchEvents();
     });
   }
 
   void _deleteEvent(EventEntry event) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Event'),
-        content: Text('Are you sure you want to delete "${event.name}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              final request = context.read<CookieRequest>();
-              Navigator.pop(context);
-              
-              // Correct URL using 'delete-flutter/' suffix as in urls.py
-              final response = await request.post('http://localhost:8000/event/delete-flutter/${event.id}/', {});
-              
-              if (response['status'] == 'success') {
-                _fetchEvents(); // Refresh list
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(response['message'] ?? "Error occurred"),
-                  backgroundColor: Colors.red,
-                ));
-              }
-            }, 
-            child: const Text('Delete', style: TextStyle(color: Colors.red))
-          ),
-        ],
-      ),
+    ConfirmationModal.show(
+      context,
+      title: 'Delete Event',
+      message: 'Are you sure you want to delete "${event.name}"? This action cannot be undone.',
+      confirmText: 'Delete',
+      isDanger: true,
+      onConfirm: () async {
+        final request = context.read<CookieRequest>();
+
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${event.id}/', {});
+
+        if (mounted) {
+          if (response['status'] == 'success') {
+            _fetchEvents();
+            CustomToast.show(context, message: "Event Deleted", subMessage: response['message'], isError: false);
+          } else {
+            CustomToast.show(context, message: "Delete Failed", subMessage: response['message'], isError: true);
+          }
+        }
+      },
     );
   }
 
   Future<void> _navigateToFilter() async {
+    final request = context.read<CookieRequest>();
+    final String role = request.jsonData['role'] ?? 'USER';
+    final bool isOwner = role == 'OWNER';
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -147,6 +150,8 @@ class _EventPageState extends State<EventPage> {
           initialCategories: _selectedCategories,
           initialTypes: _selectedTypes,
           initialDate: _selectedDateOrder,
+          initialOwnership: _selectedOwnership,
+          isOwner: isOwner,
         ),
       ),
     );
@@ -156,6 +161,7 @@ class _EventPageState extends State<EventPage> {
         _selectedCategories = List<String>.from(result['categories'] ?? []);
         _selectedTypes = List<String>.from(result['types'] ?? []);
         _selectedDateOrder = result['date'];
+        _selectedOwnership = result['ownership'] ?? 'All Event';
       });
       _applyAllFilters();
     }
@@ -183,7 +189,6 @@ class _EventPageState extends State<EventPage> {
               icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF13123A)),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            // 'actions' with Add button removed from here
           ),
           SliverToBoxAdapter(
             child: Padding(

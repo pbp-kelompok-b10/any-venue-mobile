@@ -339,12 +339,19 @@ class _VenueDetailState extends State<VenueDetail> {
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
                   onBook: () { // TODO: sambungin ke booking screen
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => BookingScreen(venueId: _venue.id, venueName: _venue.name, venuePrice: _venue.price, venueAddress: _venue.address, venueType: _venue.type),
-                    //   ),
-                    // );
+                    Navigator.push(
+                       context,
+                       MaterialPageRoute(
+                         builder: (context) => BookingScreen(
+                          venueId: _venue.id,
+                          venueName: _venue.name,
+                          venuePrice: _venue.price,
+                          venueAddress: _venue.address,
+                          venueType: _venue.type,
+                          venueImageUrl: _venue.imageUrl
+                         ),
+                       ),
+                     );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(

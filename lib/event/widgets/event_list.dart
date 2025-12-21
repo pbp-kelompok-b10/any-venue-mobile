@@ -71,6 +71,7 @@ class _EventListState extends State<EventList> {
             child: EventCard(
               event: displayedEvents[index],
               isSmall: false, // Card Besar
+              showControls: false, // HIDE Edit/Delete on Homepage (Horizontal Layout)
               onTap: () => _navigateToDetail(displayedEvents[index]),
               onArrowTap: () => _navigateToDetail(displayedEvents[index]),
             ),
@@ -90,7 +91,7 @@ class _EventListState extends State<EventList> {
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
       itemCount: widget.events.length,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
@@ -109,7 +110,6 @@ class _EventListState extends State<EventList> {
 
   // Helper Navigation
   Future<void> _navigateToDetail(EventEntry event) async {
-    // 1. Push ke halaman detail membawa data 'event'
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -117,9 +117,6 @@ class _EventListState extends State<EventList> {
       ),
     );
 
-    // 2. Cek result saat kembali (pop)
-    // Jika result == true, artinya ada perubahan data di detail page (misal: user join event)
-    // Maka kita panggil onRefresh() agar list di halaman ini ikut terupdate.
     if (result == true) {
       widget.onRefresh();
     }

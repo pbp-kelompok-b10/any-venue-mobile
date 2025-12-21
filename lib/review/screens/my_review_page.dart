@@ -126,7 +126,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
                     ],
                   ),
                 )
-              // PERBAIKAN: Padding dihapus, langsung panggil MyReviewList
               : MyReviewList(
                   reviews: _reviews,
                   scrollable: true,

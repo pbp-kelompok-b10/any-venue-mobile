@@ -1,7 +1,3 @@
-import 'package:any_venue/event/models/event.dart';
-import 'package:any_venue/event/screens/event_page.dart';
-import 'package:any_venue/event/screens/event_page_detail.dart';
-import 'package:any_venue/event/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +12,8 @@ import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
 
 import 'package:any_venue/event/widgets/event_list.dart';
+import 'package:any_venue/event/models/event.dart';
+import 'package:any_venue/event/screens/event_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,7 +35,7 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  // Fetch API Events with Sorting Logic
+  // Fetch API Events
   Future<List<EventEntry>> _fetchEvents(CookieRequest request) async {
     final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/');
     final List<EventEntry> allEvents = [];
@@ -45,17 +43,7 @@ class _HomePageState extends State<HomePage> {
       if (d != null) allEvents.add(EventEntry.fromJson(d));
     }
 
-    final now = DateTime.now();
-    
-    // Separate Active and Past events
-    List<EventEntry> activeEvents = allEvents.where((e) => e.date.isAfter(now) || DateUtils.isSameDay(e.date, now)).toList();
-    List<EventEntry> pastEvents = allEvents.where((e) => e.date.isBefore(now) && !DateUtils.isSameDay(e.date, now)).toList();
-
-    // Sort Active Events by closest date
-    activeEvents.sort((a, b) => a.date.compareTo(b.date));
-    
-    // Combine: Active first (sorted), then Past
-    return [...activeEvents, ...pastEvents];
+    return allEvents;
   }
 
   @override
@@ -230,9 +218,7 @@ class _HomePageState extends State<HomePage> {
                     events: events,
                     listType: EventListType.horizontalFeat, // Tipe Horizontal Besar
                     onRefresh: () {
-                      setState(() {
-                        // Refresh halaman home jika kembali dari detail
-                      });
+                      setState(() {});
                     },
                   );
                 }

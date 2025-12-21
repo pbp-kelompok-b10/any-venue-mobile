@@ -5,6 +5,10 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:any_venue/main.dart';
 
 import 'package:any_venue/screens/home_page.dart';
+import 'package:any_venue/venue/screens/venue_form.dart';
+import 'package:any_venue/booking/screens/my_bookings_screen.dart';
+
+import 'package:any_venue/account/models/profile.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
 import 'package:any_venue/venue/screens/my_venue_page.dart';
 import 'package:any_venue/review/screens/my_review_page.dart';
@@ -70,7 +74,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
     final List<Widget> userScreens = [
       const HomePage(),
-      const Center(child: Text("My Bookings")),
+      const MyBookingsScreen(),
       const Center(child: Text("My Events")),
       const MyReviewPage(),
       const ProfilePage(),
