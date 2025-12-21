@@ -2,6 +2,7 @@ import 'package:any_venue/event/models/event.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/label.dart';
+import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Future<void> _checkRegistration() async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('http://localhost:8000/event/${widget.event.id}/check-registration/');
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/check-registration/');
       if (mounted) {
         setState(() {
           _isRegistered = response['is_registered'] ?? false;
@@ -292,13 +293,23 @@ class _EventDetailPageState extends State<EventDetailPage> {
     VoidCallback? onPressed = () async {
       final request = context.read<CookieRequest>();
       try {
-        final response = await request.post('http://localhost:8000/event/${widget.event.id}/join/', {});
-        if (context.mounted) {
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/join/', {});
+        if (mounted) {
           if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-            _checkRegistration(); // Refresh status
+            CustomToast.show(
+              context,
+              message: "Joined Successfully!",
+              subMessage: response['message'],
+              isError: false
+            );
+            _checkRegistration();
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message']), backgroundColor: Colors.red));
+            CustomToast.show(
+              context,
+              message: "Failed to Join",
+              subMessage: response['message'],
+              isError: true
+            );
           }
         }
       } catch (e) {

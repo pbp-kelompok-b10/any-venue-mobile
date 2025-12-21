@@ -14,6 +14,7 @@ import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/venue/widgets/venue_list.dart';
+import 'package:any_venue/event/screens/event_form.dart';
 
 import 'package:any_venue/event/widgets/event_list.dart';
 
