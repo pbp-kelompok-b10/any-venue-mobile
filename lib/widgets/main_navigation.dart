@@ -13,6 +13,7 @@ import 'package:any_venue/account/screens/profile_page.dart';
 import 'package:any_venue/venue/screens/my_venue_page.dart';
 import 'package:any_venue/review/screens/my_review_page.dart';
 import 'package:any_venue/event/screens/my_event_page.dart';
+import 'package:any_venue/event/screens/my_joined_event_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
@@ -33,6 +34,7 @@ class _MainNavigationState extends State<MainNavigation> {
   late int _selectedIndex;
   final GlobalKey<MyVenuePageState> _myVenueKey = GlobalKey<MyVenuePageState>();
   final GlobalKey<MyEventPageState> _myEventKey = GlobalKey<MyEventPageState>();
+  final GlobalKey<MyJoinedEventPageState> _myJoinedKey = GlobalKey<MyJoinedEventPageState>();
 
   @override
   void initState() {
@@ -76,7 +78,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final List<Widget> userScreens = [
       const HomePage(),
       const MyBookingsScreen(),
-      const Center(child: Text("My Events")),
+      MyJoinedEventPage(key: _myJoinedKey),
       const MyReviewPage(),
       const ProfilePage(),
     ];
