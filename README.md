@@ -3,7 +3,7 @@
 
 [![Build Status](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/status.svg?token=E1sYVsSUJBJ268ytgQZuEw&branch=main)](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c)
 
-Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/installable-artifacts/7a5d1c6e03386421/public-install-page/85204a4465594fc0b51a03b87f1616d8)
+Download aplikasi versi terbaru: [Download APK](https://app.bitrise.io/app/1e7b3cc0-5986-45d8-8a25-2ae74878ca4c/installable-artifacts/9c2d34666cef1e36/public-install-page/64ed61eb1766d4172b369886449b04e9)
 
 ## Nama-nama Anggota Kelompok
 - Alya Nabilla Khamil (2406358094)
