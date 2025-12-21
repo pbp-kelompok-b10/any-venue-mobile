@@ -83,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      "Cari, sewa, dan ikuti berbagai event olahraga dengan cara baru yang lebih simpel dan efisien.",
+                      "Explore, book, and participate in sports events through a smarter, more efficient experience.",
                       style: TextStyle(
                         fontSize: 15,
                         color: MyApp.gumetalSlate,

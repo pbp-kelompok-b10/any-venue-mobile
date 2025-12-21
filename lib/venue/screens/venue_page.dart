@@ -83,7 +83,7 @@ class _VenuePageState extends State<VenuePage> {
                 Expanded(
                   child: CustomSearchBar(
                     controller: _searchController,
-                    hintText: "Cari Venue...",
+                    hintText: "Search for venues...",
                     readOnly: false,
                     onChanged: (val) =>
                         setState(() => _searchQuery = val.toLowerCase()),
