@@ -395,7 +395,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: MyApp.orange, width: 2),
+        borderSide: const BorderSide(color: MyApp.darkSlate),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );

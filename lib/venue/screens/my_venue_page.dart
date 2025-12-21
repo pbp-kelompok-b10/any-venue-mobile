@@ -121,16 +121,17 @@ class MyVenuePageState extends State<MyVenuePage> {
           // 3. List Venue
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredVenues.isEmpty
-                    ? _buildEmptyState()
-                    : VenueList(
-                        venues: _filteredVenues,
-                        listType: VenueListType.verticalLarge, 
-                        scrollable: true,
-                        onRefresh: _fetchMyVenues,
-                      ),
+            ? const Center(child: CircularProgressIndicator())
+            : _filteredVenues.isEmpty
+                ? _buildEmptyState()
+                : VenueList(
+                    venues: _filteredVenues,
+                    listType: VenueListType.verticalLarge, 
+                    scrollable: true,
+                    onRefresh: _fetchMyVenues,
+                  ),
           ),
+          const SizedBox(height: 46),
         ],
       ),
     );
