@@ -9,7 +9,7 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/components/search_bar.dart';
 import 'package:any_venue/widgets/components/button.dart'; 
-import 'package:any_venue/widgets/toast.dart'; // Hapus confirmation modal karena tidak bisa cancel
+import 'package:any_venue/widgets/toast.dart'; 
 
 // --- MODELS & EVENT WIDGETS ---
 import 'package:any_venue/event/models/event.dart'; 
@@ -49,19 +49,17 @@ class MyJoinedEventPageState extends State<MyJoinedEventPage> {
     super.dispose();
   }
 
-  // --- API Fetch Logic (MODIFIKASI DI SINI) ---
+  // --- API Fetch Logic ---
   Future<void> _fetchJoinedEvents() async {
     final request = context.read<CookieRequest>();
     setState(() => _isLoading = true);
 
     try {
-      // 1. Ambil SEMUA event dulu (karena tidak ada endpoint khusus joined)
+     
       final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/json/'); 
       
       List<EventEntry> tempJoinedList = [];
 
-      // 2. Loop setiap event untuk cek status registrasi
-      // PENTING: Ini mungkin agak lambat jika eventnya ratusan
       for (var d in response) {
         if (d != null) {
           EventEntry e = EventEntry.fromJson(d);
@@ -70,7 +68,7 @@ class MyJoinedEventPageState extends State<MyJoinedEventPage> {
           try {
              final regStatus = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${e.id}/check-registration/');
              
-             // Jika API mengembalikan is_registered == true, masukkan ke list
+
              if (regStatus['is_registered'] == true) {
                tempJoinedList.add(e);
              }
@@ -136,7 +134,6 @@ class MyJoinedEventPageState extends State<MyJoinedEventPage> {
     _applyFilters();
   }
 
-  // CATATAN: Fitur Cancel dihapus karena backend tidak mendukung (tidak ada endpoint delete registration)
   
   @override
   Widget build(BuildContext context) {

@@ -83,15 +83,13 @@ class EventCard extends StatelessWidget {
     }
   }
 
-  // ==========================================
-  // LAYOUT 1: LARGE
-  // ==========================================
+
   Widget _buildLargeLayout(BuildContext context, bool isExpired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. GAMBAR & DATE BADGE
+    
         Container(
           constraints: const BoxConstraints(minHeight: 160), 
           decoration: BoxDecoration(
@@ -158,7 +156,6 @@ class EventCard extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // 2. INFORMASI TEXT
         Row(
           crossAxisAlignment: CrossAxisAlignment.center, 
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

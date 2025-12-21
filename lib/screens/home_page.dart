@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  // 3. Welcome Text (FIXED: Pakai Positioned, bukan Column + Spacer)
+                  
                   Positioned(
                     bottom: 20,
                     right: 24,

@@ -8,8 +8,8 @@ class VenueHeaderCard extends StatelessWidget {
     required this.venueName,
     required this.venuePrice,
     required this.venueAddress,
-    required this.venueType,      // Contoh: "Indoor"
-    required this.venueCategory,  // SEBELUMNYA sportType. Contoh: "Badminton"
+    required this.venueType,     
+    required this.venueCategory,  
     this.venueImageUrl,
   });
 
@@ -59,7 +59,7 @@ class VenueHeaderCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. FOTO
+          // FOTO
           Container(
             width: 100, 
             height: 100,
@@ -85,7 +85,7 @@ class VenueHeaderCard extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          // 2. INFORMASI
+          //  INFORMASI
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -111,13 +111,12 @@ class VenueHeaderCard extends StatelessWidget {
                   spacing: 12,
                   runSpacing: 4,
                   children: [
-                    // Kategori (Ex: Padel)
+
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.sports_baseball, size: 14, color: Color(0xFF293241)),
                         const SizedBox(width: 4),
-                        // Gunakan Flexible agar text panjang tidak error
                         Flexible(
                           child: Text(
                             venueCategory,
