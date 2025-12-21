@@ -100,11 +100,11 @@ class _VenuePageState extends State<VenuePage> {
                     decoration: BoxDecoration(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: MyApp.orange, width: 1.5),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
                     ),
                     child: const Icon(
                       Icons.tune_rounded,
-                      color: MyApp.orange,
+                      color: MyApp.gumetalSlate,
                       size: 24,
                     ),
                   ),
@@ -121,7 +121,7 @@ class _VenuePageState extends State<VenuePage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("Tidak ada venue."));
+                  return const Center(child: Text("No venue yet."));
                 }
 
                 // --- LOGIKA FILTER ---
@@ -184,7 +184,7 @@ class _VenuePageState extends State<VenuePage> {
           Icon(Icons.filter_list_off, size: 48, color: Colors.grey[300]),
           const SizedBox(height: 16),
           const Text(
-            "Tidak ada venue yang cocok :(",
+            "No Matching venues found :(",
             style: TextStyle(color: MyApp.orange),
           ),
           TextButton(

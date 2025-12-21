@@ -160,8 +160,21 @@ class _VenueFormPageState extends State<VenueFormPage> {
                                 decoration: _inputDecoration("50000"),
                                 onChanged: (val) =>
                                     _price = int.tryParse(val) ?? 0,
-                                validator: (val) =>
-                                    val!.isEmpty ? "Required" : null,
+                                // PERBAIKAN 1: Tambahkan validasi batas angka (Max 32-bit Integer)
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "Required";
+                                  }
+                                  final number = int.tryParse(val);
+                                  if (number == null) {
+                                    return "Invalid number";
+                                  }
+                                  // Batas aman integer 32-bit (sekitar 2.1 Miliar)
+                                  if (number > 2147483647) { 
+                                    return "Price is too high!";
+                                  }
+                                  return null;
+                                },
                               ),
                             ],
                           ),
@@ -314,44 +327,52 @@ class _VenueFormPageState extends State<VenueFormPage> {
                               ? '$baseUrl/venue/api/edit-flutter/${widget.venue!.id}/'
                               : '$baseUrl/venue/api/create-flutter/';
 
-                          // Kirim Data
-                          final response = await request.postJson(
-                            url,
-                            jsonEncode({
-                              "name": _name,
-                              "price": _price,
-                              "city": _selectedCity,
-                              "category": _selectedCategory,
-                              "type": _type,
-                              "address": _address,
-                              "description": _description,
-                              "image_url": _imageUrl,
-                            }),
-                          );
+                          try {
+                            final response = await request.postJson(
+                              url,
+                              jsonEncode({
+                                "name": _name,
+                                "price": _price,
+                                "city": _selectedCity,
+                                "category": _selectedCategory,
+                                "type": _type,
+                                "address": _address,
+                                "description": _description,
+                                "image_url": _imageUrl,
+                              }),
+                            );
 
-                          if (context.mounted) {
-                            if (response['status'] == 'success') {
-                              // SUKSES
+                            if (context.mounted) {
+                              if (response['status'] == 'success') {
+                                // SUKSES
+                                CustomToast.show(
+                                  context,
+                                  message: isEdit
+                                      ? "Venue Updated!"
+                                      : "Venue Created!",
+                                  subMessage: response['message'] ??
+                                      "Your venue is ready.",
+                                  isError: false,
+                                );
+
+                                Navigator.pop(context, true);
+                              } else {
+                                CustomToast.show(
+                                  context,
+                                  message: "Action Failed",
+                                  subMessage: response['message'] ??
+                                      "An error occurred on the server.",
+                                  isError: true,
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            debugPrint("Error saving venue: $e");
+                            if (context.mounted) {
                               CustomToast.show(
                                 context,
-                                message: isEdit
-                                    ? "Venue Updated!"
-                                    : "Venue Created!",
-                                subMessage:
-                                    response['message'] ??
-                                    "Your venue is ready.",
-                                isError: false,
-                              );
-
-                              Navigator.pop(context, true);
-                            } else {
-                              // GAGAL
-                              CustomToast.show(
-                                context,
-                                message: "Action Failed",
-                                subMessage:
-                                    response['message'] ??
-                                    "An error occurred on the server.",
+                                message: "System Error",
+                                subMessage: e.toString(), 
                                 isError: true,
                               );
                             }
@@ -395,7 +416,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: MyApp.darkSlate),
+        borderSide: const BorderSide(color: MyApp.darkSlate, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );

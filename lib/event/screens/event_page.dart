@@ -206,7 +206,7 @@ class _EventPageState extends State<EventPage> {
                     decoration: BoxDecoration(
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey, width: 1.5),
+                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
                     ),
                     child: const Icon(
                       Icons.tune_rounded,
