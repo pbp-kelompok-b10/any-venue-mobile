@@ -222,7 +222,7 @@ class _EventPageState extends State<EventPage> {
           // List Event (Expanded ListView)
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
                 : _filteredEvents.isEmpty
                     ? _buildEmptyState()
                     : EventList(

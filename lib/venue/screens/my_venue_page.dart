@@ -121,7 +121,7 @@ class MyVenuePageState extends State<MyVenuePage> {
           // 3. List Venue
           Expanded(
             child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
             : _filteredVenues.isEmpty
                 ? _buildEmptyState()
                 : VenueList(

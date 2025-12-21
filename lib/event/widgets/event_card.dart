@@ -69,12 +69,15 @@ class EventCard extends StatelessWidget {
           ),
         );
       } else {
-      return Opacity(
-        opacity: isExpired ? 0.6 : 1.0,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: _buildLargeLayout(context, isExpired),
+      return Padding( 
+        padding: const EdgeInsets.only(bottom: 20), 
+        child: Opacity(
+          opacity: isExpired ? 0.6 : 1.0,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: _buildLargeLayout(context, isExpired),
+          ),
         ),
       );
     }
@@ -323,7 +326,7 @@ class EventCard extends StatelessWidget {
             progress == null ? child : Container(
               width: width, height: height, 
               color: Colors.grey[200],
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2))
+              child: const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
             ),
         errorBuilder: (context, error, stackTrace) =>
             _buildPlaceholderImage(width, height),

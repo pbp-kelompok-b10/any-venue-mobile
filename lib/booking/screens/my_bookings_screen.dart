@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:any_venue/main.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venuePrice: v['price'],
               venueAddress: v['address'],
               venueType: v['type'],
+              venueCategory: v['category'].toString(),
               venueImageUrl: v['image_url'],
               initialDate: booking.slotDate,
               focusSlotId: booking.slotId,
@@ -106,7 +108,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   future: _fetchBookings(request),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator(color: MyApp.darkSlate));
                     }
                     if (snapshot.hasError) {
                       return const Center(child: Text('Failed to load bookings'));

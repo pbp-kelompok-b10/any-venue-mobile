@@ -120,7 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     showDialog(
                                       context: context,
                                       barrierDismissible: false,
-                                      builder: (context) => const Center(child: CircularProgressIndicator()),
+                                      builder: (context) => const Center(child: CircularProgressIndicator(color: MyApp.darkSlate)),
                                     );
 
                                     try {
@@ -326,7 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) => const Center(child: CircularProgressIndicator(color: MyApp.darkSlate)),
     );
 
     try {
@@ -383,7 +383,7 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) => const Center(child: CircularProgressIndicator(color: MyApp.darkSlate)),
     );
 
     try {

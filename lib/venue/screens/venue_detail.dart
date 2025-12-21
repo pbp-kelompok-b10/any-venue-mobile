@@ -285,7 +285,7 @@ class _VenueDetailState extends State<VenueDetail> {
                               height: 120,
                               child: Center(
                                 child: CircularProgressIndicator(
-                                  color: MyApp.orange,
+                                  color: MyApp.darkSlate,
                                 ),
                               ),
                             )
@@ -318,8 +318,7 @@ class _VenueDetailState extends State<VenueDetail> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ReviewFormPage(
-                                      existingReview:
-                                          review, // Kirim objek review untuk diedit
+                                      existingReview: review, // Kirim objek review untuk diedit
                                     ),
                                   ),
                                 );
@@ -374,10 +373,11 @@ class _VenueDetailState extends State<VenueDetail> {
                           venuePrice: _venue.price,
                           venueAddress: _venue.address,
                           venueType: _venue.type,
-                          venueImageUrl: _venue.imageUrl,
-                        ),
-                      ),
-                    );
+                          venueCategory: _venue.category.name,
+                          venueImageUrl: _venue.imageUrl
+                         ),
+                       ),
+                     );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(
@@ -398,8 +398,9 @@ class _VenueDetailState extends State<VenueDetail> {
                       MaterialPageRoute(
                         builder: (context) => ReviewFormPage(
                           // Jika Edit -> kirim existingReview
-                          // Jika Add  -> kirim venueId
+                          // Jika Add  -> kirim venueId & venue
                           venueId: hasReviewed ? null : _venue.id,
+                          venue: hasReviewed ? null : _venue,
                           existingReview: userReview,
                         ),
                       ),

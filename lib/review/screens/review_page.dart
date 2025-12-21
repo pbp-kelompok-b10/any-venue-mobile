@@ -165,7 +165,7 @@ class _ReviewPageState extends State<ReviewPage> {
                               (index) => const Icon(
                                 Icons.star_rounded,
                                 size: 18,
-                                color: Colors.white, // Warna bintang saat aktif
+                                color: Colors.white,
                               ),
                             ),
                           )
@@ -194,7 +194,7 @@ class _ReviewPageState extends State<ReviewPage> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: MyApp.orange),
+                    child: CircularProgressIndicator(color: MyApp.darkSlate),
                   )
                 : filteredReviews.isEmpty
                 ? Center(
@@ -267,7 +267,7 @@ class _ReviewPageState extends State<ReviewPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isDisabled
                 ? Colors.transparent

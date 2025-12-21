@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:any_venue/main.dart'; // Import warna MyApp
 import 'package:any_venue/booking/models/booking_slot.dart';
 
 class SlotsSection extends StatelessWidget {
@@ -25,51 +27,67 @@ class SlotsSection extends StatelessWidget {
       future: futureSlots,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: CircularProgressIndicator(
+              color: MyApp.darkSlate,
+            ),
+          );
         }
 
         if (snapshot.hasError) {
-          return const Center(
-            child: Text('Gagal memuat jadwal.'),
+          return Center(
+            child: Text(
+              'Failed to load slots.',
+              style: GoogleFonts.nunitoSans(color: Colors.grey),
+            ),
           );
         }
 
         final slots = (snapshot.data ?? []).where((s) => !isSlotPast(s)).toList();
         if (slots.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(
-                'Tidak ada jadwal tersedia untuk tanggal ini.',
-                style: TextStyle(color: Colors.grey),
+                'No slots available for this date.',
+                style: GoogleFonts.nunitoSans(color: Colors.grey),
               ),
             ),
           );
         }
 
         return Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 10, 
+          runSpacing: 10,
           children: slots.map((slot) {
             final isSelected = selectedSlotIds.contains(slot.id);
             final isCancelling = cancellingSlotIds?.contains(slot.id) ?? false;
 
+            // Variabel Warna
             Color bg;
             Color border;
             Color text;
 
+            // KONSISTENSI FONT:
+            // Kita kunci font size dan weight agar tidak berubah saat diklik
+            const double fixedFontSize = 14.0;
+            const FontWeight fixedFontWeight = FontWeight.w800; // Menggunakan w800 agar sesuai request style Anda
+
             if (slot.isBooked) {
+              // --- STATE: SUDAH DIBOOKING (DISABLED) ---
               bg = const Color(0xFFE5E7EB);
               border = const Color(0xFFE5E7EB);
               text = const Color(0xFF9CA3AF);
             } else if (slot.isBookedByUser || isSelected) {
-              bg = const Color(0xFFE9631A);
-              border = const Color(0xFFE9631A);
-              text = Colors.white;
+              // --- STATE: SELECTED / BOOKED BY USER ---
+              bg = const Color(0xFFFFEFE6); 
+              border = MyApp.orange;       
+              text = MyApp.orange;          
             } else {
+              // --- STATE: TERSEDIA (DEFAULT) ---
               bg = Colors.white;
-              border = const Color(0xFF315672);
-              text = const Color(0xFF315672);
+              border = MyApp.darkSlate; 
+              text = MyApp.darkSlate;   
             }
 
             return GestureDetector(
@@ -83,12 +101,14 @@ class SlotsSection extends StatelessWidget {
                       onToggle(slot);
                     },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                decoration: ShapeDecoration(
                   color: bg,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: border, width: 1.2),
-                  boxShadow: bg == Colors.white
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(width: 1, color: border),
+                    borderRadius: BorderRadius.circular(50), 
+                  ),
+                  shadows: bg == Colors.white
                       ? [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.03),
@@ -100,19 +120,20 @@ class SlotsSection extends StatelessWidget {
                 ),
                 child: isCancelling
                     ? SizedBox(
-                        height: 16,
-                        width: 16,
+                        height: 20, // Height disesuaikan sedikit agar pas dengan font size 14
+                        width: 20,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: bg == Colors.white ? const Color(0xFFE9631A) : Colors.white,
+                          color: MyApp.darkSlate,
                         ),
                       )
                     : Text(
                         '${slot.startTime} - ${slot.endTime}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: text,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.nunitoSans(
+                          fontSize: fixedFontSize, 
+                          fontWeight: fixedFontWeight, 
+                          color: text, // Hanya warna yang berubah
+                          height: 1.50,
                         ),
                       ),
               ),
