@@ -233,6 +233,7 @@ class VenueCard extends StatelessWidget {
           const SizedBox(width: 8),
           
           // 3. ARROW
+          if (onTap != null)
           const ArrowButton(), 
         ],
       ),

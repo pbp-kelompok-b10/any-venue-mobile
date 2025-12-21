@@ -165,7 +165,7 @@ class _ReviewPageState extends State<ReviewPage> {
                               (index) => const Icon(
                                 Icons.star_rounded,
                                 size: 18,
-                                color: Colors.white, // Warna bintang saat aktif
+                                color: Colors.white,
                               ),
                             ),
                           )

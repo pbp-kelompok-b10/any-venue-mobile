@@ -9,12 +9,20 @@ import 'package:any_venue/widgets/components/app_bar.dart';
 import 'package:any_venue/widgets/toast.dart';
 
 import 'package:any_venue/review/models/review.dart';
+import 'package:any_venue/venue/models/venue.dart';
+import 'package:any_venue/venue/widgets/venue_card.dart';
 
 class ReviewFormPage extends StatefulWidget {
-  final int? venueId;
+  final int? venueId; // Null = Edit, Not Null = Create
+  final Venue? venue;
   final Review? existingReview; // Null = Create, Not Null = Edit
 
-  const ReviewFormPage({super.key, this.venueId, this.existingReview});
+  const ReviewFormPage({
+    super.key, 
+    this.venueId, 
+    this.venue,
+    this.existingReview
+  });
 
   @override
   State<ReviewFormPage> createState() => _ReviewFormPageState();
@@ -66,7 +74,16 @@ class _ReviewFormPageState extends State<ReviewFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // RATING SECTION (Bintang Interaktif)
+              if (widget.venue != null) ...[
+                VenueCard(
+                  venue: widget.venue!,
+                  isSmall: true,
+                  // onTap: null,
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              // STAR RATING SECTION
               Center(
                 child: Column(
                   children: [

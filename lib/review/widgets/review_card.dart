@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/review/models/review.dart';
+import 'package:any_venue/widgets/components/avatar.dart';
 
 class ReviewCard extends StatelessWidget {
   final Review review;
@@ -45,18 +46,9 @@ class ReviewCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Avatar Circle
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  color: MyApp.darkSlate, // Menggunakan warna tema
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_outline_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
+              UserAvatar(
+                initial: review.user.isNotEmpty ? review.user[0].toUpperCase() : 'U',
+                size: 48,
               ),
               const SizedBox(width: 12),
               
