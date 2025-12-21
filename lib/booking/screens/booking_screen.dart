@@ -346,7 +346,7 @@ class _BookingScreenState extends State<BookingScreen> {
               child: CustomButton(
                 text: 'Book Now',
                 isFullWidth: true,
-                color: MyApp.orange, // Menggunakan warna dari MyApp
+                gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate], // Menggunakan warna dari MyApp
                 isLoading: _isSubmitting, // Loading indicator otomatis dari CustomButton
                 onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
                     ? () => _submitBooking(request)

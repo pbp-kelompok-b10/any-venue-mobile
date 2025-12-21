@@ -154,7 +154,7 @@ class _EventFormPageState extends State<EventFormPage> {
 
                   _buildLabel("Select Your Venue"),
                   _isLoadingVenues 
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
                     : _ownerVenues.isEmpty
                       ? const Text("You don't have any venues yet. Please create a venue first.", style: TextStyle(color: Colors.red, fontSize: 12))
                       : Container(

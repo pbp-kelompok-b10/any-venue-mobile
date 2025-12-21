@@ -215,7 +215,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget _buildVenueTab() {
     // Kondisi 1: Masih Loading Data Awal
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: MyApp.darkSlate));
     }
 
     // Kondisi 2: User belum mengetik apa-apa
@@ -244,7 +244,7 @@ class _SearchPageState extends State<SearchPage> with SingleTickerProviderStateM
   Widget _buildEventTab() {
     // Kondisi 1: Masih Loading Data
     if (_isEventsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: MyApp.darkSlate));
     }
 
     // Kondisi 2: User belum mengetik apa-apa

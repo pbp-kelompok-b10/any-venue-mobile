@@ -29,7 +29,7 @@ class SlotsSection extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(
-              color: MyApp.orange,
+              color: MyApp.darkSlate,
             ),
           );
         }
@@ -123,8 +123,7 @@ class SlotsSection extends StatelessWidget {
                         height: 20, // Height disesuaikan sedikit agar pas dengan font size 14
                         width: 20,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: MyApp.orange,
+                          color: MyApp.darkSlate,
                         ),
                       )
                     : Text(
