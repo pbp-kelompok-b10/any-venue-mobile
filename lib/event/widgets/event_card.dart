@@ -8,8 +8,6 @@ class EventCard extends StatelessWidget {
   final bool isSmall;
   final VoidCallback? onTap;
   final VoidCallback? onArrowTap;
-  final VoidCallback? onEditTap;
-  final VoidCallback? onDeleteTap;
 
   const EventCard({
     super.key,
@@ -17,8 +15,6 @@ class EventCard extends StatelessWidget {
     this.isSmall = false,
     this.onTap,
     this.onArrowTap,
-    this.onEditTap,
-    this.onDeleteTap,
   });
 
   String get _imageUrl {
@@ -48,13 +44,9 @@ class EventCard extends StatelessWidget {
     final now = DateTime.now();
     final bool isExpired = event.date.isBefore(now) && !DateUtils.isSameDay(event.date, now);
 
-    // KONDISI UTAMA:
-    // Jika Layout Besar: TIDAK pakai Container putih pembungkus
-    // Jika Layout Kecil: PAKAI Container putih pembungkus
-    
     if (isSmall) {
       return Opacity(
-        opacity: isExpired ? 0.6 : 1.0, // Make expired events look faded
+        opacity: isExpired ? 0.6 : 1.0, 
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
@@ -72,7 +64,6 @@ class EventCard extends StatelessWidget {
                 ),
               ],
             ),
-            // SWITCH LAYOUT
             child: _buildSmallLayout(isExpired),
             ),
           ),
@@ -95,7 +86,7 @@ class EventCard extends StatelessWidget {
   Widget _buildLargeLayout(BuildContext context, bool isExpired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min, // Agar tidak memaksa tinggi full
+      mainAxisSize: MainAxisSize.min,
       children: [
         // 1. GAMBAR & DATE BADGE
         Container(
@@ -104,7 +95,7 @@ class EventCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
                BoxShadow(
-                color: MyApp.gumetalSlate.withOpacity(0.35), // Shadow halus di bawah gambar
+                color: MyApp.gumetalSlate.withOpacity(0.35),
                 blurRadius: 12,
                 offset: const Offset(0, 8), 
               ),
@@ -112,12 +103,11 @@ class EventCard extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Gambar Utama
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: SizedBox(
-                  height: 180, // Tinggi gambar fixed
-                  width: double.infinity, // Lebar mengikuti parent
+                  height: 180,
+                  width: double.infinity,
                   child: ColorFiltered(
                     colorFilter: isExpired
                         ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
@@ -127,7 +117,6 @@ class EventCard extends StatelessWidget {
                 ),
               ),
               
-              // Date Badge (Kotak Putih Tanggal)
               Positioned(
                 top: 12,
                 left: 12,
@@ -135,13 +124,13 @@ class EventCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8), // Sedikit lebih kotak sesuai referensi
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        _getMonthAbbr(event.date.month), // "May"
+                        _getMonthAbbr(event.date.month),
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -149,9 +138,9 @@ class EventCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "${event.date.day}", // "20"
+                        "${event.date.day}",
                         style: const TextStyle(
-                          fontSize: 14, // Ukuran angka disesuaikan
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: MyApp.gumetalSlate,
                         ),
@@ -166,7 +155,7 @@ class EventCard extends StatelessWidget {
 
         const SizedBox(height: 12),
 
-        // 2. INFORMASI TEXT (Title, Price/Time, Location)
+        // 2. INFORMASI TEXT
         Row(
           crossAxisAlignment: CrossAxisAlignment.center, 
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,20 +164,17 @@ class EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Judul Event
                   Text(
                     event.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 16, // Ukuran font judul sedikit diperkecil agar elegan
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: MyApp.gumetalSlate,
                     ),
                   ),
                   const SizedBox(height: 6),
-                  
-                  // WAKTU
                   Row(
                     children: [
                       const Icon(Icons.access_time_filled, size: 14, color: MyApp.orange),
@@ -203,10 +189,7 @@ class EventCard extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 4),
-
-                  // LOKASI
                   Row(
                     children: [
                       Icon(Icons.location_on, size: 14, color: Colors.grey.shade500),
@@ -229,8 +212,6 @@ class EventCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            
-            // Tombol Panah
             ArrowButton(onTap: onArrowTap),
           ],
         ),
@@ -238,16 +219,12 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  // ==========================================
-  // LAYOUT 2: SMALL
-  // ==========================================
   Widget _buildSmallLayout(bool isExpired) {
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Thumbnail with grayscale effect if expired
           ClipRRect(
             borderRadius: BorderRadius.circular(10.0),
             child: ColorFiltered(
@@ -262,7 +239,6 @@ class EventCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // Event Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,30 +306,6 @@ class EventCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          
-          // Action Buttons stacked vertically (Only for Small Layout / Owner)
-          if (event.isOwner) ...[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20, color: MyApp.gumetalSlate),
-                  onPressed: onEditTap,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const SizedBox(height: 8),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20, color: MyApp.orange),
-                  onPressed: onDeleteTap,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
-            const SizedBox(width: 8),
-          ],
-          
           ArrowButton(onTap: onArrowTap), 
         ],
       ),

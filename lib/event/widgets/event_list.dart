@@ -15,7 +15,7 @@ class EventList extends StatefulWidget {
   final EventListType listType;
   final bool scrollable;
   
-  // Callback khusus untuk Owner/Actions
+  // These callbacks are no longer used by EventCard but kept for backward compatibility if needed
   final Function(EventEntry)? onEdit;
   final Function(EventEntry)? onDelete;
 
@@ -70,7 +70,7 @@ class _EventListState extends State<EventList> {
             width: 260, 
             child: EventCard(
               event: displayedEvents[index],
-              isSmall: false, // Card Besar
+              isSmall: false,
               onTap: () => _navigateToDetail(displayedEvents[index]),
               onArrowTap: () => _navigateToDetail(displayedEvents[index]),
             ),
@@ -97,11 +97,9 @@ class _EventListState extends State<EventList> {
         final event = widget.events[index];
         return EventCard(
           event: event,
-          isSmall: isCardSmall, // Dinamis sesuai tipe
+          isSmall: isCardSmall,
           onTap: () => _navigateToDetail(event),
           onArrowTap: () => _navigateToDetail(event),
-          onEditTap: widget.onEdit != null ? () => widget.onEdit!(event) : null,
-          onDeleteTap: widget.onDelete != null ? () => widget.onDelete!(event) : null,
         );
       },
     );
@@ -109,7 +107,6 @@ class _EventListState extends State<EventList> {
 
   // Helper Navigation
   Future<void> _navigateToDetail(EventEntry event) async {
-    // 1. Push ke halaman detail membawa data 'event'
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -117,9 +114,6 @@ class _EventListState extends State<EventList> {
       ),
     );
 
-    // 2. Cek result saat kembali (pop)
-    // Jika result == true, artinya ada perubahan data di detail page (misal: user join event)
-    // Maka kita panggil onRefresh() agar list di halaman ini ikut terupdate.
     if (result == true) {
       widget.onRefresh();
     }

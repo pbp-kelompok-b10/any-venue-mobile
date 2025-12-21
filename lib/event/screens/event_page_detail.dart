@@ -1,7 +1,10 @@
 import 'package:any_venue/event/models/event.dart';
+import 'package:any_venue/event/screens/event_form.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/label.dart';
+import 'package:any_venue/widgets/confirmation_modal.dart';
+import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -19,19 +22,27 @@ class _EventDetailPageState extends State<EventDetailPage> {
   bool _isExpanded = false;
   bool _isRegistered = false;
   bool _isLoadingReg = true;
+  late int _currentRegisteredCount;
 
   @override
   void initState() {
     super.initState();
+    _currentRegisteredCount = widget.event.registeredCount;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkRegistration();
     });
   }
 
+  // Helper to handle CORS using proxy image
+  String get _imageUrl {
+    if (widget.event.thumbnail.isEmpty) return "";
+    return 'https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/venue/proxy-image/?url=${Uri.encodeComponent(widget.event.thumbnail)}';
+  }
+
   Future<void> _checkRegistration() async {
     final request = context.read<CookieRequest>();
     try {
-      final response = await request.get('http://localhost:8000/event/${widget.event.id}/check-registration/');
+      final response = await request.get('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/check-registration/');
       if (mounted) {
         setState(() {
           _isRegistered = response['is_registered'] ?? false;
@@ -42,6 +53,29 @@ class _EventDetailPageState extends State<EventDetailPage> {
       debugPrint("Error checking registration: $e");
       if (mounted) setState(() => _isLoadingReg = false);
     }
+  }
+
+  void _deleteEvent() {
+    ConfirmationModal.show(
+      context,
+      title: 'Delete Event',
+      message: 'Are you sure you want to delete "${widget.event.name}"? This action cannot be undone.',
+      confirmText: 'Delete',
+      isDanger: true,
+      onConfirm: () async {
+        final request = context.read<CookieRequest>();
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/delete-flutter/${widget.event.id}/', {});
+        
+        if (mounted) {
+          if (response['status'] == 'success') {
+            CustomToast.show(context, message: "Event Deleted", subMessage: response['message'], isError: false);
+            Navigator.pop(context, true); 
+          } else {
+            CustomToast.show(context, message: "Delete Failed", subMessage: response['message'], isError: true);
+          }
+        }
+      },
+    );
   }
 
   String _formatEventDate(DateTime date) {
@@ -55,8 +89,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    final String role = request.jsonData['role'] ?? 'USER';
-    final bool isOwner = role == 'OWNER';
+    final String role = request.jsonData['role']?.toString() ?? 'USER';
+    final String currentUsername = request.jsonData['username']?.toString() ?? "";
+    
+    final bool isRealCreator = widget.event.owner == currentUsername || widget.event.isOwner;
+    final bool isGeneralOwner = role == 'OWNER';
 
     final now = DateTime.now();
     final bool isExpired = widget.event.date.isBefore(now) && !DateUtils.isSameDay(widget.event.date, now);
@@ -87,12 +124,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header Image with CORS Proxy Fix
                     SizedBox(
                       height: 238, 
                       width: double.infinity,
-                      child: (widget.event.thumbnail.isNotEmpty && Uri.parse(widget.event.thumbnail).isAbsolute)
+                      child: (_imageUrl.isNotEmpty)
                           ? Image.network(
-                              widget.event.thumbnail,
+                              _imageUrl,
                               fit: BoxFit.cover,
                               loadingBuilder: (context, child, progress) =>
                                   progress == null ? child : const Center(child: CircularProgressIndicator()),
@@ -157,7 +195,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               )
             ],
           ),
-          _buildFloatingJoinButton(isExpired, isOwner),
+          _buildBottomActions(isExpired, isRealCreator, isGeneralOwner),
         ],
       ),
     );
@@ -192,7 +230,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: _buildStatItem(Icons.people, 'Registrants', '${widget.event.registeredCount}')),
+          Expanded(child: _buildStatItem(Icons.people, 'Registrants', '$_currentRegisteredCount')),
           Expanded(child: _buildStatItem(Icons.meeting_room, 'Type', widget.event.venueType)), 
           Expanded(child: _buildStatItem(Icons.location_on, 'Venue', widget.event.venueName)),
         ],
@@ -286,19 +324,76 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-  Widget _buildFloatingJoinButton(bool isExpired, bool isOwner) {
+  Widget _buildBottomActions(bool isExpired, bool isRealCreator, bool isGeneralOwner) {
+    if (isRealCreator) {
+      return Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 34),
+          color: Colors.white,
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'Edit Event',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EventFormPage(event: widget.event)),
+                    ).then((value) {
+                      if (value == true) Navigator.pop(context, true); 
+                    });
+                  },
+                  isFullWidth: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: 'Delete',
+                  color: MyApp.orange,
+                  onPressed: _deleteEvent,
+                  isFullWidth: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     String buttonText = 'Join Event';
     Color? buttonColor;
     VoidCallback? onPressed = () async {
       final request = context.read<CookieRequest>();
       try {
-        final response = await request.post('http://localhost:8000/event/${widget.event.id}/join/', {});
-        if (context.mounted) {
-          if (response['status'] == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message'])));
-            _checkRegistration(); // Refresh status
+        final response = await request.post('https://keisha-vania-anyvenue.pbp.cs.ui.ac.id/event/${widget.event.id}/join/', {});
+        
+        final bool isSuccess = response['status'] == 'success' || 
+                               (response['message']?.toString().toLowerCase().contains('success') ?? false);
+
+        if (mounted) {
+          if (isSuccess) {
+            CustomToast.show(
+              context, 
+              message: "Joined Successfully!", 
+              subMessage: response['message']?.toString() ?? "You are now registered for this event.", 
+              isError: false 
+            );
+            
+            setState(() {
+              _isRegistered = true;
+              _currentRegisteredCount += 1; 
+            });
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response['message']), backgroundColor: Colors.red));
+            CustomToast.show(
+              context, 
+              message: "Failed to Join", 
+              subMessage: response['message']?.toString() ?? "Could not complete registration.", 
+              isError: true 
+            );
           }
         }
       } catch (e) {
@@ -314,8 +409,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
       buttonText = 'Registration Has Closed';
       buttonColor = Colors.grey;
       onPressed = null;
-    } else if (isOwner) {
-      buttonText = "Owner Can't Join An Event";
+    } else if (isGeneralOwner) {
+      buttonText = "Owners Can't Join An Event";
       buttonColor = Colors.grey;
       onPressed = null;
     } else if (_isRegistered) {
