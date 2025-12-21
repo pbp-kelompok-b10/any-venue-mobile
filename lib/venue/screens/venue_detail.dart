@@ -373,10 +373,11 @@ class _VenueDetailState extends State<VenueDetail> {
                           venuePrice: _venue.price,
                           venueAddress: _venue.address,
                           venueType: _venue.type,
-                          venueImageUrl: _venue.imageUrl,
-                        ),
-                      ),
-                    );
+                          venueCategory: _venue.category.name,
+                          venueImageUrl: _venue.imageUrl
+                         ),
+                       ),
+                     );
                   },
                   onEdit: () async {
                     final result = await Navigator.push(

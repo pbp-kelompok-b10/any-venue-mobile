@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
 
         title: CustomSearchBar(
-          hintText: "Cari venue atau event...",
+          hintText: "Search for venues or events...",
           readOnly: true, 
           onTap: () {
             Navigator.push(

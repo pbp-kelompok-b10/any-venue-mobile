@@ -59,7 +59,7 @@ class _EventListState extends State<EventList> {
     final List<EventEntry> displayedEvents = randomEvents.take(5).toList();
 
     return SizedBox(
-      height: 290,
+      height: 320,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         scrollDirection: Axis.horizontal,
@@ -90,7 +90,7 @@ class _EventListState extends State<EventList> {
           ? const AlwaysScrollableScrollPhysics()
           : const NeverScrollableScrollPhysics(),
       shrinkWrap: !widget.scrollable,
-      padding: isCardSmall ? const EdgeInsets.fromLTRB(24, 12, 24, 12) : const EdgeInsets.fromLTRB(24, 12, 24, 100),
+      padding: isCardSmall ? const EdgeInsets.fromLTRB(24, 12, 24, 12) : const EdgeInsets.fromLTRB(24, 12, 24, 64),
       itemCount: widget.events.length,
       itemBuilder: (context, index) {
         final event = widget.events[index];
