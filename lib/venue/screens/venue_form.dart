@@ -120,7 +120,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(title: "Create New Venue"),
+      appBar: CustomAppBar(title: isEdit ? "Edit Venue" : "Create New Venue"),
       // Tampilkan Loading jika data dropdown belum siap
       body: _isLoadingData
           ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
