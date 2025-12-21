@@ -8,6 +8,7 @@ import 'package:any_venue/screens/home_page.dart';
 import 'package:any_venue/account/screens/profile_page.dart';
 import 'package:any_venue/venue/screens/my_venue_page.dart';
 import 'package:any_venue/review/screens/my_review_page.dart';
+import 'package:any_venue/event/screens/my_event_page.dart';
 
 import 'package:any_venue/widgets/create_modal.dart';
 
@@ -63,7 +64,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final List<Widget> ownerScreens = [
       const HomePage(),
       MyVenuePage(key: _myVenueKey),
-      const Center(child: Text("My Events")),
+      MyEventPage(),
       const ProfilePage(),
     ];
 
