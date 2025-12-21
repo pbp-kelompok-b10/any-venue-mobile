@@ -249,7 +249,7 @@ class VenueCard extends StatelessWidget {
         if (loadingProgress == null) return child;
         return Container(
           color: Colors.grey[200],
-          child: const Center(child: CircularProgressIndicator()),
+          child: const Center(child: CircularProgressIndicator(color: MyApp.darkSlate)),
         );
       },
       errorBuilder: (context, error, stackTrace) {

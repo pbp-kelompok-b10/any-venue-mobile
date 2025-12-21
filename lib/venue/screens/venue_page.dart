@@ -83,7 +83,7 @@ class _VenuePageState extends State<VenuePage> {
                 Expanded(
                   child: CustomSearchBar(
                     controller: _searchController,
-                    hintText: "Cari Venue...",
+                    hintText: "Search for venues...",
                     readOnly: false,
                     onChanged: (val) =>
                         setState(() => _searchQuery = val.toLowerCase()),
@@ -119,7 +119,7 @@ class _VenuePageState extends State<VenuePage> {
               future: _venueFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: MyApp.darkSlate));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text("No venue yet."));
                 }

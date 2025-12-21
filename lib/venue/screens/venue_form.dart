@@ -123,7 +123,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
       appBar: const CustomAppBar(title: "Create New Venue"),
       // Tampilkan Loading jika data dropdown belum siap
       body: _isLoadingData
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
           : Form(
               key: _formKey,
               child: SingleChildScrollView(

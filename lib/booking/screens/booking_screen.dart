@@ -199,11 +199,8 @@ class _BookingScreenState extends State<BookingScreen> {
           if (!mounted) return;
           if (res['status'] == 'success') {
             
-            // --- PERUBAHAN UTAMA DISINI ---
-            // Hapus cache tanggal ini agar slot yang di-cancel kembali jadi "Available" (Putih)
             final dateKey = DateFormat('yyyy-MM-dd').format(_selectedDate);
             _slotsCache.remove(dateKey); 
-            // ------------------------------
 
             _selectedSlotIds.remove(slot.id);
             setState(() {});
@@ -232,7 +229,6 @@ class _BookingScreenState extends State<BookingScreen> {
         showBackButton: true,
       ),
       
-      // Menggunakan LayoutBuilder untuk mengecek lebar layar
       body: LayoutBuilder(
         builder: (context, constraints) {
           final double width = constraints.maxWidth;
@@ -317,16 +313,15 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     ],
                   ),
-                  child: Center(
-                    child: CustomButton(
-                      text: 'Book Now',
-                      isFullWidth: true, // CustomButton akan stretch
-                      color: MyApp.orange,
-                      isLoading: _isSubmitting,
-                      onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
-                          ? () => _submitBooking(request)
-                          : null,
-                    ),
+                  // Button dimasukkan sebagai child dari Container
+                  child: CustomButton(
+                    text: 'Book Now',
+                    isFullWidth: true,
+                    gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate],
+                    isLoading: _isSubmitting, 
+                    onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
+                        ? () => _submitBooking(request)
+                        : null,
                   ),
                 ),
               ),

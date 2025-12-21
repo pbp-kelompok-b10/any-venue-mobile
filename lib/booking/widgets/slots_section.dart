@@ -29,7 +29,7 @@ class SlotsSection extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(
-              color: MyApp.orange,
+              color: MyApp.darkSlate,
             ),
           );
         }
@@ -71,26 +71,27 @@ class SlotsSection extends StatelessWidget {
             const double fixedFontSize = 14.0;
             const FontWeight fixedFontWeight = FontWeight.w800;
 
-            // --- LOGIKA WARNA BARU ---
+            // --- LOGIKA WARNA DIPERBAIKI (URUTAN DITUKAR) ---
 
-            // 1. SEDANG DIPILIH (Klik saat ini) -> OREN
-            if (isSelected) {
+            // 1. PRIORITAS UTAMA: SUDAH DIBOOKING SAYA -> ABU-ABU
+            // Cek ini DULUAN, supaya biarpun dia "selected", kalau statusnya booked, tetap tampil abu-abu.
+            if (slot.isBookedByUser) {
+              bg = const Color(0xFFE5E7EB); 
+              border = const Color(0xFFD1D5DB); 
+              text = MyApp.gumetalSlate; 
+            }
+            // 2. BARU CEK: SEDANG DIPILIH (Klik saat ini) -> OREN
+            // Ini hanya berlaku untuk slot yang BELUM dibooking
+            else if (isSelected) {
               bg = const Color(0xFFFFEFE6); 
               border = MyApp.orange;       
               text = MyApp.orange;          
             } 
-            // 2. SUDAH DIBOOKING SAYA (History) -> ABU-ABU (Sesuai Request)
-            else if (slot.isBookedByUser) {
-              // Kita buat abu-abu, tapi teksnya tetap gelap agar terlihat "bisa dicancel" (bukan disabled)
-              bg = const Color(0xFFE5E7EB); // Background Abu
-              border = const Color(0xFFD1D5DB); // Border Abu sedikit gelap
-              text = MyApp.gumetalSlate; // Teks Gelap (Biar terbaca jelas)
-            }
             // 3. DIBOOKING ORANG LAIN -> ABU-ABU MATI (Disabled)
             else if (slot.isBooked) {
               bg = const Color(0xFFE5E7EB);
               border = const Color(0xFFE5E7EB);
-              text = const Color(0xFF9CA3AF); // Teks Abu pudar
+              text = const Color(0xFF9CA3AF); 
             } 
             // 4. AVAILABLE -> PUTIH
             else {

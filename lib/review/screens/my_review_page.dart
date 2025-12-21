@@ -106,7 +106,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
       appBar: const CustomAppBar(title: "My Reviews", showBackButton: false),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: MyApp.orange),
+              child: CircularProgressIndicator(color: MyApp.darkSlate),
             )
           : _reviews.isEmpty
               ? Center(

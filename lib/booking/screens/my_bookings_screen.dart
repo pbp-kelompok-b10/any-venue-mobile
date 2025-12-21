@@ -67,10 +67,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     try {
       final response = await request.get(endpoint);
       
-      // Parsing logic
-      // PBP Django Auth biasanya mengembalikan List dynamic jika JSON response-nya list
-      // Kita perlu konversi ke JSON string dulu jika modelnya butuh raw json, 
-      // atau parsing manual. Di sini saya asumsikan `bookingFromJson` butuh string.
       final jsonString = jsonEncode(response);
       final List<Booking> list = bookingFromJson(jsonString);
 
@@ -100,7 +96,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         _displayedBookings = List.from(_allBookings);
       } else {
         _displayedBookings = _allBookings.where((booking) {
-          // Search by Venue Name
           return booking.venue.name.toLowerCase().contains(_searchQuery.toLowerCase());
         }).toList();
       }
@@ -130,7 +125,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
       if (res['status'] == 'success' && res['venue'] != null) {
         final v = res['venue'];
-        Navigator.push(
+        
+        // PERBAIKAN DISINI: Tambahkan 'await' sebelum Navigator.push
+        // Agar kode di bawahnya menunggu sampai user kembali dari halaman sebelah
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => BookingScreen(
@@ -139,7 +137,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venuePrice: v['price'],
               venueAddress: v['address'],
               venueType: v['type'],
-              // Pastikan handle konversi ke String dengan aman
               venueCategory: v['category']?.toString() ?? "Sport", 
               venueImageUrl: v['image_url'],
               initialDate: booking.slotDate,
@@ -147,6 +144,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             ),
           ),
         );
+
+        // Setelah user kembali (pop), refresh data otomatis
+        if (mounted) {
+          _fetchBookings();
+        }
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Gagal membuka venue.')),
@@ -169,8 +172,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Sesuaikan dengan MyEventPage
-      // 1. Custom App Bar
+      backgroundColor: Colors.white, 
       appBar: const CustomAppBar(
         title: 'My Bookings',
         showBackButton: false,
@@ -202,17 +204,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 : _displayedBookings.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
-                    itemCount: _displayedBookings.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final b = _displayedBookings[index];
-                      return BookingCard(
-                        booking: b,
-                        onArrowTap: () => _openBookingVenue(b),
-                      );
-                    },
-                  ),
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
+                        itemCount: _displayedBookings.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final b = _displayedBookings[index];
+                          return BookingCard(
+                            booking: b,
+                            onArrowTap: () => _openBookingVenue(b),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -226,7 +228,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         Expanded(
           child: CustomButton(
             text: 'Upcoming',
-            // Jika sedang showPast, maka Upcoming outlined (inactive)
             isOutlined: _showPast, 
             color: MyApp.gumetalSlate,
             gradientColors: const [MyApp.darkSlate, MyApp.gumetalSlate],
@@ -234,7 +235,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               if (_showPast) {
                 setState(() {
                   _showPast = false;
-                  _allBookings = []; // Clear list sementara loading
+                  _allBookings = []; 
                   _displayedBookings = [];
                   _searchController.clear();
                   _searchQuery = "";
@@ -249,7 +250,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         Expanded(
           child: CustomButton(
             text: 'History',
-            // Jika TIDAK showPast, maka History outlined (inactive)
             isOutlined: !_showPast,
             color: MyApp.gumetalSlate,
             gradientColors: const [MyApp.darkSlate, MyApp.gumetalSlate],

@@ -326,7 +326,7 @@ class EventCard extends StatelessWidget {
             progress == null ? child : Container(
               width: width, height: height, 
               color: Colors.grey[200],
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2))
+              child: const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
             ),
         errorBuilder: (context, error, stackTrace) =>
             _buildPlaceholderImage(width, height),

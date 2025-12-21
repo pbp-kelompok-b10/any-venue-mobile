@@ -100,7 +100,7 @@ class _MyReviewCardState extends State<MyReviewCard> {
                   width: double.infinity,
                   color: Colors.grey.shade200,
                   child: _isLoadingData
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator(color: MyApp.darkSlate))
                       : (_finalImageUrl != null)
                           ? Image.network(
                               _finalImageUrl!,
