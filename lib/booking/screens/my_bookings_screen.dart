@@ -56,6 +56,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               venuePrice: v['price'],
               venueAddress: v['address'],
               venueType: v['type'],
+              venueCategory: v['category'].toString(),
               venueImageUrl: v['image_url'],
               initialDate: booking.slotDate,
               focusSlotId: booking.slotId,

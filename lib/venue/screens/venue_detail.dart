@@ -348,6 +348,7 @@ class _VenueDetailState extends State<VenueDetail> {
                           venuePrice: _venue.price,
                           venueAddress: _venue.address,
                           venueType: _venue.type,
+                          venueCategory: _venue.category.name,
                           venueImageUrl: _venue.imageUrl
                          ),
                        ),

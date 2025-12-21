@@ -4,7 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:any_venue/widgets/components/button.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+// Import Main dan Komponen Custom
+import 'package:any_venue/main.dart';
+import 'package:any_venue/widgets/components/button.dart'; 
+import 'package:any_venue/widgets/components/app_bar.dart'; // Pastikan path ini sesuai dengan lokasi file CustomAppBar Anda
+
 import 'package:any_venue/booking/widgets/booking_calendar.dart';
 import 'package:any_venue/booking/widgets/slots_section.dart';
 import 'package:any_venue/booking/widgets/summary_box.dart';
@@ -12,8 +18,6 @@ import 'package:any_venue/booking/widgets/venue_header_card.dart';
 import 'package:any_venue/venue/screens/venue_page.dart';
 import 'package:any_venue/widgets/confirmation_modal.dart';
 import 'package:any_venue/widgets/toast.dart';
-import 'package:any_venue/widgets/main_navigation.dart';
-
 import '../models/booking_slot.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -24,6 +28,7 @@ class BookingScreen extends StatefulWidget {
     required this.venuePrice,
     required this.venueAddress,
     required this.venueType,
+    required this.venueCategory,
     this.venueImageUrl,
     this.initialDate,
     this.focusSlotId,
@@ -34,6 +39,7 @@ class BookingScreen extends StatefulWidget {
   final int venuePrice;
   final String venueAddress;
   final String venueType;
+  final String venueCategory;
   final String? venueImageUrl;
   final DateTime? initialDate;
   final int? focusSlotId;
@@ -97,14 +103,12 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _selectDate(DateTime day) {
     final today = DateTime.now();
-    // Prevent selecting past days
     if (day.isBefore(DateTime(today.year, today.month, today.day))) return;
 
     setState(() {
       _selectedDate = day;
       _visibleMonth = DateTime(day.year, day.month);
       _selectedSlotIds.clear();
-      // clear cache for this date to force refresh
       final key = DateFormat('yyyy-MM-dd').format(day);
       _slotsCache.remove(key);
     });
@@ -112,7 +116,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _toggleSlot(BookingSlot slot) {
     if (slot.isBooked || slot.isBookedByUser) return;
-
     if (_isSlotPast(slot)) return;
 
     setState(() {
@@ -130,7 +133,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
     final now = TimeOfDay.fromDateTime(today);
     final slotStart = _parseTime(slot.startTime);
-    // Hide slot if already started
     return slotStart.hour < now.hour || (slotStart.hour == now.hour && slotStart.minute <= now.minute);
   }
 
@@ -163,8 +165,8 @@ class _BookingScreenState extends State<BookingScreen> {
         final serverTotal = response['total'] ?? _totalPrice;
         CustomToast.show(
           context,
-          message: 'Booking berhasil!',
-          subMessage: 'Total dibayar: IDR ${serverTotal.toString()}',
+          message: 'Booking successful!', // English
+          subMessage: 'Total paid: IDR ${serverTotal.toString()}', // English
         );
         setState(() {
           _selectedSlotIds.clear();
@@ -177,7 +179,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else {
         CustomToast.show(
           context,
-          message: 'Gagal melakukan booking.',
+          message: 'Booking failed.', // English
           isError: true,
         );
       }
@@ -185,7 +187,7 @@ class _BookingScreenState extends State<BookingScreen> {
       if (!mounted) return;
       CustomToast.show(
         context,
-        message: 'Terjadi kesalahan server.',
+        message: 'Server error occurred.', // English
         isError: true,
       );
     } finally {
@@ -202,10 +204,10 @@ class _BookingScreenState extends State<BookingScreen> {
 
     ConfirmationModal.show(
       context,
-      title: 'Batalkan booking?',
-      message: 'Slot ${slot.startTime} - ${slot.endTime} akan dibatalkan.',
-      confirmText: 'Batalkan',
-      cancelText: 'Kembali',
+      title: 'Cancel booking?', // English
+      message: 'Slot ${slot.startTime} - ${slot.endTime} will be cancelled.', // English
+      confirmText: 'Cancel', // English
+      cancelText: 'Back', // English
       isDanger: true,
       onConfirm: () async {
         setState(() {
@@ -225,12 +227,12 @@ class _BookingScreenState extends State<BookingScreen> {
             setState(() {});
             CustomToast.show(
               context,
-              message: 'Booking dibatalkan.',
+              message: 'Booking cancelled.', // English
             );
           } else {
             CustomToast.show(
               context,
-              message: res['message'] ?? 'Gagal membatalkan booking.',
+              message: res['message'] ?? 'Failed to cancel booking.', // English
               isError: true,
             );
           }
@@ -238,7 +240,7 @@ class _BookingScreenState extends State<BookingScreen> {
           if (!mounted) return;
           CustomToast.show(
             context,
-            message: 'Terjadi kesalahan server.',
+            message: 'Server error occurred.', // English
             isError: true,
           );
         } finally {
@@ -257,11 +259,15 @@ class _BookingScreenState extends State<BookingScreen> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FA),
-      appBar: AppBar(
-        title: const Text('Booking Ticket'),
-        centerTitle: true,
+      // KITA PERTAHANKAN WARNA INI SESUAI PERMINTAAN (KARENA TIDAK ADA DI MAIN.DART)
+      backgroundColor: const Color(0xFFF6F7FA), 
+      
+      // Menggunakan CustomAppBar
+      appBar: const CustomAppBar(
+        title: 'Booking Ticket',
+        showBackButton: true,
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -275,17 +281,21 @@ class _BookingScreenState extends State<BookingScreen> {
                     venuePrice: widget.venuePrice,
                     venueAddress: widget.venueAddress,
                     venueType: widget.venueType,
+                    venueCategory: widget.venueCategory,
                     venueImageUrl: widget.venueImageUrl,
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  
+                  Text(
                     'Choose Your Time',
-                    style: TextStyle(
+                    style: GoogleFonts.nunitoSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF293241),
+                      fontWeight: FontWeight.w800,
+                      // Warna ini (0xFF293241) sama dengan gumetalSlate di MyApp, jadi kita pakai variabelnya
+                      color: MyApp.gumetalSlate, 
                     ),
                   ),
+                  
                   const SizedBox(height: 12),
                   BookingCalendar(
                     visibleMonth: _visibleMonth,
@@ -315,22 +325,32 @@ class _BookingScreenState extends State<BookingScreen> {
               ),
             ),
           ),
+          
+          // Bagian Tombol Bawah
           SafeArea(
             top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: CustomButton(
-                  text: 'Book Now',
-                  isFullWidth: true,
-                  isLoading: _isSubmitting,
-                  color: Colors.orange,
-                  onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
-                      ? () => _submitBooking(request)
-                      : null,
-                ),
+            child: Container(
+              // Kita beri background putih di container tombol agar terlihat seperti "sticky footer" yang rapi
+              // karena background scaffold berwarna abu-abu (0xFFF6F7FA)
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, -4),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: CustomButton(
+                text: 'Book Now',
+                isFullWidth: true,
+                color: MyApp.orange, // Menggunakan warna dari MyApp
+                isLoading: _isSubmitting, // Loading indicator otomatis dari CustomButton
+                onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
+                    ? () => _submitBooking(request)
+                    : null,
               ),
             ),
           ),
@@ -338,5 +358,4 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
     );
   }
-
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:any_venue/main.dart'; 
 
 class BookingCalendar extends StatelessWidget {
   const BookingCalendar({
@@ -36,6 +38,7 @@ class BookingCalendar extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Header Bulan & Navigasi
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -44,13 +47,14 @@ class BookingCalendar extends StatelessWidget {
                   DateTime(visibleMonth.year, visibleMonth.month - 1),
                 ),
                 icon: const Icon(Icons.chevron_left),
+                color: MyApp.gumetalSlate,
               ),
               Text(
                 monthLabel,
-                style: const TextStyle(
+                style: GoogleFonts.nunitoSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF293241),
+                  color: MyApp.gumetalSlate,
                 ),
               ),
               IconButton(
@@ -58,23 +62,30 @@ class BookingCalendar extends StatelessWidget {
                   DateTime(visibleMonth.year, visibleMonth.month + 1),
                 ),
                 icon: const Icon(Icons.chevron_right),
+                color: MyApp.gumetalSlate,
               ),
             ],
           ),
           const SizedBox(height: 12),
+          
+          // --- PERBAIKAN DI SINI ---
+          // Menggunakan Row dengan Expanded agar lebar tiap hari = 1/7 layar
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              Text('Mo', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('Tu', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('We', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('Th', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('Fr', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('Sa', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
-              Text('Su', style: TextStyle(color: Color(0xFFE9631A), fontWeight: FontWeight.w600)),
+              Expanded(child: Center(child: _DayHeader(text: 'Mo'))),
+              Expanded(child: Center(child: _DayHeader(text: 'Tu'))),
+              Expanded(child: Center(child: _DayHeader(text: 'We'))),
+              Expanded(child: Center(child: _DayHeader(text: 'Th'))),
+              Expanded(child: Center(child: _DayHeader(text: 'Fr'))),
+              Expanded(child: Center(child: _DayHeader(text: 'Sa'))),
+              Expanded(child: Center(child: _DayHeader(text: 'Su'))),
             ],
           ),
+          // -------------------------
+          
           const SizedBox(height: 8),
+          
+          // Grid Tanggal
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -91,17 +102,17 @@ class BookingCalendar extends StatelessWidget {
               final isSelected = DateUtils.isSameDay(day, selectedDate);
 
               Color bg = Colors.white;
-              Color text = const Color(0xFF1F2937);
+              Color text = MyApp.gumetalSlate; 
 
               if (!isCurrentMonth) {
-                text = Colors.grey.shade400;
+                text = Colors.grey.shade400; 
               }
               if (isSelected) {
-                bg = const Color(0xFF293241);
+                bg = MyApp.darkSlate;
                 text = Colors.white;
               }
               if (isPast) {
-                text = Colors.grey.shade300;
+                text = Colors.grey.shade300; 
               }
 
               return GestureDetector(
@@ -110,12 +121,17 @@ class BookingCalendar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: bg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSelected ? Colors.orange : Colors.grey.shade200),
+                    border: Border.all(
+                      color: isSelected ? MyApp.darkSlate : Colors.grey.shade200,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     '${day.day}',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: text),
+                    style: GoogleFonts.nunitoSans(
+                      fontWeight: FontWeight.w600,
+                      color: text,
+                    ),
                   ),
                 ),
               );
@@ -146,5 +162,21 @@ class BookingCalendar extends StatelessWidget {
     }
 
     return days;
+  }
+}
+
+class _DayHeader extends StatelessWidget {
+  final String text;
+  const _DayHeader({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: GoogleFonts.nunitoSans(
+        color: MyApp.orange, 
+        fontWeight: FontWeight.w700,
+      ),
+    );
   }
 }
