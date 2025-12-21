@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:any_venue/main.dart'; // Import warna MyApp
+import 'package:any_venue/main.dart'; 
 import 'package:any_venue/booking/models/booking_slot.dart';
 
 class SlotsSection extends StatelessWidget {
@@ -68,30 +68,43 @@ class SlotsSection extends StatelessWidget {
             Color border;
             Color text;
 
-            // KONSISTENSI FONT:
-            // Kita kunci font size dan weight agar tidak berubah saat diklik
             const double fixedFontSize = 14.0;
-            const FontWeight fixedFontWeight = FontWeight.w800; // Menggunakan w800 agar sesuai request style Anda
+            const FontWeight fixedFontWeight = FontWeight.w800;
 
-            if (slot.isBooked) {
-              // --- STATE: SUDAH DIBOOKING (DISABLED) ---
-              bg = const Color(0xFFE5E7EB);
-              border = const Color(0xFFE5E7EB);
-              text = const Color(0xFF9CA3AF);
-            } else if (slot.isBookedByUser || isSelected) {
-              // --- STATE: SELECTED / BOOKED BY USER ---
+            // --- LOGIKA WARNA DIPERBAIKI (URUTAN DITUKAR) ---
+
+            // 1. PRIORITAS UTAMA: SUDAH DIBOOKING SAYA -> ABU-ABU
+            // Cek ini DULUAN, supaya biarpun dia "selected", kalau statusnya booked, tetap tampil abu-abu.
+            if (slot.isBookedByUser) {
+              bg = const Color(0xFFE5E7EB); 
+              border = const Color(0xFFD1D5DB); 
+              text = MyApp.gumetalSlate; 
+            }
+            // 2. BARU CEK: SEDANG DIPILIH (Klik saat ini) -> OREN
+            // Ini hanya berlaku untuk slot yang BELUM dibooking
+            else if (isSelected) {
               bg = const Color(0xFFFFEFE6); 
               border = MyApp.orange;       
               text = MyApp.orange;          
-            } else {
-              // --- STATE: TERSEDIA (DEFAULT) ---
+            } 
+            // 3. DIBOOKING ORANG LAIN -> ABU-ABU MATI (Disabled)
+            else if (slot.isBooked) {
+              bg = const Color(0xFFE5E7EB);
+              border = const Color(0xFFE5E7EB);
+              text = const Color(0xFF9CA3AF); 
+            } 
+            // 4. AVAILABLE -> PUTIH
+            else {
               bg = Colors.white;
               border = MyApp.darkSlate; 
               text = MyApp.darkSlate;   
             }
 
+            // Slot orang lain (abu-abu mati) tidak bisa diklik
+            final bool isDisabled = slot.isBooked && !slot.isBookedByUser;
+
             return GestureDetector(
-              onTap: isCancelling
+              onTap: (isCancelling || isDisabled)
                   ? null
                   : () {
                       if (slot.isBookedByUser && onCancelBookedSlot != null) {
@@ -120,10 +133,11 @@ class SlotsSection extends StatelessWidget {
                 ),
                 child: isCancelling
                     ? SizedBox(
-                        height: 20, // Height disesuaikan sedikit agar pas dengan font size 14
+                        height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                          color: MyApp.darkSlate,
+                          strokeWidth: 2,
+                          color: slot.isBookedByUser ? MyApp.gumetalSlate : MyApp.orange,
                         ),
                       )
                     : Text(
@@ -132,7 +146,7 @@ class SlotsSection extends StatelessWidget {
                         style: GoogleFonts.nunitoSans(
                           fontSize: fixedFontSize, 
                           fontWeight: fixedFontWeight, 
-                          color: text, // Hanya warna yang berubah
+                          color: text,
                           height: 1.50,
                         ),
                       ),
