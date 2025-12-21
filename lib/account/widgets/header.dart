@@ -3,15 +3,10 @@ import 'package:any_venue/main.dart';
 
 class Header extends StatelessWidget {
   final String title;
-  // Opsional: tambahkan properti jika ingin ada tombol back
-//   final bool showBackButton; 
-//   final VoidCallback? onBackPressed;
 
   const Header({
     super.key,
     required this.title,
-    //this.showBackButton = false, // Default false (tidak ada tombol back)
-    //this.onBackPressed,
   });
 
   @override

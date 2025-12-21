@@ -2,7 +2,6 @@ import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:flutter/material.dart';
 
-// ini gw ubah ke widgets/event_filter_modal.dart
 class EventFilterPage extends StatefulWidget {
   final List<String> initialCategories;
   final List<String> initialTypes;
