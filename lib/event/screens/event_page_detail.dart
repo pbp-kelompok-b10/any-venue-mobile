@@ -2,7 +2,7 @@ import 'package:any_venue/event/models/event.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/widgets/components/button.dart';
 import 'package:any_venue/widgets/components/label.dart';
-import 'package:any_venue/widgets/toast.dart'; // Import CustomToast
+import 'package:any_venue/widgets/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
