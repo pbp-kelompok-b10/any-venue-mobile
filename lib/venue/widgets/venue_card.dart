@@ -143,80 +143,86 @@ class VenueCard extends StatelessWidget {
   // --- LAYOUT KECIL ---
   Widget _buildSmallLayout() {
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // 1. IMAGE: Radius 10, Size 78x78
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: SizedBox(width: 80, height: 80, child: _buildNetworkImage()),
+            borderRadius: BorderRadius.circular(10.0), 
+            child: SizedBox(
+              width: 78,
+              height: 78, 
+              child: _buildNetworkImage(),
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16), 
+          
+          // 2. TEXT INFO
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  venue.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: MyApp.gumetalSlate,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // ROW INFO ORANGE (Price & Category)
                 Row(
                   children: [
-                    InfoLabel(
-                      label: venue.category.name,
-                      color: const Color(0xFFE3F2FD),
-                      contentColor: MyApp.darkSlate,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                    const Icon(Icons.payments_outlined, size: 16, color: MyApp.orange),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Rp ${venue.price}',
+                      style: const TextStyle(
+                        color: MyApp.orange, 
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
-                      fontSize: 8,
-                      iconSize: 0,
                     ),
-                    const SizedBox(width: 6),
-                    InfoLabel(
-                      label: venue.type,
-                      color: MyApp.darkSlate,
-                      contentColor: const Color(0xFFE3F2FD),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                    const SizedBox(width: 12),
+                    
+                    const Icon(Icons.sports_tennis_outlined, size: 16, color: MyApp.orange), 
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        venue.category.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: MyApp.orange, 
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      fontSize: 8,
-                      iconSize: 0,
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  venue.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: MyApp.gumetalSlate,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
                 const SizedBox(height: 4),
-                Text(
-                  "Rp ${venue.price}",
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: MyApp.orange,
-                  ),
-                ),
-                const SizedBox(height: 4),
+
+                // ROW LOKASI (Grey)
                 Row(
                   children: [
-                    const Icon(Icons.location_on, size: 12, color: Colors.grey),
+                    const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         venue.city.name,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey,
-                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ],
@@ -224,7 +230,10 @@ class VenueCard extends StatelessWidget {
               ],
             ),
           ),
-          const ArrowButton(),
+          const SizedBox(width: 8),
+          
+          // 3. ARROW
+          const ArrowButton(), 
         ],
       ),
     );
