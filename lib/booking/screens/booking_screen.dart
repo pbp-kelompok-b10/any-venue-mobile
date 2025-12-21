@@ -222,6 +222,10 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
+    // --- LOGIKA TOMBOL AKTIF/TIDAK ---
+    // Tombol aktif HANYA JIKA: User login + Ada slot dipilih + Tidak sedang loading
+    final bool isButtonEnabled = request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FA),
       appBar: const CustomAppBar(
@@ -301,7 +305,7 @@ class _BookingScreenState extends State<BookingScreen> {
               SafeArea(
                 top: false,
                 child: Container(
-                  width: double.infinity, // Paksa Full Width
+                  width: double.infinity, 
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -313,13 +317,20 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     ],
                   ),
-                  // Button dimasukkan sebagai child dari Container
                   child: CustomButton(
                     text: 'Book Now',
                     isFullWidth: true,
-                    gradientColors: [MyApp.gumetalSlate, MyApp.darkSlate],
+                    
+                    // --- UBAH WARNA DI SINI ---
+                    // Jika enabled pakai warna asli, jika disabled pakai abu-abu
+                    gradientColors: isButtonEnabled 
+                        ? [MyApp.gumetalSlate, MyApp.darkSlate] 
+                        : [Colors.grey.shade400, Colors.grey.shade400], 
+
                     isLoading: _isSubmitting, 
-                    onPressed: request.loggedIn && _selectedSlotIds.isNotEmpty && !_isSubmitting
+                    
+                    // Logic onPressed tetap sama
+                    onPressed: isButtonEnabled
                         ? () => _submitBooking(request)
                         : null,
                   ),
