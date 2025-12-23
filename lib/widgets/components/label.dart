@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 class InfoLabel extends StatelessWidget {
   final String label;
-  final IconData? icon; // Icon opsional
+  final IconData? icon;
   final Color color;
   final Color contentColor;
   
-  // Parameter styling tambahan (Opsional)
   final EdgeInsetsGeometry? padding;
   final double fontSize;
   final double iconSize;

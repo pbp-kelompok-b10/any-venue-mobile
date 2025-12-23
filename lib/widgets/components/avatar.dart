@@ -11,7 +11,7 @@ class UserAvatar extends StatelessWidget {
     super.key,
     required this.initial,
     this.size = 100.0, // Default ukuran 100 jika tidak diisi
-    this.fontSize, // Opsional, jika mau atur ukuran huruf manual
+    this.fontSize,
   });
 
   @override
@@ -30,7 +30,6 @@ class UserAvatar extends StatelessWidget {
           ],
         ),
         shape: RoundedRectangleBorder(
-          // Menggunakan radius sebesar 'size' agar selalu bulat sempurna
           borderRadius: BorderRadius.circular(size), 
         ),
       ),

@@ -149,7 +149,7 @@ class _VenuePageState extends State<VenuePage> {
 
   // Logic Membuka Modal
   void _openFilterModal() {
-    // Siapkan list unik untuk dropdown di modal
+    // List untuk dropdown di modal
     final cities = _allVenues.map((v) => v.city.name).toSet().toList();
     final categories = _allVenues.map((v) => v.category.name).toSet().toList();
 

@@ -16,8 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: !showBackButton, // Kalau ga ada back button, center title true
-
-      // Jika showBackButton = false, kita ingin benar-benar kosong, bukan diganti icon default
+      
       automaticallyImplyLeading: false,
 
       title: Text(

@@ -67,7 +67,6 @@ class _MainNavigationState extends State<MainNavigation> {
 
   // --- LOGIC MAP SCREEN ---
   Widget _getScreenForIndex(int index, bool isOwner) {
-    // List Screen Asli
     final List<Widget> ownerScreens = [
       const HomePage(),
       MyVenuePage(key: _myVenueKey),
@@ -102,7 +101,7 @@ class _MainNavigationState extends State<MainNavigation> {
     return Container(
       width: 60,
       height: 60,
-      margin: const EdgeInsets.only(top: 30), // Margin top diperbesar agar FAB agak turun/pas di tengah curve
+      margin: const EdgeInsets.only(top: 30), 
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: const LinearGradient(

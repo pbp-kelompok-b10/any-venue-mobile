@@ -160,7 +160,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
                                 decoration: _inputDecoration("50000"),
                                 onChanged: (val) =>
                                     _price = int.tryParse(val) ?? 0,
-                                // PERBAIKAN 1: Tambahkan validasi batas angka (Max 32-bit Integer)
+                                // Validasi batas angka (Max 32-bit Integer)
                                 validator: (val) {
                                   if (val == null || val.isEmpty) {
                                     return "Required";
@@ -311,7 +311,7 @@ class _VenueFormPageState extends State<VenueFormPage> {
 
                     const SizedBox(height: 40),
 
-                    // TOMBOL SAVE (PAKAI CUSTOM BUTTON)
+                    // TOMBOL SAVE
                     CustomButton(
                       text: isEdit ? "Update Venue" : "Create Venue",
                       gradientColors: const [
