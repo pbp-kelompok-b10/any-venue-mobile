@@ -24,12 +24,18 @@ class VenueFilter {
     maxPrice = double.infinity;
   }
 
-  // LOGIKA FILTER DIPISAH DI SINI
   // Mengecek apakah sebuah venue memenuhi kriteria filter saat ini
   bool matches(Venue venue, String searchQuery) {
     // 1. Search Query
     if (searchQuery.isNotEmpty) {
-      if (!venue.name.toLowerCase().contains(searchQuery.toLowerCase())) {
+      final query = searchQuery.toLowerCase();
+    
+      final matchesName = venue.name.toLowerCase().contains(query);
+      final matchesCity = venue.city.name.toLowerCase().contains(query);
+      final matchesCategory = venue.category.name.toLowerCase().contains(query);
+      final matchesType = venue.type.toLowerCase().contains(query);
+
+      if (!(matchesName || matchesCity || matchesCategory || matchesType)) {
         return false;
       }
     }
@@ -57,7 +63,6 @@ class VenueFilter {
     return true;
   }
 
-  // Membuat copy object baru (agar tidak merusak state asli saat edit di modal)
   VenueFilter copy() {
     return VenueFilter(
       city: city,

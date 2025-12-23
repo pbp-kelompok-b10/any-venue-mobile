@@ -17,9 +17,8 @@ class CustomToast {
 
     overlayEntry = OverlayEntry(
       builder: (context) {
-        // Gunakan TweenAnimationBuilder untuk efek slide down yang halus
         return Positioned(
-          top: MediaQuery.of(context).padding.top + 10, // Muncul di bawah status bar + 10px
+          top: MediaQuery.of(context).padding.top + 10,
           left: 20,
           right: 20,
           child: Material(
@@ -27,7 +26,7 @@ class CustomToast {
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: -100, end: 0), // Animasi dari atas layar (-100) ke posisi 0
               duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutBack, // Efek membal sedikit biar keren
+              curve: Curves.easeOutBack, 
               builder: (context, value, child) {
                 return Transform.translate(
                   offset: Offset(0, value),
@@ -83,7 +82,6 @@ class CustomToast {
                         ],
                       ),
                     ),
-                    // Tombol Close kecil (opsional)
                     GestureDetector(
                       onTap: () {
                         overlayEntry.remove();

@@ -310,7 +310,7 @@ class _VenueDetailState extends State<VenueDetail> {
                               isHorizontal: true,
                               scrollable: true,
                               currentUsername:
-                                  currentUsername, // Diambil dari variabel yang sudah kamu deklarasikan di awal build
+                                  currentUsername,
                               // Callback Edit
                               onEdit: (review) async {
                                 // Navigasi ke Form Edit
@@ -363,7 +363,6 @@ class _VenueDetailState extends State<VenueDetail> {
                   hasReviewed: userReview != null,
                   onDelete: _handleDelete,
                   onBook: () {
-                    // TODO: sambungin ke booking screen
                     Navigator.push(
                       context,
                       MaterialPageRoute(

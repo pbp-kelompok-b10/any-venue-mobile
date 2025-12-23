@@ -81,7 +81,6 @@ class CreateActionModal extends StatelessWidget {
   }
 }
 
-// Private widget, hanya dipakai di file ini
 class _OptionItem extends StatelessWidget {
   final IconData icon;
   final Color color;

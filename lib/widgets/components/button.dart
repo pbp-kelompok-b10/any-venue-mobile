@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
-import 'package:google_fonts/google_fonts.dart'; // Pastikan import ini ada
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
-  final VoidCallback? onPressed; // Bisa null kalau disabled
+  final VoidCallback? onPressed;
   final Color? color;
-  final List<Color>? gradientColors; // Parameter baru untuk Gradasi
+  final List<Color>? gradientColors; 
   final double? width;
   final bool isFullWidth;
   final IconData? icon;
   final bool isOutlined;
-  final bool isLoading; // Parameter baru untuk Loading State
+  final bool isLoading;
   final double borderRadius;
 
   const CustomButton({
@@ -19,13 +19,13 @@ class CustomButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.color,
-    this.gradientColors, // Optional: Isi list warna jika ingin gradasi
+    this.gradientColors, 
     this.width,
     this.isFullWidth = false,
     this.icon,
     this.isOutlined = false,
     this.isLoading = false, // Default false
-    this.borderRadius = 14.0, // Default disamakan dengan desainmu
+    this.borderRadius = 14.0, 
   });
 
   @override
@@ -54,13 +54,13 @@ class CustomButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: Ink(
           width: isFullWidth ? double.infinity : width,
-          height: 52, // Tinggi standar
+          height: 52, 
           decoration: BoxDecoration(
             // Jika useGradient true, pakai LinearGradient. Jika tidak, pakai solid color.
             gradient: useGradient
                 ? LinearGradient(
                     begin: const Alignment(0.5, 0), // Top Center
-                    end: const Alignment(0.5, 1),   // Bottom Center
+                    end: const Alignment(0.5, 1), // Bottom Center
                     colors: gradientColors!,
                   )
                 : null,

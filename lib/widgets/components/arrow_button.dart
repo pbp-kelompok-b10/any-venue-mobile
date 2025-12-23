@@ -1,9 +1,10 @@
+import 'package:any_venue/main.dart';
 import 'package:flutter/material.dart';
 
 class ArrowButton extends StatelessWidget {
   final VoidCallback? onTap;
   final double size;
-  final bool isLeft; // Parameter baru
+  final bool isLeft;
 
   const ArrowButton({
     super.key, 
@@ -26,7 +27,7 @@ class ArrowButton extends StatelessWidget {
         // Logic ganti icon berdasarkan isLeft
         isLeft ? Icons.chevron_left : Icons.chevron_right,
         size: size * 0.6,
-        color: const Color(0xFF293241), // Gunmetal Slate
+        color: MyApp.gumetalSlate,
       ),
     );
 

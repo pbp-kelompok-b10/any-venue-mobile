@@ -13,7 +13,7 @@ enum VenueListType {
 class VenueList extends StatefulWidget {
   final List<Venue> venues;
   final Function() onRefresh;
-  final VenueListType listType; // Ganti bool isLarge dengan ini
+  final VenueListType listType;
   final bool scrollable;
 
   const VenueList({
@@ -89,7 +89,7 @@ class _VenueListState extends State<VenueList> {
       itemBuilder: (context, index) {
         return VenueCard(
           venue: widget.venues[index],
-          isSmall: isCardSmall, // Dinamis sesuai tipe
+          isSmall: isCardSmall,
           onTap: () => _navigateToDetail(widget.venues[index]),
         );
       },

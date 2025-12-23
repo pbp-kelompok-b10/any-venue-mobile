@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:any_venue/main.dart';
 import 'package:any_venue/venue/models/venue.dart';
 import 'package:any_venue/widgets/components/arrow_button.dart';
-import 'package:any_venue/widgets/components/label.dart';
 
 class VenueCard extends StatelessWidget {
   final Venue venue;

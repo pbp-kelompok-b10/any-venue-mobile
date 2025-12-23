@@ -66,7 +66,7 @@ class ConfirmationModal extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize:
-              MainAxisSize.min, // Agar tinggi dialog menyesuaikan konten
+              MainAxisSize.min,
           children: [
             // 1. ICON BULAT DI TENGAH
             Container(
@@ -111,7 +111,7 @@ class ConfirmationModal extends StatelessWidget {
                   child: CustomButton(
                     text: cancelText,
                     isOutlined: true,
-                    isFullWidth: true, // Agar memenuhi lebar Expanded
+                    isFullWidth: true, 
                     color: Colors.grey,
                     onPressed: () => Navigator.pop(context),
                   ),
