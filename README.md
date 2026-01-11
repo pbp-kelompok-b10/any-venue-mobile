@@ -39,7 +39,7 @@ Platform website "**AnyVenue**" dirancang untuk memudahkan pengguna dalam mencar
       Setiap section dilengkapi dengan tombol navigasi yang akan mengarahkan pengguna langsung ke halaman fitur terkait, sehingga landing page berfungsi sebagai pusat orientasi sekaligus pintu masuk ke seluruh modul utama dalam aplikasi.
 
 3. **Venue** (Keisha Vania Laurent):
-   - `Venu` memiliki hubungan dengan modul `Review` dan `Booking`, di mana satu venue dapat memiliki banyak review dan banyak booking. Modul ini juga menyediakan halaman untuk menampilkan daftar semua venue serta halaman detail setiap venue. Selain itu, tersedia fitur CRUD yang dapat diakses oleh `Owner` untuk pengelolaan data venue.
+   - `Venue` memiliki hubungan dengan modul `Review` dan `Booking`, di mana satu venue dapat memiliki banyak review dan banyak booking. Modul ini juga menyediakan halaman untuk menampilkan daftar semua venue serta halaman detail setiap venue. Selain itu, tersedia fitur CRUD yang dapat diakses oleh `Owner` untuk pengelolaan data venue.
 
 4. **Booking** (Fakhri Husaini Romza):
    - Menampilkan halaman untuk melakukan *booking* kepada venue yang dipilih. Memiliki `User` yang bisa melakukan *booking* sebuah `Venue`, field `created_at` untuk tanggal *booking*.
